@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+/* ─── Light Mode Tokens ─── */
+:root {
+  --background: #FAFAF7;
+  --foreground: #1A1A1A;
+  --surface: #F0EBE3;
+  --surface-alt: #FFFFFF;
+  --muted: #6B6560;
+  --muted-foreground: #8A8580;
+  --border: #E0D9CF;
+  --ring: #A94310;
+  --accent: #A94310;
+  --accent-hover: #8E3710;
+  --accent-foreground: #FFFFFF;
+  --overlay: rgba(3, 9, 16, 0.65);
+}
+
+/* ─── Dark Mode Tokens ─── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #030910;
+    --foreground: #F0F3F5;
+    --surface: #0E1921;
+    --surface-alt: #172029;
+    --muted: #8B8E92;
+    --muted-foreground: #6B6E72;
+    --border: #2A3440;
+    --ring: #C4622A;
+    --accent: #C4622A;
+    --accent-hover: #D4723A;
+    --accent-foreground: #FFFFFF;
+    --overlay: rgba(3, 9, 16, 0.75);
+  }
+}
+
+/* ─── Register Tokens with Tailwind CSS 4 ─── */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-alt: var(--surface-alt);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-overlay: var(--overlay);
+  --font-sans: var(--font-plus-jakarta-sans);
+  --font-display: var(--font-playfair-display);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* ─── Base Styles ─── */
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
