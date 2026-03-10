@@ -1,3 +1,4 @@
+import type { PortableTextBlock } from "@portabletext/types";
 import type { SanityImage } from "./sanity";
 
 export interface TeamMember {
@@ -5,8 +6,7 @@ export interface TeamMember {
   name: string;
   role: string;
   image: string | SanityImage;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Portable Text blocks from Sanity; plain string for dummy data
-  bio: string | any[];
+  bio: string | PortableTextBlock[];
   phone: string;
   email: string;
 }

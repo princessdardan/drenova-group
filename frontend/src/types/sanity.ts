@@ -1,3 +1,5 @@
+import type { PortableTextBlock } from "@portabletext/types";
+
 // Type guard to check if a value is a SanityImage object (vs a plain URL string)
 export function isSanityImage(
   image: string | SanityImage
@@ -126,8 +128,7 @@ export interface AboutPage {
   _id: string;
   _type: "aboutPage";
   hero: HeroSettings;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Portable Text blocks; will be typed as PortableTextBlock[] after US-008
-  storyContent?: any[];
+  storyContent?: PortableTextBlock[];
   storyImage?: SanityImage;
 }
 
