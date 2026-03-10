@@ -1,0 +1,22 @@
+{
+  "name": "@drenova-group/backend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "sanity dev --port 3333",
+    "build": "sanity build",
+    "deploy": "sanity deploy"
+  },
+  "dependencies": {
+    "sanity": "^3.72.0",
+    "@sanity/vision": "^3.72.0",
+    "@sanity/icons": "^3.5.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "styled-components": "^6.1.15"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "typescript": "^5.7.0"
+  }
+}

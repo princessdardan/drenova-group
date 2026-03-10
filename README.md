@@ -1,36 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Drenova Group
+
+Real estate website for **Drenova Group** — a multi-state brokerage operating across the US.
+
+## Tech Stack
+
+- **Frontend:** Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS 4
+- **CMS:** Sanity Studio (v3)
+- **Deployment:** Vercel
+- **Monorepo:** npm workspaces
+
+## Prerequisites
+
+- Node.js 20+
+- npm 10+
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+# Install dependencies (all workspaces)
+npm install
+
+# Start the frontend dev server (localhost:3000)
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Start Sanity Studio (localhost:3333)
+npm run studio
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Project Structure
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+drenova-group/
+├── frontend/     # Next.js app (@drenova-group/frontend)
+├── backend/      # Sanity Studio (@drenova-group/backend)
+├── flowchart/    # Independent Vite app (not a workspace)
+├── scripts/      # Utility scripts
+└── docs/         # Business documents
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Available Scripts
 
-## Learn More
+| Command | Description |
+|---|---|
+| `npm run dev` | Start frontend dev server |
+| `npm run build` | Frontend production build |
+| `npm run start` | Start frontend production server |
+| `npm run lint` | Run ESLint (frontend) |
+| `npm run studio` | Start Sanity Studio |
 
-To learn more about Next.js, take a look at the following resources:
+## Documentation
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| File | Purpose |
+|---|---|
+| `CLAUDE.md` | Technical implementation rules |
+| `DESIGN.md` | Visual design system |
+| `prd.md` | Product requirements |
