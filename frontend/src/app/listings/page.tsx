@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { PropertyCard } from "@/components/ui/property-card";
-import { listings } from "@/lib/dummy-data";
+import { getListings } from "@/lib/sanity/fetch";
 
 export const metadata: Metadata = {
   title: "Listings",
@@ -8,7 +8,8 @@ export const metadata: Metadata = {
     "Browse all available property listings from Drenova Group. Filter by location, price, bedrooms, and more.",
 };
 
-export default function ListingsPage() {
+export default async function ListingsPage() {
+  const listings = await getListings();
   return (
     <div className="pt-20 lg:pt-24">
       {/* ─── Page Header ─── */}
