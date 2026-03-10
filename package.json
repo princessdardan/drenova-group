@@ -2,12 +2,20 @@
   "name": "drenova-group",
   "version": "0.1.0",
   "private": true,
-  "workspaces": ["frontend", "backend"],
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
   "scripts": {
     "dev": "npm -w frontend run dev",
     "build": "npm -w frontend run build",
     "start": "npm -w frontend run start",
     "lint": "npm -w frontend run lint",
-    "studio": "npm -w backend run dev"
+    "studio": "npm -w backend run dev",
+    "seed": "tsx scripts/seed-sanity.ts"
+  },
+  "devDependencies": {
+    "@sanity/client": "^7.17.0",
+    "tsx": "^4.21.0"
   }
 }
