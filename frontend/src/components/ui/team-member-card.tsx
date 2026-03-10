@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { TeamMember } from "@/types/team";
 import { isSanityImage } from "@/types/sanity";
+import { urlFor } from "@/lib/sanity/image";
 import { ButtonLink } from "@/components/ui/button";
 
 interface TeamMemberCardProps {
@@ -14,8 +15,16 @@ export function TeamMemberCard({ member }: TeamMemberCardProps) {
       <Link href={`/team/${member.slug}`} className="block">
         <div className="aspect-[3/4] relative">
           <Image
-            src={isSanityImage(member.image) ? "" : member.image}
-            alt={member.name}
+            src={
+              isSanityImage(member.image)
+                ? urlFor(member.image).width(600).height(800).fit("crop").url()
+                : member.image
+            }
+            alt={
+              isSanityImage(member.image) && member.image.alt
+                ? member.image.alt
+                : member.name
+            }
             fill
             className="object-cover transition-transform duration-300 group-hover:scale-105"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

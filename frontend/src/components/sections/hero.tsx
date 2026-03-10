@@ -1,8 +1,11 @@
 import Image from "next/image";
 import { cn } from "@/lib/cn";
+import type { SanityImage } from "@/types/sanity";
+import { isSanityImage } from "@/types/sanity";
+import { urlFor } from "@/lib/sanity/image";
 
 interface HeroProps {
-  image: string;
+  image: string | SanityImage;
   imageAlt: string;
   overline?: string;
   title: string;
@@ -28,8 +31,14 @@ export function Hero({
       )}
     >
       <Image
-        src={image}
-        alt={imageAlt}
+        src={
+          isSanityImage(image)
+            ? urlFor(image).width(1920).height(1080).fit("crop").url()
+            : image
+        }
+        alt={
+          isSanityImage(image) && image.alt ? image.alt : imageAlt
+        }
         fill
         className="object-cover"
         priority

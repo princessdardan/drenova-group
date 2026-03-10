@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Listing } from "@/types/listing";
 import { isSanityImage } from "@/types/sanity";
+import { urlFor } from "@/lib/sanity/image";
 import { formatPrice, formatNumber } from "@/lib/format";
 
 interface PropertyCardProps {
@@ -16,8 +17,16 @@ export function PropertyCard({ listing }: PropertyCardProps) {
     >
       <div className="aspect-[4/3] relative">
         <Image
-          src={isSanityImage(listing.image) ? "" : listing.image}
-          alt={`${listing.address}, ${listing.city}, ${listing.state}`}
+          src={
+            isSanityImage(listing.image)
+              ? urlFor(listing.image).width(800).height(600).fit("crop").url()
+              : listing.image
+          }
+          alt={
+            isSanityImage(listing.image) && listing.image.alt
+              ? listing.image.alt
+              : `${listing.address}, ${listing.city}, ${listing.state}`
+          }
           fill
           className="object-cover transition-transform duration-300 group-hover:scale-105"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

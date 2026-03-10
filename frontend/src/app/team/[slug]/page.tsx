@@ -3,6 +3,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ContactForm } from "@/components/sections/contact-form";
 import { isSanityImage } from "@/types/sanity";
+import { urlFor } from "@/lib/sanity/image";
 import { teamMembers } from "@/lib/dummy-data";
 
 export function generateStaticParams() {
@@ -40,8 +41,16 @@ export default async function TeamMemberPage({
         <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[600px]">
           <div className="relative min-h-[400px] lg:min-h-0">
             <Image
-              src={isSanityImage(member.image) ? "" : member.image}
-              alt={member.name}
+              src={
+                isSanityImage(member.image)
+                  ? urlFor(member.image).width(800).height(1000).fit("crop").url()
+                  : member.image
+              }
+              alt={
+                isSanityImage(member.image) && member.image.alt
+                  ? member.image.alt
+                  : member.name
+              }
               fill
               className="object-cover"
               priority
