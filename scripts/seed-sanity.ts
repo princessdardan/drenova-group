@@ -289,6 +289,362 @@ async function seedValuePropositions() {
 }
 
 // ---------------------------------------------------------------------------
+// Singleton page data
+// ---------------------------------------------------------------------------
+
+const siteSettingsData = {
+  companyName: "Drenova Group",
+  tagline: "Modern brokerage. Local expertise. Multi-state coverage.",
+  phone: "(555) 100-0000",
+  email: "info@drenovagroup.com",
+  address: "123 Main Street, Suite 200\nChicago, IL 60601",
+  socialLinks: {
+    facebook: "https://facebook.com/drenovagroup",
+    instagram: "https://instagram.com/drenovagroup",
+    linkedin: "https://linkedin.com/company/drenovagroup",
+    twitter: "https://x.com/drenovagroup",
+  },
+};
+
+const homePageData = {
+  hero: {
+    _type: "heroSettings" as const,
+    overline: "Drenova Group Real Estate",
+    title: "Your Home's Story Starts Here",
+    subtitle:
+      "Modern brokerage. Local expertise. Multi-state coverage across Illinois, Arizona, Wisconsin, Indiana, and Michigan.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1600&q=80",
+    imageAlt: "Modern luxury home with warm lighting",
+  },
+  aboutSectionTitle: "An Elevated Approach to Real Estate",
+  aboutSectionContent:
+    "At Drenova Group, we combine deep local knowledge with modern tools and a client-first philosophy. Whether you're buying your first home or selling a luxury property, our experienced team delivers personalized service and exceptional results.",
+  featuredListingIds: [
+    "listing-1",
+    "listing-2",
+    "listing-5",
+    "listing-6",
+    "listing-9",
+    "listing-10",
+  ],
+};
+
+const aboutPageData = {
+  hero: {
+    _type: "heroSettings" as const,
+    overline: "Our Story",
+    title: "About Drenova Group",
+    subtitle:
+      "A modern brokerage built on integrity, innovation, and an unwavering commitment to our clients.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=1600&q=80",
+    imageAlt: "Drenova Group office and team",
+  },
+  storyContent: [
+    {
+      _type: "block" as const,
+      _key: "story-1",
+      style: "normal" as const,
+      children: [
+        {
+          _type: "span" as const,
+          _key: "story-1-span",
+          text: "Drenova Group was founded with a simple belief: that real estate should be personal, transparent, and driven by what's best for the client. What started as a single agent with a passion for helping families find their homes has grown into a multi-state brokerage serving hundreds of clients every year.",
+          marks: [],
+        },
+      ],
+      markDefs: [],
+    },
+    {
+      _type: "block" as const,
+      _key: "story-2",
+      style: "normal" as const,
+      children: [
+        {
+          _type: "span" as const,
+          _key: "story-2-span",
+          text: "Today, our team of experienced agents operates across five states, bringing local expertise and a modern approach to every transaction. We combine data-driven market analysis with genuine care for our clients' goals — because buying or selling a home is more than a transaction, it's a life milestone.",
+          marks: [],
+        },
+      ],
+      markDefs: [],
+    },
+  ],
+  storyImageUrl:
+    "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=1200&q=80",
+  storyImageAlt: "Modern home interior",
+};
+
+const buyPageData = {
+  hero: {
+    _type: "heroSettings" as const,
+    overline: "For Buyers",
+    title: "Find Your Next Home",
+    subtitle:
+      "Let our experienced agents guide you through every step — from search to closing.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=1600&q=80",
+    imageAlt: "Beautiful home exterior with warm lighting",
+  },
+  benefits: [
+    {
+      _key: "buy-benefit-1",
+      title: "Expert Local Knowledge",
+      description:
+        "Our agents live and work in the communities they serve. You'll get insider knowledge on neighborhoods, schools, market trends, and hidden opportunities.",
+    },
+    {
+      _key: "buy-benefit-2",
+      title: "Data-Driven Search",
+      description:
+        "We leverage real-time MLS data and market analytics to identify properties that match your criteria and help you make informed decisions.",
+    },
+    {
+      _key: "buy-benefit-3",
+      title: "Full-Service Support",
+      description:
+        "From mortgage pre-approval guidance to closing coordination, we manage every detail so you can focus on finding the right home.",
+    },
+  ],
+  processSteps: [
+    {
+      _type: "processStep" as const,
+      _key: "buy-step-1",
+      stepNumber: "01",
+      title: "Search & Discover",
+      description:
+        "Browse our curated listings, set your criteria, and explore neighborhoods that match your lifestyle and budget.",
+    },
+    {
+      _type: "processStep" as const,
+      _key: "buy-step-2",
+      stepNumber: "02",
+      title: "Tour & Evaluate",
+      description:
+        "Schedule private showings with your dedicated agent. We'll provide detailed market analysis for every property you're considering.",
+    },
+    {
+      _type: "processStep" as const,
+      _key: "buy-step-3",
+      stepNumber: "03",
+      title: "Offer & Negotiate",
+      description:
+        "We craft competitive offers backed by real-time market data. Our negotiation expertise ensures you get the best possible terms.",
+    },
+    {
+      _type: "processStep" as const,
+      _key: "buy-step-4",
+      stepNumber: "04",
+      title: "Close & Celebrate",
+      description:
+        "From inspection to closing, we coordinate every detail. Our team ensures a smooth transaction so you can focus on moving in.",
+    },
+  ],
+};
+
+const sellPageData = {
+  hero: {
+    _type: "heroSettings" as const,
+    overline: "For Sellers",
+    title: "Sell with Confidence",
+    subtitle:
+      "Expert pricing, professional marketing, and skilled negotiation — we handle every detail.",
+    imageUrl:
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1600&q=80",
+    imageAlt: "Luxury home exterior at golden hour",
+  },
+  benefits: [
+    {
+      _key: "sell-benefit-1",
+      title: "Strategic Pricing",
+      description:
+        "Our data-driven Comparative Market Analysis ensures your home is priced to attract buyers while maximizing your return.",
+    },
+    {
+      _key: "sell-benefit-2",
+      title: "Professional Marketing",
+      description:
+        "From professional photography and staging to targeted digital campaigns, we showcase your home to the right audience.",
+    },
+    {
+      _key: "sell-benefit-3",
+      title: "Expert Negotiation",
+      description:
+        "Our agents are skilled negotiators who advocate fiercely for your interests, ensuring the best possible terms on every offer.",
+    },
+  ],
+  processSteps: [
+    {
+      _type: "processStep" as const,
+      _key: "sell-step-1",
+      stepNumber: "01",
+      title: "Prepare & Price",
+      description:
+        "We analyze comparable sales, assess your home's unique features, and develop a pricing strategy designed to maximize your return.",
+    },
+    {
+      _type: "processStep" as const,
+      _key: "sell-step-2",
+      stepNumber: "02",
+      title: "Stage & Style",
+      description:
+        "Our staging recommendations and professional photography showcase your home at its absolute best — first impressions matter.",
+    },
+    {
+      _type: "processStep" as const,
+      _key: "sell-step-3",
+      stepNumber: "03",
+      title: "List & Market",
+      description:
+        "Your listing reaches thousands of qualified buyers through MLS syndication, targeted digital advertising, and our professional network.",
+    },
+    {
+      _type: "processStep" as const,
+      _key: "sell-step-4",
+      stepNumber: "04",
+      title: "Negotiate & Accept",
+      description:
+        "We evaluate every offer with you, negotiate favorable terms, and guide you through counteroffers with confidence and clarity.",
+    },
+    {
+      _type: "processStep" as const,
+      _key: "sell-step-5",
+      stepNumber: "05",
+      title: "Close & Move On",
+      description:
+        "We manage inspections, appraisals, and paperwork through closing. Our goal is a seamless handoff so you can move forward with ease.",
+    },
+  ],
+};
+
+// ---------------------------------------------------------------------------
+// Singleton seed functions
+// ---------------------------------------------------------------------------
+
+async function seedSiteSettings() {
+  console.log("⚙️  Seeding siteSettings...");
+  await client.createOrReplace({
+    _id: "siteSettings",
+    _type: "siteSettings",
+    companyName: siteSettingsData.companyName,
+    tagline: siteSettingsData.tagline,
+    phone: siteSettingsData.phone,
+    email: siteSettingsData.email,
+    address: siteSettingsData.address,
+    socialLinks: siteSettingsData.socialLinks,
+  });
+  console.log("  ✓ siteSettings");
+}
+
+async function seedHomePage() {
+  console.log("🏠 Seeding homePage...");
+  const heroImage = await uploadImageFromUrl(
+    homePageData.hero.imageUrl,
+    "home-hero.jpg"
+  );
+  heroImage.alt = homePageData.hero.imageAlt;
+
+  await client.createOrReplace({
+    _id: "homePage",
+    _type: "homePage",
+    hero: {
+      _type: "heroSettings",
+      image: heroImage,
+      overline: homePageData.hero.overline,
+      title: homePageData.hero.title,
+      subtitle: homePageData.hero.subtitle,
+    },
+    featuredListings: homePageData.featuredListingIds.map((id) => ({
+      _type: "reference",
+      _ref: id,
+      _key: id,
+    })),
+    aboutSectionTitle: homePageData.aboutSectionTitle,
+    aboutSectionContent: homePageData.aboutSectionContent,
+  });
+  console.log("  ✓ homePage");
+}
+
+async function seedAboutPage() {
+  console.log("📖 Seeding aboutPage...");
+  const heroImage = await uploadImageFromUrl(
+    aboutPageData.hero.imageUrl,
+    "about-hero.jpg"
+  );
+  heroImage.alt = aboutPageData.hero.imageAlt;
+
+  const storyImage = await uploadImageFromUrl(
+    aboutPageData.storyImageUrl,
+    "about-story.jpg"
+  );
+  storyImage.alt = aboutPageData.storyImageAlt;
+
+  await client.createOrReplace({
+    _id: "aboutPage",
+    _type: "aboutPage",
+    hero: {
+      _type: "heroSettings",
+      image: heroImage,
+      overline: aboutPageData.hero.overline,
+      title: aboutPageData.hero.title,
+      subtitle: aboutPageData.hero.subtitle,
+    },
+    storyContent: aboutPageData.storyContent,
+    storyImage: storyImage,
+  });
+  console.log("  ✓ aboutPage");
+}
+
+async function seedBuyPage() {
+  console.log("🛒 Seeding buyPage...");
+  const heroImage = await uploadImageFromUrl(
+    buyPageData.hero.imageUrl,
+    "buy-hero.jpg"
+  );
+  heroImage.alt = buyPageData.hero.imageAlt;
+
+  await client.createOrReplace({
+    _id: "buyPage",
+    _type: "buyPage",
+    hero: {
+      _type: "heroSettings",
+      image: heroImage,
+      overline: buyPageData.hero.overline,
+      title: buyPageData.hero.title,
+      subtitle: buyPageData.hero.subtitle,
+    },
+    benefits: buyPageData.benefits,
+    processSteps: buyPageData.processSteps,
+  });
+  console.log("  ✓ buyPage");
+}
+
+async function seedSellPage() {
+  console.log("💰 Seeding sellPage...");
+  const heroImage = await uploadImageFromUrl(
+    sellPageData.hero.imageUrl,
+    "sell-hero.jpg"
+  );
+  heroImage.alt = sellPageData.hero.imageAlt;
+
+  await client.createOrReplace({
+    _id: "sellPage",
+    _type: "sellPage",
+    hero: {
+      _type: "heroSettings",
+      image: heroImage,
+      overline: sellPageData.hero.overline,
+      title: sellPageData.hero.title,
+      subtitle: sellPageData.hero.subtitle,
+    },
+    benefits: sellPageData.benefits,
+    processSteps: sellPageData.processSteps,
+  });
+  console.log("  ✓ sellPage");
+}
+
+// ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
 
@@ -309,9 +665,15 @@ async function main() {
   await seedCompanyStats();
   await seedCompanyValues();
   await seedValuePropositions();
+  await seedSiteSettings();
+  await seedHomePage();
+  await seedAboutPage();
+  await seedBuyPage();
+  await seedSellPage();
 
-  console.log("\n✅ Document-type seed complete!");
-  console.log("   Created: 12 listings, 5 team members, 5 testimonials, 10 FAQs, 5 coverage areas, 4 company stats, 4 company values, 3 value propositions");
+  console.log("\n✅ Seed complete!");
+  console.log("   Documents: 12 listings, 5 team members, 5 testimonials, 10 FAQs, 5 coverage areas, 4 stats, 4 values, 3 value propositions");
+  console.log("   Singletons: siteSettings, homePage, aboutPage, buyPage, sellPage");
 }
 
 main().catch((err) => {
