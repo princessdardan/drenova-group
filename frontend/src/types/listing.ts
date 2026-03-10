@@ -1,3 +1,5 @@
+import type { SanityImage } from "./sanity";
+
 export interface Listing {
   id: string;
   slug: string;
@@ -9,7 +11,7 @@ export interface Listing {
   beds: number;
   baths: number;
   sqft: number;
-  image: string;
+  image: string | SanityImage;
   status: "Active" | "Pending" | "Sold";
   propertyType: "Single Family" | "Condo" | "Townhouse" | "Multi-Family" | "Land";
 }

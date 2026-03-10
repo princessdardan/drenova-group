@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { TeamMember } from "@/types/team";
+import { isSanityImage } from "@/types/sanity";
 import { ButtonLink } from "@/components/ui/button";
 
 interface TeamMemberCardProps {
@@ -13,7 +14,7 @@ export function TeamMemberCard({ member }: TeamMemberCardProps) {
       <Link href={`/team/${member.slug}`} className="block">
         <div className="aspect-[3/4] relative">
           <Image
-            src={member.image}
+            src={isSanityImage(member.image) ? "" : member.image}
             alt={member.name}
             fill
             className="object-cover transition-transform duration-300 group-hover:scale-105"

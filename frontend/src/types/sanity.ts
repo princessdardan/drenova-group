@@ -1,3 +1,10 @@
+// Type guard to check if a value is a SanityImage object (vs a plain URL string)
+export function isSanityImage(
+  image: string | SanityImage
+): image is SanityImage {
+  return typeof image === "object" && image !== null && "_type" in image;
+}
+
 // Sanity image reference with optional metadata
 export interface SanityImage {
   _type: "image";

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ContactForm } from "@/components/sections/contact-form";
+import { isSanityImage } from "@/types/sanity";
 import { teamMembers } from "@/lib/dummy-data";
 
 export function generateStaticParams() {
@@ -18,7 +19,7 @@ export async function generateMetadata({
   if (!member) return {};
   return {
     title: member.name,
-    description: `${member.name} — ${member.role} at Drenova Group. ${member.bio.slice(0, 140)}...`,
+    description: `${member.name} — ${member.role} at Drenova Group. ${typeof member.bio === "string" ? member.bio.slice(0, 140) : ""}...`,
   };
 }
 
@@ -39,7 +40,7 @@ export default async function TeamMemberPage({
         <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[600px]">
           <div className="relative min-h-[400px] lg:min-h-0">
             <Image
-              src={member.image}
+              src={isSanityImage(member.image) ? "" : member.image}
               alt={member.name}
               fill
               className="object-cover"
@@ -54,7 +55,11 @@ export default async function TeamMemberPage({
             <h1 className="font-display text-3xl lg:text-5xl font-bold tracking-tight mb-6">
               {member.name}
             </h1>
-            <p className="text-muted leading-7 mb-8">{member.bio}</p>
+            {typeof member.bio === "string" ? (
+              <p className="text-muted leading-7 mb-8">{member.bio}</p>
+            ) : (
+              <div className="text-muted leading-7 mb-8">{/* Portable Text renderer (US-008) */}</div>
+            )}
             <div className="space-y-2 text-sm">
               <p>
                 <span className="font-medium">Phone:</span>{" "}

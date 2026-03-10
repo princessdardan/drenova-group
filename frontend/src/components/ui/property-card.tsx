@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Listing } from "@/types/listing";
+import { isSanityImage } from "@/types/sanity";
 import { formatPrice, formatNumber } from "@/lib/format";
 
 interface PropertyCardProps {
@@ -15,7 +16,7 @@ export function PropertyCard({ listing }: PropertyCardProps) {
     >
       <div className="aspect-[4/3] relative">
         <Image
-          src={listing.image}
+          src={isSanityImage(listing.image) ? "" : listing.image}
           alt={`${listing.address}, ${listing.city}, ${listing.state}`}
           fill
           className="object-cover transition-transform duration-300 group-hover:scale-105"
