@@ -338,7 +338,7 @@
         "Typecheck passes"
       ],
       "priority": 20,
-      "passes": false,
+      "passes": true,
       "notes": "Sanity webhooks send a POST with a JSON body containing _type and _id of the changed document. Map _type to the corresponding revalidation tag. The .env.example serves as documentation for required environment variables."
     },
     {
@@ -354,7 +354,7 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 21,
-      "passes": false,
+      "passes": true,
       "notes": "This is the final cleanup story. Run npm run build to confirm no broken imports. Check all 7 content-driven pages in the browser: /, /about, /buy, /sell, /listings, /team, /team/[slug]. The /contact, /privacy, and /terms pages should be unaffected."
     }
   ]

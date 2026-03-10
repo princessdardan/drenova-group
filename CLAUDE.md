@@ -53,7 +53,11 @@ drenova-group/
 │   │   ├── lib/
 │   │   │   ├── cn.ts
 │   │   │   ├── format.ts
-│   │   │   └── dummy-data.ts
+│   │   │   └── sanity/
+│   │   │       ├── client.ts
+│   │   │       ├── image.ts
+│   │   │       ├── queries.ts
+│   │   │       └── fetch.ts
 │   │   └── types/
 │   └── public/
 └── backend/
@@ -143,7 +147,10 @@ Read the source files in `frontend/src/components/` for current component APIs a
 
 - **`cn()`** — `@/lib/cn` — Filters falsy values, joins class names with space
 - **`formatPrice()`** / **`formatNumber()`** — `@/lib/format` — Currency and number formatting
-- **Dummy data** — `@/lib/dummy-data` — Exports: `listings`, `teamMembers`, `testimonials`, `companyStats`, `valuePropositions`, `buyingSteps`, `sellingSteps`, `buyerFaqs`, `sellerFaqs`, `coverageAreas`, `companyValues`
+- **Sanity client** — `@/lib/sanity/client` — Configured Sanity client and preview client
+- **Sanity image** — `@/lib/sanity/image` — `urlFor()` helper for Sanity image pipeline
+- **Sanity queries** — `@/lib/sanity/queries` — GROQ query constants for all document types
+- **Sanity fetch** — `@/lib/sanity/fetch` — Typed async fetch functions with ISR cache tags
 
 Types are defined in `frontend/src/types/` (`listing.ts`, `team.ts`, `testimonial.ts`).
 
@@ -217,10 +224,12 @@ Target a specific workspace: `npm -w frontend run dev` / `npm -w backend run <sc
 | Design tokens | Full light/dark mode in `globals.css` |
 | Font loading | 3 fonts via `next/font/google` |
 | 8 UI + 6 section components | See `frontend/src/components/` |
-| Types, utilities, mock data | See `frontend/src/types/` and `frontend/src/lib/` |
+| Types, utilities, Sanity lib | See `frontend/src/types/` and `frontend/src/lib/sanity/` |
 | SEO metadata | Title template + per-page metadata |
 | Responsive design | Mobile-first across all pages |
 | Sanity Studio | `backend/` workspace, 16 schema types (3 objects, 8 documents, 5 singletons) |
+| Sanity frontend integration | `next-sanity`, `@sanity/image-url`, `@portabletext/react`, typed fetch functions, ISR + webhook revalidation, draft mode preview |
+| Seed script | `scripts/seed-sanity.ts` — seeds all documents and singletons into Sanity (`npm run seed`) |
 
 ### Not Built Yet
 
@@ -229,7 +238,6 @@ Target a specific workspace: `npm -w frontend run dev` / `npm -w backend run <sc
 | API routes, form submission (server-side) | 2 |
 | MLS/IDX integration, property detail pages (`/listings/[slug]`), search/filter state | 2 |
 | Mapbox interactive map | 2 |
-| Frontend Sanity integration (`next-sanity`, `@sanity/image-url`) | 2 |
 | Email service (Resend/SendGrid) | 2 |
 | Three.js hero animation | 1 |
 | Custom brand assets (logo, favicon, OG images) | 1 |
