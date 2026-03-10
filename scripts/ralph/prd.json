@@ -16,8 +16,8 @@
         "Typecheck passes"
       ],
       "priority": 1,
-      "passes": false,
-      "notes": "This is the foundation — every other story depends on this. Project ID: apggi8zn, dataset: production. The .env.local goes in frontend/ directory since that's the Next.js app."
+      "passes": true,
+      "notes": "This is the foundation \u2014 every other story depends on this. Project ID: apggi8zn, dataset: production. The .env.local goes in frontend/ directory since that's the Next.js app."
     },
     {
       "id": "US-002",
@@ -31,7 +31,7 @@
         "Typecheck passes"
       ],
       "priority": 2,
-      "passes": false,
+      "passes": true,
       "notes": "Create all new types in a single frontend/src/types/sanity.ts file. Import PortableTextBlock from @portabletext/types (installed with @portabletext/react later, use 'any[]' placeholder for now if needed)."
     },
     {
@@ -39,14 +39,14 @@
       "title": "Update existing TypeScript types for Sanity data shapes",
       "description": "As a developer, I need the existing Listing, TeamMember, and Testimonial types updated to accommodate Sanity's data format.",
       "acceptanceCriteria": [
-        "frontend/src/types/listing.ts — image field type updated to accept SanityImage from sanity.ts; slug field type is string (GROQ projection will extract slug.current as string)",
-        "frontend/src/types/team.ts — bio field type updated from string to any[] (Portable Text blocks); image field updated to accept SanityImage; slug field is string",
-        "frontend/src/types/testimonial.ts — no breaking changes needed (quote, name, detail are all plain strings)",
+        "frontend/src/types/listing.ts \u2014 image field type updated to accept SanityImage from sanity.ts; slug field type is string (GROQ projection will extract slug.current as string)",
+        "frontend/src/types/team.ts \u2014 bio field type updated from string to any[] (Portable Text blocks); image field updated to accept SanityImage; slug field is string",
+        "frontend/src/types/testimonial.ts \u2014 no breaking changes needed (quote, name, detail are all plain strings)",
         "All existing components that use these types still typecheck (PropertyCard, TeamMemberCard, etc.)",
         "Typecheck passes"
       ],
       "priority": 3,
-      "passes": false,
+      "passes": true,
       "notes": "The GROQ projections (built in US-004) will extract slug.current as a plain string, so the slug field stays as string type. Image fields need to accept the SanityImage type from sanity.ts. Components may need minor updates to handle the new image type."
     },
     {
@@ -61,7 +61,7 @@
         "Typecheck passes"
       ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "notes": "Keep projections aligned with existing TypeScript types. For images, project the full image object (not just the URL) so urlFor() can apply hotspot/crop. Use parameterized queries where needed (e.g., $slug, $category)."
     },
     {
@@ -77,8 +77,8 @@
         "Typecheck passes"
       ],
       "priority": 5,
-      "passes": false,
-      "notes": "These are added to the same queries.ts file created in US-004. The homePage featuredListings field contains references to listing documents — dereference them with featuredListings[]->{...projection}."
+      "passes": true,
+      "notes": "These are added to the same queries.ts file created in US-004. The homePage featuredListings field contains references to listing documents \u2014 dereference them with featuredListings[]->{...projection}."
     },
     {
       "id": "US-006",
@@ -93,7 +93,7 @@
         "Typecheck passes"
       ],
       "priority": 6,
-      "passes": false,
+      "passes": true,
       "notes": "Use next-sanity's sanityFetch() if available, or the client.fetch() with Next.js fetch options { next: { tags: ['tag'], revalidate: 3600 } }. Each function should tag its cache entry for webhook-based revalidation (e.g., tag 'listing' for listing queries)."
     },
     {
@@ -110,7 +110,7 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 7,
-      "passes": false,
+      "passes": true,
       "notes": "Import urlFor from frontend/src/lib/sanity/image.ts. The SanityImage type has optional alt, hotspot, and crop fields. Components should handle both SanityImage objects and potentially undefined images gracefully."
     },
     {
@@ -127,7 +127,7 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 8,
-      "passes": false,
+      "passes": true,
       "notes": "This component will be used in /team/[slug] for bio rendering and /about for story content. Style the custom block components to match the existing typography system defined in DESIGN.md and globals.css."
     },
     {
@@ -139,13 +139,13 @@
         "Script creates: 12 listings, 5 team members, 5 testimonials, 10 FAQs (5 buyer + 5 seller), 5 coverage areas, 4 company stats, 4 company values, 3 value propositions",
         "Images are downloaded from Unsplash URLs and uploaded to Sanity's asset pipeline using client.assets.upload()",
         "Plain text bios are converted to Portable Text block structure: [{ _type: 'block', style: 'normal', children: [{ _type: 'span', text: '...' }], markDefs: [] }]",
-        "Script uses deterministic _id values (e.g., 'listing-1', 'team-semir-drenova') so it is idempotent — running multiple times does not create duplicates",
+        "Script uses deterministic _id values (e.g., 'listing-1', 'team-semir-drenova') so it is idempotent \u2014 running multiple times does not create duplicates",
         "All documents are published using createOrReplace (not createIfNotExists which leaves drafts)",
         "Script can be run via npm run seed from the project root (add script to root package.json)",
         "Typecheck passes"
       ],
       "priority": 9,
-      "passes": false,
+      "passes": true,
       "notes": "Install @sanity/client and tsx as devDependencies at root. Use the data from frontend/src/lib/dummy-data.ts as the source. The seed script should import or duplicate the data arrays. Use createOrReplace to ensure idempotency. ProjectId: apggi8zn, dataset: production."
     },
     {
@@ -164,7 +164,7 @@
         "Typecheck passes"
       ],
       "priority": 10,
-      "passes": false,
+      "passes": true,
       "notes": "Add to the same scripts/seed-sanity.ts file. Singletons use fixed IDs. The featuredListings field on homePage should reference listing document IDs created in US-009 (e.g., { _type: 'reference', _ref: 'listing-1' }). Read the current hardcoded page files (buy/page.tsx, sell/page.tsx, about/page.tsx, page.tsx) to extract the exact hero text and benefit content."
     },
     {
@@ -183,7 +183,7 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 11,
-      "passes": false,
+      "passes": true,
       "notes": "Replace dummy-data imports with async fetch calls from frontend/src/lib/sanity/fetch.ts. The page is a Server Component so async/await works directly. Use the urlFor() helper for all images."
     },
     {
@@ -201,7 +201,7 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 12,
-      "passes": false,
+      "passes": true,
       "notes": "The about page uses PortableTextRenderer (from US-008) for storyContent. Import it from @/components/ui/portable-text."
     },
     {
@@ -219,8 +219,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 13,
-      "passes": false,
-      "notes": "The buy page currently has hardcoded buyerBenefits const — replace with buyPage.benefits from Sanity. Coverage areas are shared with the about page (same getCoverageAreas() call)."
+      "passes": true,
+      "notes": "The buy page currently has hardcoded buyerBenefits const \u2014 replace with buyPage.benefits from Sanity. Coverage areas are shared with the about page (same getCoverageAreas() call)."
     },
     {
       "id": "US-014",
@@ -237,7 +237,7 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 14,
-      "passes": false,
+      "passes": true,
       "notes": "The sell page currently filters testimonials for those containing 'Sold' in the detail field. Either do this filtering in the GROQ query or client-side after fetching."
     },
     {
@@ -248,14 +248,14 @@
         "All listings are fetched from Sanity via getListings()",
         "Listing count display reflects actual Sanity document count",
         "PropertyCard renders Sanity image via urlFor() with proper dimensions",
-        "Filter UI dropdowns remain in place (non-functional — state management is Phase 2)",
+        "Filter UI dropdowns remain in place (non-functional \u2014 state management is Phase 2)",
         "No imports from @/lib/dummy-data remain on this page",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
       "priority": 15,
-      "passes": false,
-      "notes": "Simple page — just replace the listings import with getListings() async call."
+      "passes": true,
+      "notes": "Simple page \u2014 just replace the listings import with getListings() async call."
     },
     {
       "id": "US-016",
@@ -269,8 +269,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 16,
-      "passes": false,
-      "notes": "Simple page — replace teamMembers import with getTeamMembers() async call."
+      "passes": true,
+      "notes": "Simple page \u2014 replace teamMembers import with getTeamMembers() async call."
     },
     {
       "id": "US-017",
@@ -288,8 +288,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 17,
-      "passes": false,
-      "notes": "The bio field is blockContent (Portable Text) in Sanity. Use the PortableTextRenderer from US-008. The current page renders bio as plain text — now it becomes rich text."
+      "passes": true,
+      "notes": "The bio field is blockContent (Portable Text) in Sanity. Use the PortableTextRenderer from US-008. The current page renders bio as plain text \u2014 now it becomes rich text."
     },
     {
       "id": "US-018",
@@ -298,13 +298,13 @@
       "acceptanceCriteria": [
         "Footer component fetches siteSettings via getSiteSettings()",
         "Footer displays companyName, phone, email, and address from siteSettings",
-        "Social links (facebook, instagram, linkedin, twitter) are conditionally rendered — only shown if URL is set in Sanity",
+        "Social links (facebook, instagram, linkedin, twitter) are conditionally rendered \u2014 only shown if URL is set in Sanity",
         "Header navigation links remain hardcoded (route structure is code-defined)",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
       "priority": 18,
-      "passes": false,
+      "passes": true,
       "notes": "The footer is currently a Server Component with hardcoded data. Make it async and fetch siteSettings. If it needs to become a client component for any reason, fetch in layout.tsx and pass as props instead."
     },
     {
@@ -321,7 +321,7 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 19,
-      "passes": false,
+      "passes": true,
       "notes": "Use Next.js draftMode() API. The enable route should check for a secret query param (SANITY_PREVIEW_SECRET env var). Update the sanityFetch wrapper in fetch.ts to check draftMode().isEnabled and switch between CDN/authenticated clients. The draft banner can be a simple fixed-position div in layout.tsx."
     },
     {

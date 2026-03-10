@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { draftMode } from "next/headers";
 import { Playfair_Display, Plus_Jakarta_Sans, Geist_Mono } from "next/font/google";
 import { Header } from "@/components/sections/header";
 import { Footer } from "@/components/sections/footer";
+import { DraftBanner } from "@/components/ui/draft-banner";
 import "./globals.css";
 
 const playfairDisplay = Playfair_Display({
@@ -34,11 +36,13 @@ export const metadata: Metadata = {
     "Drenova Group is a modern real estate brokerage serving buyers and sellers across Illinois, Arizona, Wisconsin, Indiana, and Michigan.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { isEnabled: isDraftMode } = await draftMode();
+
   return (
     <html lang="en" style={{ colorScheme: "light" }}>
       <head>
@@ -48,6 +52,7 @@ export default function RootLayout({
       <body
         className={`${playfairDisplay.variable} ${plusJakartaSans.variable} ${geistMono.variable} font-sans antialiased`}
       >
+        {isDraftMode && <DraftBanner />}
         <Header />
         <main>{children}</main>
         <Footer />

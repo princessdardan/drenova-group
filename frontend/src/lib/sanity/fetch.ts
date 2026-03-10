@@ -1,4 +1,5 @@
-import { client } from "./client";
+import { draftMode } from "next/headers";
+import { client, previewClient } from "./client";
 import {
   allListingsQuery,
   activeListingsQuery,
@@ -35,11 +36,23 @@ import type {
 
 const DEFAULT_REVALIDATE = 3600;
 
-function sanityFetch<T>(
+async function sanityFetch<T>(
   query: string,
   tags: string[],
   params?: Record<string, string>
 ): Promise<T> {
+  let isDraftMode = false;
+  try {
+    const draft = await draftMode();
+    isDraftMode = draft.isEnabled;
+  } catch {
+    // draftMode() throws outside request scope (e.g. generateStaticParams)
+  }
+
+  if (isDraftMode) {
+    return previewClient.fetch<T>(query, params ?? {});
+  }
+
   return client.fetch<T>(query, params ?? {}, {
     next: { tags, revalidate: DEFAULT_REVALIDATE },
   });
