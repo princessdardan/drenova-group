@@ -3,7 +3,7 @@ import { Hero } from "@/components/sections/hero";
 import { TeamMemberCard } from "@/components/ui/team-member-card";
 import { CtaSection } from "@/components/sections/cta-section";
 import { ButtonLink } from "@/components/ui/button";
-import { teamMembers } from "@/lib/dummy-data";
+import { getTeamMembers } from "@/lib/sanity/fetch";
 
 export const metadata: Metadata = {
   title: "Our Team",
@@ -11,7 +11,9 @@ export const metadata: Metadata = {
     "Meet the experienced agents and advisors of Drenova Group. Our team brings local expertise and a client-first approach to every transaction.",
 };
 
-export default function TeamPage() {
+export default async function TeamPage() {
+  const teamMembers = await getTeamMembers();
+
   return (
     <>
       {/* ─── Hero ─── */}
