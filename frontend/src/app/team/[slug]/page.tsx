@@ -4,10 +4,12 @@ import { notFound } from "next/navigation";
 import { ContactForm } from "@/components/sections/contact-form";
 import { isSanityImage } from "@/types/sanity";
 import { urlFor } from "@/lib/sanity/image";
-import { teamMembers } from "@/lib/dummy-data";
+import { getTeamMembers, getTeamMemberBySlug } from "@/lib/sanity/fetch";
+import { PortableTextRenderer } from "@/components/ui/portable-text";
 
-export function generateStaticParams() {
-  return teamMembers.map((member) => ({ slug: member.slug }));
+export async function generateStaticParams() {
+  const members = await getTeamMembers();
+  return members.map((member) => ({ slug: member.slug }));
 }
 
 export async function generateMetadata({
@@ -16,11 +18,11 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const member = teamMembers.find((m) => m.slug === slug);
+  const member = await getTeamMemberBySlug(slug);
   if (!member) return {};
   return {
     title: member.name,
-    description: `${member.name} — ${member.role} at Drenova Group. ${typeof member.bio === "string" ? member.bio.slice(0, 140) : ""}...`,
+    description: `${member.name} — ${member.role} at Drenova Group.`,
   };
 }
 
@@ -30,7 +32,7 @@ export default async function TeamMemberPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const member = teamMembers.find((m) => m.slug === slug);
+  const member = await getTeamMemberBySlug(slug);
 
   if (!member) notFound();
 
@@ -67,7 +69,9 @@ export default async function TeamMemberPage({
             {typeof member.bio === "string" ? (
               <p className="text-muted leading-7 mb-8">{member.bio}</p>
             ) : (
-              <div className="text-muted leading-7 mb-8">{/* Portable Text renderer (US-008) */}</div>
+              <div className="text-muted leading-7 mb-8">
+                <PortableTextRenderer value={member.bio} />
+              </div>
             )}
             <div className="space-y-2 text-sm">
               <p>
