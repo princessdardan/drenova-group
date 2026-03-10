@@ -86,3 +86,69 @@ export const allValuePropositionsQuery = groq`*[_type == "valueProposition"] | o
   description,
   order
 }`;
+
+// ─── Singleton queries ───────────────────────────────────────────────
+
+export const siteSettingsQuery = groq`*[_type == "siteSettings"][0] {
+  _id,
+  _type,
+  companyName,
+  tagline,
+  phone,
+  email,
+  address,
+  socialLinks
+}`;
+
+export const homePageQuery = groq`*[_type == "homePage"][0] {
+  _id,
+  _type,
+  hero,
+  featuredListings[]->${listingProjection},
+  aboutSectionTitle,
+  aboutSectionContent
+}`;
+
+export const aboutPageQuery = groq`*[_type == "aboutPage"][0] {
+  _id,
+  _type,
+  hero,
+  storyContent,
+  storyImage
+}`;
+
+export const buyPageQuery = groq`*[_type == "buyPage"][0] {
+  _id,
+  _type,
+  hero,
+  benefits[] {
+    _key,
+    title,
+    description
+  },
+  processSteps[] {
+    _key,
+    _type,
+    stepNumber,
+    title,
+    description
+  }
+}`;
+
+export const sellPageQuery = groq`*[_type == "sellPage"][0] {
+  _id,
+  _type,
+  hero,
+  benefits[] {
+    _key,
+    title,
+    description
+  },
+  processSteps[] {
+    _key,
+    _type,
+    stepNumber,
+    title,
+    description
+  }
+}`;
