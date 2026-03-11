@@ -19,6 +19,16 @@ export const aboutPage = defineType({
       type: "blockContent",
     }),
     defineField({
+      name: "storyOverline",
+      title: "Story Section Overline",
+      type: "string",
+    }),
+    defineField({
+      name: "storyTitle",
+      title: "Story Section Title",
+      type: "string",
+    }),
+    defineField({
       name: "storyImage",
       title: "Story Image",
       type: "image",
@@ -30,6 +40,21 @@ export const aboutPage = defineType({
           title: "Alt Text",
         },
       ],
+    }),
+    defineField({
+      name: "valuesHeading",
+      title: "Values Section Heading",
+      type: "sectionHeading",
+    }),
+    defineField({
+      name: "coverageHeading",
+      title: "Coverage Section Heading",
+      type: "sectionHeading",
+    }),
+    defineField({
+      name: "cta",
+      title: "CTA Section",
+      type: "ctaSettings",
     }),
   ],
   preview: {

@@ -2,10 +2,14 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ContactForm } from "@/components/sections/contact-form";
-import { teamMembers } from "@/lib/dummy-data";
+import { isSanityImage } from "@/types/sanity";
+import { urlFor } from "@/lib/sanity/image";
+import { getTeamMembers, getTeamMemberBySlug } from "@/lib/sanity/fetch";
+import { PortableTextRenderer } from "@/components/ui/portable-text";
 
-export function generateStaticParams() {
-  return teamMembers.map((member) => ({ slug: member.slug }));
+export async function generateStaticParams() {
+  const members = await getTeamMembers();
+  return members.map((member) => ({ slug: member.slug }));
 }
 
 export async function generateMetadata({
@@ -14,11 +18,11 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const member = teamMembers.find((m) => m.slug === slug);
+  const member = await getTeamMemberBySlug(slug);
   if (!member) return {};
   return {
     title: member.name,
-    description: `${member.name} — ${member.role} at Drenova Group. ${member.bio.slice(0, 140)}...`,
+    description: `${member.name} — ${member.role} at Drenova Group.`,
   };
 }
 
@@ -28,7 +32,7 @@ export default async function TeamMemberPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const member = teamMembers.find((m) => m.slug === slug);
+  const member = await getTeamMemberBySlug(slug);
 
   if (!member) notFound();
 
@@ -39,8 +43,16 @@ export default async function TeamMemberPage({
         <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[600px]">
           <div className="relative min-h-[400px] lg:min-h-0">
             <Image
-              src={member.image}
-              alt={member.name}
+              src={
+                isSanityImage(member.image)
+                  ? urlFor(member.image).width(800).height(1000).fit("crop").url()
+                  : member.image
+              }
+              alt={
+                isSanityImage(member.image) && member.image.alt
+                  ? member.image.alt
+                  : member.name
+              }
               fill
               className="object-cover"
               priority
@@ -54,7 +66,13 @@ export default async function TeamMemberPage({
             <h1 className="font-display text-3xl lg:text-5xl font-bold tracking-tight mb-6">
               {member.name}
             </h1>
-            <p className="text-muted leading-7 mb-8">{member.bio}</p>
+            {typeof member.bio === "string" ? (
+              <p className="text-muted leading-7 mb-8">{member.bio}</p>
+            ) : (
+              <div className="text-muted leading-7 mb-8">
+                <PortableTextRenderer value={member.bio} />
+              </div>
+            )}
             <div className="space-y-2 text-sm">
               <p>
                 <span className="font-medium">Phone:</span>{" "}

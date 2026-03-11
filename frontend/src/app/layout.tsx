@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
+import { draftMode } from "next/headers";
 import { Playfair_Display, Plus_Jakarta_Sans, Geist_Mono } from "next/font/google";
 import { Header } from "@/components/sections/header";
 import { Footer } from "@/components/sections/footer";
+import { DraftBanner } from "@/components/ui/draft-banner";
+import { getSiteSettings } from "@/lib/sanity/fetch";
 import "./globals.css";
 
 const playfairDisplay = Playfair_Display({
@@ -34,11 +37,24 @@ export const metadata: Metadata = {
     "Drenova Group is a modern real estate brokerage serving buyers and sellers across Illinois, Arizona, Wisconsin, Indiana, and Michigan.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const [{ isEnabled: isDraftMode }, siteSettings] = await Promise.all([
+    draftMode(),
+    getSiteSettings(),
+  ]);
+
+  const navigationLinks = siteSettings?.navigationLinks;
+  const headerLinks = navigationLinks
+    ?.filter((link) => link.showInHeader !== false)
+    .map(({ label, href }) => ({ label, href }));
+  const footerLinks = navigationLinks
+    ?.filter((link) => link.showInFooter !== false)
+    .map(({ label, href }) => ({ label, href }));
+
   return (
     <html lang="en" style={{ colorScheme: "light" }}>
       <head>
@@ -48,9 +64,17 @@ export default function RootLayout({
       <body
         className={`${playfairDisplay.variable} ${plusJakartaSans.variable} ${geistMono.variable} font-sans antialiased`}
       >
-        <Header />
+        {isDraftMode && <DraftBanner />}
+        <Header
+          navigationLinks={headerLinks}
+          phone={siteSettings?.phone}
+          email={siteSettings?.email}
+        />
         <main>{children}</main>
-        <Footer />
+        <Footer
+          navigationLinks={footerLinks}
+          officeHours={siteSettings?.officeHours}
+        />
       </body>
     </html>
   );

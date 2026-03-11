@@ -4,15 +4,26 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { MobileMenu } from "@/components/sections/mobile-menu";
 
-const desktopLinks = [
+const defaultDesktopLinks = [
   { href: "/buy", label: "Buy" },
   { href: "/sell", label: "Sell" },
   { href: "/listings", label: "Listings" },
 ];
 
-export function Header() {
+interface HeaderProps {
+  navigationLinks?: { label: string; href: string }[];
+  phone?: string;
+  email?: string;
+}
+
+export function Header({ navigationLinks, phone, email }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+
+  // Desktop header shows a subset of links (first 3 by default)
+  const desktopLinks = navigationLinks
+    ? navigationLinks.slice(0, 3)
+    : defaultDesktopLinks;
 
   useEffect(() => {
     function handleScroll() {
@@ -66,7 +77,13 @@ export function Header() {
         </div>
       </header>
 
-      <MobileMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
+      <MobileMenu
+        isOpen={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        navigationLinks={navigationLinks}
+        phone={phone}
+        email={email}
+      />
     </>
   );
 }

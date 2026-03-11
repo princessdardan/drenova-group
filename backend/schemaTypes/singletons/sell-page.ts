@@ -42,10 +42,40 @@ export const sellPage = defineType({
       ],
     }),
     defineField({
+      name: "benefitsHeading",
+      title: "Benefits Section Heading",
+      type: "sectionHeading",
+    }),
+    defineField({
       name: "processSteps",
       title: "Selling Process Steps",
       type: "array",
       of: [defineArrayMember({ type: "processStep" })],
+    }),
+    defineField({
+      name: "processHeading",
+      title: "Process Section Heading",
+      type: "sectionHeading",
+    }),
+    defineField({
+      name: "valuation",
+      title: "Valuation Section",
+      type: "valuationSection",
+    }),
+    defineField({
+      name: "storiesHeading",
+      title: "Success Stories Heading",
+      type: "sectionHeading",
+    }),
+    defineField({
+      name: "faqHeading",
+      title: "FAQ Section Heading",
+      type: "sectionHeading",
+    }),
+    defineField({
+      name: "cta",
+      title: "CTA Section",
+      type: "ctaSettings",
     }),
   ],
   preview: {

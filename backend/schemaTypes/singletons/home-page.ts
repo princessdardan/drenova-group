@@ -26,6 +26,16 @@ export const homePage = defineType({
       validation: (rule) => rule.max(6),
     }),
     defineField({
+      name: "featuredListingsHeading",
+      title: "Featured Listings Heading",
+      type: "sectionHeading",
+    }),
+    defineField({
+      name: "aboutSectionOverline",
+      title: "About Section Overline",
+      type: "string",
+    }),
+    defineField({
       name: "aboutSectionTitle",
       title: "About Section Title",
       type: "string",
@@ -35,6 +45,29 @@ export const homePage = defineType({
       title: "About Section Content",
       type: "text",
       rows: 4,
+    }),
+    defineField({
+      name: "aboutSectionImage",
+      title: "About Section Image",
+      type: "image",
+      options: { hotspot: true },
+      fields: [
+        {
+          name: "alt",
+          type: "string",
+          title: "Alt Text",
+        },
+      ],
+    }),
+    defineField({
+      name: "valuePropsHeading",
+      title: "Value Propositions Heading",
+      type: "sectionHeading",
+    }),
+    defineField({
+      name: "cta",
+      title: "CTA Section",
+      type: "ctaSettings",
     }),
   ],
   preview: {
