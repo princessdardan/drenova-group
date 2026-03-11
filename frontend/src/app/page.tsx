@@ -6,10 +6,10 @@ import { ButtonLink } from "@/components/ui/button";
 import { CtaSection } from "@/components/sections/cta-section";
 import {
   getHomePage,
-  getActiveListings,
   getValuePropositions,
   getTestimonials,
 } from "@/lib/sanity/fetch";
+import { getAmpreListings } from "@/lib/ampre/fetch";
 import { urlFor } from "@/lib/sanity/image";
 import { isSanityImage } from "@/types/sanity";
 
@@ -20,11 +20,8 @@ export default async function HomePage() {
     getTestimonials(),
   ]);
 
-  // Use featuredListings from homePage singleton, fall back to active listings
-  const featuredListings =
-    homePage?.featuredListings && homePage.featuredListings.length > 0
-      ? homePage.featuredListings
-      : await getActiveListings();
+  // Fetch latest listings from AMPRE (via KV)
+  const { listings: featuredListings } = await getAmpreListings({ pageSize: 6 });
 
   const testimonial = testimonials[0] ?? null;
 

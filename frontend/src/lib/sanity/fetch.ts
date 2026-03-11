@@ -1,9 +1,6 @@
 import { draftMode } from "next/headers";
 import { client, previewClient } from "./client";
 import {
-  allListingsQuery,
-  activeListingsQuery,
-  listingBySlugQuery,
   allTeamMembersQuery,
   teamMemberBySlugQuery,
   allTestimonialsQuery,
@@ -22,7 +19,6 @@ import {
   listingsPageQuery,
   legalPageBySlugQuery,
 } from "./queries";
-import type { Listing } from "@/types/listing";
 import type { TeamMember } from "@/types/team";
 import type { Testimonial } from "@/types/testimonial";
 import type {
@@ -64,20 +60,6 @@ async function sanityFetch<T>(
   return client.fetch<T>(query, params ?? {}, {
     next: { tags, revalidate: DEFAULT_REVALIDATE },
   });
-}
-
-// ─── Listing fetchers ────────────────────────────────────────────────
-
-export function getListings(): Promise<Listing[]> {
-  return sanityFetch<Listing[]>(allListingsQuery, ["listing"]);
-}
-
-export function getActiveListings(): Promise<Listing[]> {
-  return sanityFetch<Listing[]>(activeListingsQuery, ["listing"]);
-}
-
-export function getListingBySlug(slug: string): Promise<Listing | null> {
-  return sanityFetch<Listing | null>(listingBySlugQuery, ["listing"], { slug });
 }
 
 // ─── Team Member fetchers ────────────────────────────────────────────
@@ -139,7 +121,7 @@ export function getSiteSettings(): Promise<SiteSettings | null> {
 }
 
 export function getHomePage(): Promise<HomePage | null> {
-  return sanityFetch<HomePage | null>(homePageQuery, ["homePage", "listing"]);
+  return sanityFetch<HomePage | null>(homePageQuery, ["homePage"]);
 }
 
 export function getAboutPage(): Promise<AboutPage | null> {

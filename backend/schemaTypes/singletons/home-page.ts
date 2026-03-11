@@ -14,15 +14,12 @@ export const homePage = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
-      name: "featuredListings",
-      title: "Featured Listings",
+      name: "featuredListingKeys",
+      title: "Featured Listing Keys",
+      description:
+        "AMPRE listing keys to feature on the homepage. These listings must exist in the daily AMPRE sync.",
       type: "array",
-      of: [
-        defineArrayMember({
-          type: "reference",
-          to: [{ type: "listing" }],
-        }),
-      ],
+      of: [defineArrayMember({ type: "string" })],
       validation: (rule) => rule.max(6),
     }),
     defineField({

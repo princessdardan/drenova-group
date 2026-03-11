@@ -1,17 +1,29 @@
-import type { SanityImage } from "./sanity";
-
 export interface Listing {
   id: string;
   slug: string;
   price: number;
   address: string;
   city: string;
-  state: string;
-  zip: string;
+  province: string;
+  postalCode: string;
   beds: number;
   baths: number;
   sqft: number;
-  image: string | SanityImage;
-  status: "Active" | "Pending" | "Sold";
-  propertyType: "Single Family" | "Condo" | "Townhouse" | "Multi-Family" | "Land";
+  image: string;
+  images?: string[];
+  status: string;
+  propertyType: string;
+  propertySubType?: string;
+  yearBuilt?: number;
+  lotSize?: number;
+  description?: string;
+  listOfficeName?: string;
+  listAgentName?: string;
+  originalListPrice?: number;
+  latitude?: number | null;
+  longitude?: number | null;
+  listingKey: string;
+  modificationTimestamp: string;
+  lastSeen: string;
+  addressSuppressed?: boolean;
 }

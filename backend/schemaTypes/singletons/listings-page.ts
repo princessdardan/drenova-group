@@ -1,4 +1,4 @@
-import { defineType, defineField } from "sanity";
+import { defineType, defineField, defineArrayMember } from "sanity";
 import { HomeIcon } from "@sanity/icons";
 
 export const listingsPage = defineType({
@@ -16,6 +16,14 @@ export const listingsPage = defineType({
       name: "title",
       title: "Title",
       type: "string",
+    }),
+    defineField({
+      name: "featuredListingKeys",
+      title: "Featured Listing Keys",
+      description:
+        "AMPRE listing keys to pin at the top of the page. These listings must exist in the daily AMPRE sync.",
+      type: "array",
+      of: [defineArrayMember({ type: "string" })],
     }),
   ],
   preview: {

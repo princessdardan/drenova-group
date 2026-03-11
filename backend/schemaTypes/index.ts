@@ -7,7 +7,6 @@ import { ctaSettings } from "./objects/cta-settings";
 import { valuationSection } from "./objects/valuation-section";
 
 // Documents
-import { listing } from "./documents/listing";
 import { teamMember } from "./documents/team-member";
 import { testimonial } from "./documents/testimonial";
 import { faq } from "./documents/faq";
@@ -37,7 +36,6 @@ export const schemaTypes = [
   valuationSection,
 
   // Documents
-  listing,
   teamMember,
   testimonial,
   faq,

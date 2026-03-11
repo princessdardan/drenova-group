@@ -120,7 +120,6 @@ export const structure: StructureResolver = (S) =>
       S.divider(),
 
       // Collection document lists
-      S.documentTypeListItem("listing").title("Listings").icon(HomeIcon),
       S.documentTypeListItem("teamMember").title("Team Members").icon(UsersIcon),
       S.documentTypeListItem("testimonial")
         .title("Testimonials")

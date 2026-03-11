@@ -157,7 +157,7 @@ export interface HomePage {
   _id: string;
   _type: "homePage";
   hero: HeroSettings;
-  featuredListings?: import("./listing").Listing[];
+  featuredListingKeys?: string[];
   featuredListingsHeading?: SectionHeading;
   aboutSectionOverline?: string;
   aboutSectionTitle?: string;
@@ -232,4 +232,5 @@ export interface ListingsPage {
   _type: "listingsPage";
   overline?: string;
   title?: string;
+  featuredListingKeys?: string[];
 }

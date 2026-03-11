@@ -1,29 +1,5 @@
 import { groq } from "next-sanity";
 
-// ─── Listing projections ──────────────────────────────────────────────
-const listingProjection = groq`{
-  "id": _id,
-  "slug": slug.current,
-  price,
-  address,
-  city,
-  state,
-  zip,
-  beds,
-  baths,
-  sqft,
-  image,
-  status,
-  propertyType
-}`;
-
-// ─── Listing queries ──────────────────────────────────────────────────
-export const allListingsQuery = groq`*[_type == "listing"] ${listingProjection}`;
-
-export const activeListingsQuery = groq`*[_type == "listing" && status == "Active"] ${listingProjection}`;
-
-export const listingBySlugQuery = groq`*[_type == "listing" && slug.current == $slug][0] ${listingProjection}`;
-
 // ─── Team Member queries ──────────────────────────────────────────────
 const teamMemberProjection = groq`{
   "slug": slug.current,
@@ -112,7 +88,7 @@ export const homePageQuery = groq`*[_type == "homePage"][0] {
   _id,
   _type,
   hero,
-  featuredListings[]->${listingProjection},
+  featuredListingKeys,
   featuredListingsHeading,
   aboutSectionOverline,
   aboutSectionTitle,
@@ -206,7 +182,8 @@ export const listingsPageQuery = groq`*[_type == "listingsPage"][0] {
   _id,
   _type,
   overline,
-  title
+  title,
+  featuredListingKeys
 }`;
 
 export const legalPageBySlugQuery = groq`*[_type == "legalPage" && slug.current == $slug][0] {
