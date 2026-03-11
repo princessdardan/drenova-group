@@ -97,6 +97,14 @@ export const siteSettingsQuery = groq`*[_type == "siteSettings"][0] {
   phone,
   email,
   address,
+  officeHours,
+  navigationLinks[] {
+    _key,
+    label,
+    href,
+    showInHeader,
+    showInFooter
+  },
   socialLinks
 }`;
 
@@ -105,8 +113,13 @@ export const homePageQuery = groq`*[_type == "homePage"][0] {
   _type,
   hero,
   featuredListings[]->${listingProjection},
+  featuredListingsHeading,
+  aboutSectionOverline,
   aboutSectionTitle,
-  aboutSectionContent
+  aboutSectionContent,
+  aboutSectionImage,
+  valuePropsHeading,
+  cta
 }`;
 
 export const aboutPageQuery = groq`*[_type == "aboutPage"][0] {
@@ -114,7 +127,12 @@ export const aboutPageQuery = groq`*[_type == "aboutPage"][0] {
   _type,
   hero,
   storyContent,
-  storyImage
+  storyOverline,
+  storyTitle,
+  storyImage,
+  valuesHeading,
+  coverageHeading,
+  cta
 }`;
 
 export const buyPageQuery = groq`*[_type == "buyPage"][0] {
@@ -126,13 +144,18 @@ export const buyPageQuery = groq`*[_type == "buyPage"][0] {
     title,
     description
   },
+  benefitsHeading,
   processSteps[] {
     _key,
     _type,
     stepNumber,
     title,
     description
-  }
+  },
+  processHeading,
+  coverageHeading,
+  faqHeading,
+  cta
 }`;
 
 export const sellPageQuery = groq`*[_type == "sellPage"][0] {
@@ -144,11 +167,53 @@ export const sellPageQuery = groq`*[_type == "sellPage"][0] {
     title,
     description
   },
+  benefitsHeading,
   processSteps[] {
     _key,
     _type,
     stepNumber,
     title,
     description
+  },
+  processHeading,
+  valuation,
+  storiesHeading,
+  faqHeading,
+  cta
+}`;
+
+export const contactPageQuery = groq`*[_type == "contactPage"][0] {
+  _id,
+  _type,
+  hero,
+  quickLinks[] {
+    _key,
+    overline,
+    title,
+    description,
+    href
   }
+}`;
+
+export const teamPageQuery = groq`*[_type == "teamPage"][0] {
+  _id,
+  _type,
+  hero,
+  cta
+}`;
+
+export const listingsPageQuery = groq`*[_type == "listingsPage"][0] {
+  _id,
+  _type,
+  overline,
+  title
+}`;
+
+export const legalPageBySlugQuery = groq`*[_type == "legalPage" && slug.current == $slug][0] {
+  _id,
+  _type,
+  title,
+  "slug": slug.current,
+  lastUpdated,
+  body
 }`;

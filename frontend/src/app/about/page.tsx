@@ -30,6 +30,9 @@ export default async function AboutPage() {
     ]);
 
   const hero = aboutPage?.hero;
+  const vh = aboutPage?.valuesHeading;
+  const ch = aboutPage?.coverageHeading;
+  const cta = aboutPage?.cta;
 
   return (
     <>
@@ -50,10 +53,10 @@ export default async function AboutPage() {
         <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 min-h-[500px]">
           <div className="flex flex-col justify-center px-8 lg:px-16 py-16">
             <p className="text-xs uppercase tracking-widest font-medium text-accent mb-4">
-              Founded 2011
+              {aboutPage?.storyOverline ?? "Founded 2011"}
             </p>
             <h2 className="font-display text-3xl lg:text-5xl font-bold tracking-tight mb-6">
-              Built on Relationships, Driven by Results
+              {aboutPage?.storyTitle ?? "Built on Relationships, Driven by Results"}
             </h2>
             {aboutPage?.storyContent ? (
               <div className="text-muted leading-7">
@@ -98,9 +101,9 @@ export default async function AboutPage() {
       <section className="bg-surface py-16 px-6 lg:py-24 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <SectionHeader
-            overline="Our Values"
-            title="What We Stand For"
-            description="The principles that guide every interaction, negotiation, and decision we make."
+            overline={vh?.overline ?? "Our Values"}
+            title={vh?.title ?? "What We Stand For"}
+            description={vh?.description ?? "The principles that guide every interaction, negotiation, and decision we make."}
             className="mb-12"
           />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -118,9 +121,9 @@ export default async function AboutPage() {
       <section className="bg-background py-16 px-6 lg:py-24 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <SectionHeader
-            overline="Where We Serve"
-            title="Multi-State Coverage"
-            description="Local expertise across five states and growing."
+            overline={ch?.overline ?? "Where We Serve"}
+            title={ch?.title ?? "Multi-State Coverage"}
+            description={ch?.description ?? "Local expertise across five states and growing."}
             className="mb-12"
           />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
@@ -151,7 +154,10 @@ export default async function AboutPage() {
       </section>
 
       {/* ─── CTA ─── */}
-      <CtaSection title="Meet Our Team" subtitle="The people behind Drenova Group are what make us different.">
+      <CtaSection
+        title={cta?.title ?? "Meet Our Team"}
+        subtitle={cta?.subtitle ?? "The people behind Drenova Group are what make us different."}
+      >
         <ButtonLink href="/team">View Team</ButtonLink>
         <ButtonLink href="/contact" variant="minimal">
           Get in Touch

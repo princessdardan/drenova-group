@@ -1,4 +1,4 @@
-import { defineType, defineField } from "sanity";
+import { defineType, defineField, defineArrayMember } from "sanity";
 import { CogIcon } from "@sanity/icons";
 
 export const siteSettings = defineType({
@@ -34,6 +34,51 @@ export const siteSettings = defineType({
       title: "Office Address",
       type: "text",
       rows: 3,
+    }),
+    defineField({
+      name: "officeHours",
+      title: "Office Hours",
+      type: "text",
+      rows: 3,
+    }),
+    defineField({
+      name: "navigationLinks",
+      title: "Navigation Links",
+      type: "array",
+      of: [
+        defineArrayMember({
+          type: "object",
+          fields: [
+            defineField({
+              name: "label",
+              title: "Label",
+              type: "string",
+              validation: (rule) => rule.required(),
+            }),
+            defineField({
+              name: "href",
+              title: "URL Path",
+              type: "string",
+              validation: (rule) => rule.required(),
+            }),
+            defineField({
+              name: "showInHeader",
+              title: "Show in Header",
+              type: "boolean",
+              initialValue: true,
+            }),
+            defineField({
+              name: "showInFooter",
+              title: "Show in Footer",
+              type: "boolean",
+              initialValue: true,
+            }),
+          ],
+          preview: {
+            select: { title: "label", subtitle: "href" },
+          },
+        }),
+      ],
     }),
     defineField({
       name: "socialLinks",

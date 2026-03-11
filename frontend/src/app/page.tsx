@@ -10,6 +10,8 @@ import {
   getValuePropositions,
   getTestimonials,
 } from "@/lib/sanity/fetch";
+import { urlFor } from "@/lib/sanity/image";
+import { isSanityImage } from "@/types/sanity";
 
 export default async function HomePage() {
   const [homePage, valuePropositions, testimonials] = await Promise.all([
@@ -25,6 +27,10 @@ export default async function HomePage() {
       : await getActiveListings();
 
   const testimonial = testimonials[0] ?? null;
+
+  const flh = homePage?.featuredListingsHeading;
+  const vph = homePage?.valuePropsHeading;
+  const cta = homePage?.cta;
 
   return (
     <>
@@ -48,9 +54,9 @@ export default async function HomePage() {
       <section className="bg-surface py-16 px-6 lg:py-24 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <SectionHeader
-            overline="Featured Properties"
-            title="Explore Our Listings"
-            description="Hand-picked properties across our coverage areas, ready for you to make them home."
+            overline={flh?.overline ?? "Featured Properties"}
+            title={flh?.title ?? "Explore Our Listings"}
+            description={flh?.description ?? "Hand-picked properties across our coverage areas, ready for you to make them home."}
             className="mb-12"
           />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
@@ -69,7 +75,7 @@ export default async function HomePage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[500px]">
           <div className="flex flex-col justify-center px-8 lg:px-16 py-16">
             <p className="text-xs uppercase tracking-widest font-medium text-accent mb-4">
-              About Us
+              {homePage?.aboutSectionOverline ?? "About Us"}
             </p>
             <h2 className="font-display text-3xl lg:text-5xl font-bold tracking-tight mb-6">
               {homePage?.aboutSectionTitle ?? "An Elevated Approach to Real Estate"}
@@ -83,8 +89,12 @@ export default async function HomePage() {
           </div>
           <div className="relative min-h-[400px] lg:min-h-0">
             <Image
-              src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=80"
-              alt="Warm interior of a modern home"
+              src={
+                homePage?.aboutSectionImage && isSanityImage(homePage.aboutSectionImage)
+                  ? urlFor(homePage.aboutSectionImage).width(1200).height(800).fit("crop").url()
+                  : "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=80"
+              }
+              alt={homePage?.aboutSectionImage?.alt ?? "Warm interior of a modern home"}
               fill
               className="object-cover"
               sizes="(max-width: 1024px) 100vw, 50vw"
@@ -97,8 +107,8 @@ export default async function HomePage() {
       <section className="bg-surface py-16 px-6 lg:py-24 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <SectionHeader
-            overline="Why Drenova Group"
-            title="What Sets Us Apart"
+            overline={vph?.overline ?? "Why Drenova Group"}
+            title={vph?.title ?? "What Sets Us Apart"}
             className="mb-12"
           />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
@@ -139,8 +149,8 @@ export default async function HomePage() {
 
       {/* ─── CTA ─── */}
       <CtaSection
-        title="Ready to Get Started?"
-        subtitle="Whether you're buying or selling, our team is here to guide you every step of the way."
+        title={cta?.title ?? "Ready to Get Started?"}
+        subtitle={cta?.subtitle ?? "Whether you're buying or selling, our team is here to guide you every step of the way."}
       >
         <ButtonLink href="/contact">Contact Us</ButtonLink>
         <ButtonLink href="/listings" variant="minimal">

@@ -29,6 +29,12 @@ export default async function SellPage() {
   const benefits = sellPage?.benefits ?? [];
   const processSteps = sellPage?.processSteps ?? [];
   const successStories = allTestimonials.filter((t) => t.detail.includes("Sold")).slice(0, 3);
+  const bh = sellPage?.benefitsHeading;
+  const ph = sellPage?.processHeading;
+  const val = sellPage?.valuation;
+  const sh = sellPage?.storiesHeading;
+  const fh = sellPage?.faqHeading;
+  const cta = sellPage?.cta;
 
   return (
     <>
@@ -50,8 +56,9 @@ export default async function SellPage() {
         <section className="bg-surface py-16 px-6 lg:py-24 lg:px-8">
           <div className="max-w-7xl mx-auto">
             <SectionHeader
-              overline="Why Choose Us"
-              title="The Drenova Difference"
+              overline={bh?.overline ?? "Why Choose Us"}
+              title={bh?.title ?? "The Drenova Difference"}
+              description={bh?.description}
               className="mb-12"
             />
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -71,9 +78,9 @@ export default async function SellPage() {
         <section className="bg-background py-16 px-6 lg:py-24 lg:px-8">
           <div className="max-w-7xl mx-auto">
             <SectionHeader
-              overline="The Process"
-              title="How Selling Works"
-              description="A proven, step-by-step approach to getting top dollar for your home."
+              overline={ph?.overline ?? "The Process"}
+              title={ph?.title ?? "How Selling Works"}
+              description={ph?.description ?? "A proven, step-by-step approach to getting top dollar for your home."}
               className="mb-12"
             />
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-12">
@@ -97,8 +104,12 @@ export default async function SellPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[500px]">
           <div className="relative min-h-[400px] lg:min-h-0">
             <Image
-              src="https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=1200&q=80"
-              alt="Beautiful home exterior"
+              src={
+                val?.image && isSanityImage(val.image)
+                  ? urlFor(val.image).width(1200).height(800).fit("crop").url()
+                  : "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=1200&q=80"
+              }
+              alt={val?.image?.alt ?? "Beautiful home exterior"}
               fill
               className="object-cover"
               sizes="(max-width: 1024px) 100vw, 50vw"
@@ -106,19 +117,17 @@ export default async function SellPage() {
           </div>
           <div className="flex flex-col justify-center px-8 lg:px-16 py-16">
             <p className="text-xs uppercase tracking-widest font-medium text-accent mb-4">
-              Free Home Valuation
+              {val?.overline ?? "Free Home Valuation"}
             </p>
             <h2 className="font-display text-3xl lg:text-5xl font-bold tracking-tight mb-6">
-              What&apos;s Your Home Worth?
+              {val?.title ?? "What's Your Home Worth?"}
             </h2>
             <p className="text-muted leading-7 mb-8">
-              Get a complimentary market analysis from our team. We&apos;ll evaluate
-              recent comparable sales, current market conditions, and your home&apos;s
-              unique features to provide an accurate valuation.
+              {val?.description ?? "Get a complimentary market analysis from our team. We'll evaluate recent comparable sales, current market conditions, and your home's unique features to provide an accurate valuation."}
             </p>
             <div>
               <ButtonLink href="/contact" variant="accent">
-                Request Valuation
+                {val?.ctaText ?? "Request Valuation"}
               </ButtonLink>
             </div>
           </div>
@@ -130,8 +139,9 @@ export default async function SellPage() {
         <section className="bg-background py-16 px-6 lg:py-24 lg:px-8">
           <div className="max-w-3xl mx-auto">
             <SectionHeader
-              overline="Success Stories"
-              title="Results That Speak"
+              overline={sh?.overline ?? "Success Stories"}
+              title={sh?.title ?? "Results That Speak"}
+              description={sh?.description}
               className="mb-12"
             />
             <div className="space-y-8">
@@ -153,8 +163,9 @@ export default async function SellPage() {
         <section className="bg-surface py-16 px-6 lg:py-24 lg:px-8">
           <div className="max-w-3xl mx-auto">
             <SectionHeader
-              overline="FAQs"
-              title="Common Seller Questions"
+              overline={fh?.overline ?? "FAQs"}
+              title={fh?.title ?? "Common Seller Questions"}
+              description={fh?.description}
               className="mb-12"
             />
             <Accordion items={sellerFaqs} />
@@ -164,8 +175,8 @@ export default async function SellPage() {
 
       {/* ─── CTA ─── */}
       <CtaSection
-        title="Ready to Sell?"
-        subtitle="Connect with an agent today and take the first step toward a successful sale."
+        title={cta?.title ?? "Ready to Sell?"}
+        subtitle={cta?.subtitle ?? "Connect with an agent today and take the first step toward a successful sale."}
         bg="background"
       >
         <ButtonLink href="/contact" variant="accent">

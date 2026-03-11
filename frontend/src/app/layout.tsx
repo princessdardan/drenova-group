@@ -4,6 +4,7 @@ import { Playfair_Display, Plus_Jakarta_Sans, Geist_Mono } from "next/font/googl
 import { Header } from "@/components/sections/header";
 import { Footer } from "@/components/sections/footer";
 import { DraftBanner } from "@/components/ui/draft-banner";
+import { getSiteSettings } from "@/lib/sanity/fetch";
 import "./globals.css";
 
 const playfairDisplay = Playfair_Display({
@@ -41,7 +42,18 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { isEnabled: isDraftMode } = await draftMode();
+  const [{ isEnabled: isDraftMode }, siteSettings] = await Promise.all([
+    draftMode(),
+    getSiteSettings(),
+  ]);
+
+  const navigationLinks = siteSettings?.navigationLinks;
+  const headerLinks = navigationLinks
+    ?.filter((link) => link.showInHeader !== false)
+    .map(({ label, href }) => ({ label, href }));
+  const footerLinks = navigationLinks
+    ?.filter((link) => link.showInFooter !== false)
+    .map(({ label, href }) => ({ label, href }));
 
   return (
     <html lang="en" style={{ colorScheme: "light" }}>
@@ -53,9 +65,16 @@ export default async function RootLayout({
         className={`${playfairDisplay.variable} ${plusJakartaSans.variable} ${geistMono.variable} font-sans antialiased`}
       >
         {isDraftMode && <DraftBanner />}
-        <Header />
+        <Header
+          navigationLinks={headerLinks}
+          phone={siteSettings?.phone}
+          email={siteSettings?.email}
+        />
         <main>{children}</main>
-        <Footer />
+        <Footer
+          navigationLinks={footerLinks}
+          officeHours={siteSettings?.officeHours}
+        />
       </body>
     </html>
   );

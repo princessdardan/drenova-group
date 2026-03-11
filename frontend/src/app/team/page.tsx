@@ -3,7 +3,7 @@ import { Hero } from "@/components/sections/hero";
 import { TeamMemberCard } from "@/components/ui/team-member-card";
 import { CtaSection } from "@/components/sections/cta-section";
 import { ButtonLink } from "@/components/ui/button";
-import { getTeamMembers } from "@/lib/sanity/fetch";
+import { getTeamMembers, getTeamPage } from "@/lib/sanity/fetch";
 
 export const metadata: Metadata = {
   title: "Our Team",
@@ -12,16 +12,23 @@ export const metadata: Metadata = {
 };
 
 export default async function TeamPage() {
-  const teamMembers = await getTeamMembers();
+  const [teamMembers, teamPage] = await Promise.all([
+    getTeamMembers(),
+    getTeamPage(),
+  ]);
+
+  const hero = teamPage?.hero;
+  const cta = teamPage?.cta;
 
   return (
     <>
       {/* ─── Hero ─── */}
       <Hero
-        image="https://images.unsplash.com/photo-1600573472550-8090b5e0745e?w=1600&q=80"
-        imageAlt="Drenova Group team"
-        title="Our Team"
-        subtitle="Experienced professionals dedicated to helping you achieve your real estate goals."
+        image={hero?.image ?? "https://images.unsplash.com/photo-1600573472550-8090b5e0745e?w=1600&q=80"}
+        imageAlt={hero?.image?.alt ?? "Drenova Group team"}
+        overline={hero?.overline}
+        title={hero?.title ?? "Our Team"}
+        subtitle={hero?.subtitle ?? "Experienced professionals dedicated to helping you achieve your real estate goals."}
         size="short"
       />
 
@@ -38,8 +45,8 @@ export default async function TeamPage() {
 
       {/* ─── CTA ─── */}
       <CtaSection
-        title="Get in Touch"
-        subtitle="Have a question or ready to start? We'd love to hear from you."
+        title={cta?.title ?? "Get in Touch"}
+        subtitle={cta?.subtitle ?? "Have a question or ready to start? We'd love to hear from you."}
       >
         <ButtonLink href="/contact">Contact Us</ButtonLink>
       </CtaSection>

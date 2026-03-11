@@ -12,6 +12,7 @@ import {
   BulbOutlineIcon,
   BasketIcon,
   TagIcon,
+  EnvelopeIcon,
 } from "@sanity/icons";
 
 const SINGLETON_TYPES = [
@@ -20,6 +21,9 @@ const SINGLETON_TYPES = [
   "aboutPage",
   "buyPage",
   "sellPage",
+  "contactPage",
+  "teamPage",
+  "listingsPage",
 ];
 
 export const structure: StructureResolver = (S) =>
@@ -83,6 +87,33 @@ export const structure: StructureResolver = (S) =>
                     .documentId("sellPage")
                     .title("Sell Page"),
                 ),
+              S.listItem()
+                .title("Contact Page")
+                .icon(EnvelopeIcon)
+                .child(
+                  S.document()
+                    .schemaType("contactPage")
+                    .documentId("contactPage")
+                    .title("Contact Page"),
+                ),
+              S.listItem()
+                .title("Team Page")
+                .icon(UsersIcon)
+                .child(
+                  S.document()
+                    .schemaType("teamPage")
+                    .documentId("teamPage")
+                    .title("Team Page"),
+                ),
+              S.listItem()
+                .title("Listings Page")
+                .icon(HomeIcon)
+                .child(
+                  S.document()
+                    .schemaType("listingsPage")
+                    .documentId("listingsPage")
+                    .title("Listings Page"),
+                ),
             ]),
         ),
 
@@ -107,4 +138,7 @@ export const structure: StructureResolver = (S) =>
       S.documentTypeListItem("valueProposition")
         .title("Value Propositions")
         .icon(BulbOutlineIcon),
+      S.documentTypeListItem("legalPage")
+        .title("Legal Pages")
+        .icon(DocumentTextIcon),
     ]);

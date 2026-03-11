@@ -17,6 +17,10 @@ import {
   aboutPageQuery,
   buyPageQuery,
   sellPageQuery,
+  contactPageQuery,
+  teamPageQuery,
+  listingsPageQuery,
+  legalPageBySlugQuery,
 } from "./queries";
 import type { Listing } from "@/types/listing";
 import type { TeamMember } from "@/types/team";
@@ -32,6 +36,10 @@ import type {
   AboutPage,
   BuyPage,
   SellPage,
+  ContactPage,
+  TeamPage,
+  ListingsPage,
+  LegalPage,
 } from "@/types/sanity";
 
 const DEFAULT_REVALIDATE = 3600;
@@ -144,4 +152,22 @@ export function getBuyPage(): Promise<BuyPage | null> {
 
 export function getSellPage(): Promise<SellPage | null> {
   return sanityFetch<SellPage | null>(sellPageQuery, ["sellPage"]);
+}
+
+export function getContactPage(): Promise<ContactPage | null> {
+  return sanityFetch<ContactPage | null>(contactPageQuery, ["contactPage"]);
+}
+
+export function getTeamPage(): Promise<TeamPage | null> {
+  return sanityFetch<TeamPage | null>(teamPageQuery, ["teamPage"]);
+}
+
+export function getListingsPage(): Promise<ListingsPage | null> {
+  return sanityFetch<ListingsPage | null>(listingsPageQuery, ["listingsPage"]);
+}
+
+export function getLegalPageBySlug(slug: string): Promise<LegalPage | null> {
+  return sanityFetch<LegalPage | null>(legalPageBySlugQuery, ["legalPage"], {
+    slug,
+  });
 }

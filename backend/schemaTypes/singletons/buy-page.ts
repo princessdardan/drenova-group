@@ -42,10 +42,35 @@ export const buyPage = defineType({
       ],
     }),
     defineField({
+      name: "benefitsHeading",
+      title: "Benefits Section Heading",
+      type: "sectionHeading",
+    }),
+    defineField({
       name: "processSteps",
       title: "Buying Process Steps",
       type: "array",
       of: [defineArrayMember({ type: "processStep" })],
+    }),
+    defineField({
+      name: "processHeading",
+      title: "Process Section Heading",
+      type: "sectionHeading",
+    }),
+    defineField({
+      name: "coverageHeading",
+      title: "Coverage Section Heading",
+      type: "sectionHeading",
+    }),
+    defineField({
+      name: "faqHeading",
+      title: "FAQ Section Heading",
+      type: "sectionHeading",
+    }),
+    defineField({
+      name: "cta",
+      title: "CTA Section",
+      type: "ctaSettings",
     }),
   ],
   preview: {

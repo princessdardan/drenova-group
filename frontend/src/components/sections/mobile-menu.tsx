@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 
-const navLinks = [
+const defaultNavLinks = [
   { href: "/buy", label: "Buy" },
   { href: "/sell", label: "Sell" },
   { href: "/listings", label: "Listings" },
@@ -15,9 +15,22 @@ const navLinks = [
 interface MobileMenuProps {
   isOpen: boolean;
   onClose: () => void;
+  navigationLinks?: { label: string; href: string }[];
+  phone?: string;
+  email?: string;
 }
 
-export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
+export function MobileMenu({
+  isOpen,
+  onClose,
+  navigationLinks,
+  phone,
+  email,
+}: MobileMenuProps) {
+  const navLinks = navigationLinks && navigationLinks.length > 0
+    ? navigationLinks
+    : defaultNavLinks;
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -72,8 +85,8 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
           ))}
         </nav>
         <div className="text-center pb-8">
-          <p className="text-sm text-muted">info@drenovagroup.com</p>
-          <p className="text-sm text-muted">(555) 123-4567</p>
+          <p className="text-sm text-muted">{email ?? "info@drenovagroup.com"}</p>
+          <p className="text-sm text-muted">{phone ?? "(555) 123-4567"}</p>
         </div>
       </div>
     </div>

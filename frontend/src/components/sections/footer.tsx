@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getSiteSettings } from "@/lib/sanity/fetch";
 
-const navLinks = [
+const defaultNavLinks = [
   { href: "/buy", label: "Buy" },
   { href: "/sell", label: "Sell" },
   { href: "/listings", label: "Listings" },
@@ -10,7 +10,12 @@ const navLinks = [
   { href: "/contact", label: "Contact" },
 ];
 
-export async function Footer() {
+interface FooterProps {
+  navigationLinks?: { label: string; href: string }[];
+  officeHours?: string;
+}
+
+export async function Footer({ navigationLinks, officeHours }: FooterProps) {
   const settings = await getSiteSettings();
 
   const companyName = settings?.companyName ?? "Drenova Group";
@@ -18,6 +23,9 @@ export async function Footer() {
   const phone = settings?.phone;
   const email = settings?.email;
   const social = settings?.socialLinks;
+  const navLinks = navigationLinks && navigationLinks.length > 0
+    ? navigationLinks
+    : defaultNavLinks;
 
   const socialLinks = [
     social?.facebook ? { href: social.facebook, label: "Facebook" } : null,
@@ -59,7 +67,7 @@ export async function Footer() {
               Contact
             </p>
             <ul className="space-y-2 text-sm text-[#C5CCD3]">
-              {address && <li>{address}</li>}
+              {address && <li className="whitespace-pre-line">{address}</li>}
               {phone && (
                 <li>
                   <a href={`tel:${phone.replace(/[^\d+]/g, "")}`} className="hover:text-white transition-colors">
@@ -72,6 +80,11 @@ export async function Footer() {
                   <a href={`mailto:${email}`} className="hover:text-white transition-colors">
                     {email}
                   </a>
+                </li>
+              )}
+              {officeHours && (
+                <li className="whitespace-pre-line mt-4 text-[#8B8E92]">
+                  {officeHours}
                 </li>
               )}
             </ul>

@@ -27,6 +27,11 @@ export default async function BuyPage() {
 
   const benefits = buyPage?.benefits ?? [];
   const processSteps = buyPage?.processSteps ?? [];
+  const bh = buyPage?.benefitsHeading;
+  const ph = buyPage?.processHeading;
+  const ch = buyPage?.coverageHeading;
+  const fh = buyPage?.faqHeading;
+  const cta = buyPage?.cta;
 
   return (
     <>
@@ -48,8 +53,9 @@ export default async function BuyPage() {
         <section className="bg-surface py-16 px-6 lg:py-24 lg:px-8">
           <div className="max-w-7xl mx-auto">
             <SectionHeader
-              overline="Why Choose Us"
-              title="Buy With Confidence"
+              overline={bh?.overline ?? "Why Choose Us"}
+              title={bh?.title ?? "Buy With Confidence"}
+              description={bh?.description}
               className="mb-12"
             />
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -69,9 +75,9 @@ export default async function BuyPage() {
         <section className="bg-background py-16 px-6 lg:py-24 lg:px-8">
           <div className="max-w-7xl mx-auto">
             <SectionHeader
-              overline="The Process"
-              title="How Buying Works"
-              description="A clear, transparent process from start to finish."
+              overline={ph?.overline ?? "The Process"}
+              title={ph?.title ?? "How Buying Works"}
+              description={ph?.description ?? "A clear, transparent process from start to finish."}
               className="mb-12"
             />
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
@@ -95,9 +101,9 @@ export default async function BuyPage() {
         <section className="bg-surface py-16 px-6 lg:py-24 lg:px-8">
           <div className="max-w-7xl mx-auto">
             <SectionHeader
-              overline="Where We Serve"
-              title="Explore Our Markets"
-              description="We bring local expertise to every community across our five-state coverage area."
+              overline={ch?.overline ?? "Where We Serve"}
+              title={ch?.title ?? "Explore Our Markets"}
+              description={ch?.description ?? "We bring local expertise to every community across our five-state coverage area."}
               className="mb-12"
             />
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
@@ -120,8 +126,9 @@ export default async function BuyPage() {
         <section className="bg-background py-16 px-6 lg:py-24 lg:px-8">
           <div className="max-w-3xl mx-auto">
             <SectionHeader
-              overline="FAQs"
-              title="Common Buyer Questions"
+              overline={fh?.overline ?? "FAQs"}
+              title={fh?.title ?? "Common Buyer Questions"}
+              description={fh?.description}
               className="mb-12"
             />
             <Accordion items={buyerFaqs} />
@@ -131,8 +138,8 @@ export default async function BuyPage() {
 
       {/* ─── CTA ─── */}
       <CtaSection
-        title="Start Your Search Today"
-        subtitle="Browse our listings or connect with an agent to begin your home buying journey."
+        title={cta?.title ?? "Start Your Search Today"}
+        subtitle={cta?.subtitle ?? "Browse our listings or connect with an agent to begin your home buying journey."}
       >
         <ButtonLink href="/listings">Browse Listings</ButtonLink>
         <ButtonLink href="/contact" variant="minimal">

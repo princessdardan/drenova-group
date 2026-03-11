@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { PropertyCard } from "@/components/ui/property-card";
-import { getListings } from "@/lib/sanity/fetch";
+import { getListings, getListingsPage } from "@/lib/sanity/fetch";
 
 export const metadata: Metadata = {
   title: "Listings",
@@ -9,17 +9,21 @@ export const metadata: Metadata = {
 };
 
 export default async function ListingsPage() {
-  const listings = await getListings();
+  const [listings, listingsPage] = await Promise.all([
+    getListings(),
+    getListingsPage(),
+  ]);
+
   return (
     <div className="pt-20 lg:pt-24">
       {/* ─── Page Header ─── */}
       <section className="bg-surface py-12 px-6 lg:py-16 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <p className="text-xs uppercase tracking-widest font-medium text-accent mb-2">
-            Properties
+            {listingsPage?.overline ?? "Properties"}
           </p>
           <h1 className="font-display text-3xl lg:text-5xl font-bold tracking-tight mb-2">
-            All Listings
+            {listingsPage?.title ?? "All Listings"}
           </h1>
           <p className="text-muted">
             Showing {listings.length} properties across all markets
