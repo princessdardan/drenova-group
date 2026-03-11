@@ -1,20 +1,21 @@
+import { Redis } from "@upstash/redis";
 import { KV_LISTINGS_KEY } from "./compliance";
 import type { Listing } from "@/types/listing";
 
 /**
- * KV-backed fetch layer for AMPRE listings.
+ * Redis-backed fetch layer for AMPRE listings.
  *
- * All functions read from Vercel KV — NEVER from AMPRE directly.
+ * All functions read from Upstash Redis — NEVER from AMPRE directly.
  * This ensures compliance with the 24-hour retrieval limit (C1).
  *
  * Filtering, sorting, and pagination are performed in-memory.
  * This is efficient because the dataset is small (brokerage's own listings).
  *
- * When KV env vars aren't configured (local dev without KV), returns empty results.
+ * When Redis env vars aren't configured (local dev without Redis), returns empty results.
  */
 
 function isKvConfigured(): boolean {
-  return !!(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+  return !!(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
 }
 
 export interface ListingFilters {
@@ -41,8 +42,8 @@ const DEFAULT_PAGE_SIZE = 12;
 async function getAllListingsFromKV(): Promise<Listing[]> {
   if (!isKvConfigured()) return [];
 
-  const { kv } = await import("@vercel/kv");
-  return (await kv.get<Listing[]>(KV_LISTINGS_KEY)) ?? [];
+  const redis = Redis.fromEnv();
+  return (await redis.get<Listing[]>(KV_LISTINGS_KEY)) ?? [];
 }
 
 function applyFilters(listings: Listing[], filters: ListingFilters): Listing[] {
@@ -102,7 +103,7 @@ function applySort(
 
 /**
  * Get AMPRE listings with optional filtering, sorting, and pagination.
- * Reads from Vercel KV, never from AMPRE.
+ * Reads from Upstash Redis, never from AMPRE.
  */
 export async function getAmpreListings(
   filters: ListingFilters = {}
@@ -123,7 +124,7 @@ export async function getAmpreListings(
 
 /**
  * Get a single AMPRE listing by its listing key.
- * Reads from Vercel KV, never from AMPRE.
+ * Reads from Upstash Redis, never from AMPRE.
  */
 export async function getAmpreListingByKey(
   key: string
@@ -134,7 +135,7 @@ export async function getAmpreListingByKey(
 
 /**
  * Get a single AMPRE listing by its slug.
- * Reads from Vercel KV, never from AMPRE.
+ * Reads from Upstash Redis, never from AMPRE.
  */
 export async function getAmpreListingBySlug(
   slug: string

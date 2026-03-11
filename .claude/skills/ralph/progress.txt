@@ -1,3 +1,0 @@
-# Ralph Progress — kv-to-upstash-redis
-# Branch: ralph/kv-to-upstash-redis
-# Started: 2026-03-11

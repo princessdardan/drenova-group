@@ -1,0 +1,361 @@
+{
+  "project": "Drenova Group",
+  "branchName": "ralph/sanity-frontend-integration",
+  "description": "Replace all hardcoded dummy data in the Next.js frontend with live Sanity CMS content using next-sanity, Sanity image pipeline, live preview, and ISR revalidation",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Install and configure next-sanity and @sanity/image-url",
+      "description": "As a developer, I need the Sanity client libraries installed and configured in the frontend workspace so all pages can query Sanity.",
+      "acceptanceCriteria": [
+        "next-sanity and @sanity/image-url are installed in the frontend workspace (npm install -w frontend)",
+        "frontend/src/lib/sanity/client.ts exports a configured Sanity client with projectId (apggi8zn), dataset (production), apiVersion, and useCdn",
+        "frontend/src/lib/sanity/image.ts exports a urlFor() helper that wraps @sanity/image-url for the configured client",
+        "Environment variables NEXT_PUBLIC_SANITY_PROJECT_ID, NEXT_PUBLIC_SANITY_DATASET, and SANITY_API_READ_TOKEN are defined in frontend/.env.local (gitignored)",
+        "next.config.ts adds cdn.sanity.io to images.remotePatterns (keep existing images.unsplash.com entry)",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "This is the foundation \u2014 every other story depends on this. Project ID: apggi8zn, dataset: production. The .env.local goes in frontend/ directory since that's the Next.js app."
+    },
+    {
+      "id": "US-002",
+      "title": "Create new TypeScript types for Sanity document shapes",
+      "description": "As a developer, I need new types for all Sanity document types that don't have existing frontend types, plus a shared Sanity image type.",
+      "acceptanceCriteria": [
+        "frontend/src/types/sanity.ts exports a SanityImage type representing a Sanity image reference with optional alt, hotspot, and crop fields",
+        "frontend/src/types/sanity.ts exports types for: FAQ (question, answer, category, order), CoverageArea (state, cities[], order), CompanyStat (label, value, order), CompanyValue (title, description, order), ValueProposition (title, description, order)",
+        "frontend/src/types/sanity.ts exports types for singleton pages: SiteSettings (companyName, tagline, phone, email, address, socialLinks), HeroSettings (image: SanityImage, overline, title, subtitle)",
+        "frontend/src/types/sanity.ts exports types for: HomePage (hero, featuredListings, aboutSectionTitle, aboutSectionContent), AboutPage (hero, storyContent as PortableTextBlock[], storyImage), BuyPage (hero, benefits[], processSteps[]), SellPage (hero, benefits[], processSteps[])",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "Create all new types in a single frontend/src/types/sanity.ts file. Import PortableTextBlock from @portabletext/types (installed with @portabletext/react later, use 'any[]' placeholder for now if needed)."
+    },
+    {
+      "id": "US-003",
+      "title": "Update existing TypeScript types for Sanity data shapes",
+      "description": "As a developer, I need the existing Listing, TeamMember, and Testimonial types updated to accommodate Sanity's data format.",
+      "acceptanceCriteria": [
+        "frontend/src/types/listing.ts \u2014 image field type updated to accept SanityImage from sanity.ts; slug field type is string (GROQ projection will extract slug.current as string)",
+        "frontend/src/types/team.ts \u2014 bio field type updated from string to any[] (Portable Text blocks); image field updated to accept SanityImage; slug field is string",
+        "frontend/src/types/testimonial.ts \u2014 no breaking changes needed (quote, name, detail are all plain strings)",
+        "All existing components that use these types still typecheck (PropertyCard, TeamMemberCard, etc.)",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": "The GROQ projections (built in US-004) will extract slug.current as a plain string, so the slug field stays as string type. Image fields need to accept the SanityImage type from sanity.ts. Components may need minor updates to handle the new image type."
+    },
+    {
+      "id": "US-004",
+      "title": "Create GROQ queries for all document types",
+      "description": "As a developer, I need GROQ query strings for all document types so pages can fetch data from Sanity.",
+      "acceptanceCriteria": [
+        "frontend/src/lib/sanity/queries.ts exports GROQ query constants for: allListingsQuery, activeListingsQuery, listingBySlugQuery, allTeamMembersQuery, teamMemberBySlugQuery, allTestimonialsQuery, faqsByCategoryQuery, allCoverageAreasQuery, allCompanyStatsQuery, allCompanyValuesQuery, allValuePropositionsQuery",
+        "Each query uses GROQ projections that match the existing TypeScript interface field names (e.g., 'slug': slug.current extracts the slug string)",
+        "Queries for ordered documents (FAQ, CoverageArea, CompanyStat, CompanyValue, ValueProposition) include | order(order asc)",
+        "Image fields project the full Sanity image reference (asset, alt, hotspot, crop) for use with urlFor()",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": true,
+      "notes": "Keep projections aligned with existing TypeScript types. For images, project the full image object (not just the URL) so urlFor() can apply hotspot/crop. Use parameterized queries where needed (e.g., $slug, $category)."
+    },
+    {
+      "id": "US-005",
+      "title": "Create GROQ queries for singleton page types",
+      "description": "As a developer, I need GROQ queries for singleton documents (siteSettings, homePage, aboutPage, buyPage, sellPage).",
+      "acceptanceCriteria": [
+        "frontend/src/lib/sanity/queries.ts also exports GROQ query constants for: siteSettingsQuery, homePageQuery, aboutPageQuery, buyPageQuery, sellPageQuery",
+        "Singleton queries use the *[_type == 'typeName'][0] pattern",
+        "homePageQuery includes dereferencing of featuredListings references with full listing projections",
+        "buyPageQuery and sellPageQuery include processSteps array and benefits array in their projections",
+        "aboutPageQuery includes storyContent (Portable Text) and storyImage projections",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": true,
+      "notes": "These are added to the same queries.ts file created in US-004. The homePage featuredListings field contains references to listing documents \u2014 dereference them with featuredListings[]->{...projection}."
+    },
+    {
+      "id": "US-006",
+      "title": "Create typed fetch functions for Sanity data",
+      "description": "As a developer, I need typed async fetch functions that wrap sanityFetch() with the correct query and return typed results.",
+      "acceptanceCriteria": [
+        "frontend/src/lib/sanity/fetch.ts exports typed async functions: getListings(), getActiveListings(), getListingBySlug(slug), getTeamMembers(), getTeamMemberBySlug(slug), getTestimonials(), getFaqsByCategory(category), getCoverageAreas(), getCompanyStats(), getCompanyValues(), getValuePropositions()",
+        "frontend/src/lib/sanity/fetch.ts exports typed async functions for singletons: getSiteSettings(), getHomePage(), getAboutPage(), getBuyPage(), getSellPage()",
+        "Each function uses the Sanity client from client.ts and the corresponding query from queries.ts",
+        "Each function has proper TypeScript return types matching the types from types/sanity.ts and updated types in types/listing.ts, types/team.ts, types/testimonial.ts",
+        "Functions use next-sanity's sanityFetch pattern with revalidation tags for ISR cache invalidation",
+        "Typecheck passes"
+      ],
+      "priority": 6,
+      "passes": true,
+      "notes": "Use next-sanity's sanityFetch() if available, or the client.fetch() with Next.js fetch options { next: { tags: ['tag'], revalidate: 3600 } }. Each function should tag its cache entry for webhook-based revalidation (e.g., tag 'listing' for listing queries)."
+    },
+    {
+      "id": "US-007",
+      "title": "Update components for Sanity image pipeline",
+      "description": "As a developer, I need PropertyCard, TeamMemberCard, and Hero to render Sanity images via urlFor() with proper sizing and hotspot/crop.",
+      "acceptanceCriteria": [
+        "PropertyCard accepts a SanityImage and uses urlFor(image).width(800).height(600).fit('crop').url() for the listing photo",
+        "TeamMemberCard accepts a SanityImage and uses urlFor(image).width(600).height(800).fit('crop').url() for the headshot",
+        "Hero accepts a SanityImage and uses urlFor(image).width(1920).height(1080).fit('crop').url() for the background",
+        "All components use the alt field from the Sanity image object for the img alt attribute, falling back to a sensible default",
+        "Hotspot/crop metadata from Sanity is respected via urlFor().fit('crop')",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 7,
+      "passes": true,
+      "notes": "Import urlFor from frontend/src/lib/sanity/image.ts. The SanityImage type has optional alt, hotspot, and crop fields. Components should handle both SanityImage objects and potentially undefined images gracefully."
+    },
+    {
+      "id": "US-008",
+      "title": "Install @portabletext/react and create Portable Text renderer",
+      "description": "As a developer, I need a Portable Text rendering component to display rich text content from Sanity.",
+      "acceptanceCriteria": [
+        "@portabletext/react is installed in the frontend workspace",
+        "frontend/src/components/ui/portable-text.tsx exports a PortableTextRenderer component wrapping <PortableText> with styled block components",
+        "Headings use font-display (Playfair Display), body text uses font-sans (Plus Jakarta Sans), links use text-accent color",
+        "Lists (bullet and numbered) render with proper spacing and markers",
+        "Images in Portable Text render via urlFor() with proper sizing",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 8,
+      "passes": true,
+      "notes": "This component will be used in /team/[slug] for bio rendering and /about for story content. Style the custom block components to match the existing typography system defined in DESIGN.md and globals.css."
+    },
+    {
+      "id": "US-009",
+      "title": "Seed Sanity with document-type dummy data",
+      "description": "As a developer, I want all document-type dummy data (listings, team, testimonials, FAQs, stats, values, etc.) migrated into Sanity.",
+      "acceptanceCriteria": [
+        "A seed script exists at scripts/seed-sanity.ts that creates documents in Sanity using @sanity/client",
+        "Script creates: 12 listings, 5 team members, 5 testimonials, 10 FAQs (5 buyer + 5 seller), 5 coverage areas, 4 company stats, 4 company values, 3 value propositions",
+        "Images are downloaded from Unsplash URLs and uploaded to Sanity's asset pipeline using client.assets.upload()",
+        "Plain text bios are converted to Portable Text block structure: [{ _type: 'block', style: 'normal', children: [{ _type: 'span', text: '...' }], markDefs: [] }]",
+        "Script uses deterministic _id values (e.g., 'listing-1', 'team-semir-drenova') so it is idempotent \u2014 running multiple times does not create duplicates",
+        "All documents are published using createOrReplace (not createIfNotExists which leaves drafts)",
+        "Script can be run via npm run seed from the project root (add script to root package.json)",
+        "Typecheck passes"
+      ],
+      "priority": 9,
+      "passes": true,
+      "notes": "Install @sanity/client and tsx as devDependencies at root. Use the data from frontend/src/lib/dummy-data.ts as the source. The seed script should import or duplicate the data arrays. Use createOrReplace to ensure idempotency. ProjectId: apggi8zn, dataset: production."
+    },
+    {
+      "id": "US-010",
+      "title": "Seed Sanity with singleton page documents",
+      "description": "As a developer, I want singleton page documents (siteSettings, homePage, aboutPage, buyPage, sellPage) seeded with content matching the current hardcoded pages.",
+      "acceptanceCriteria": [
+        "The seed script (scripts/seed-sanity.ts) also creates singleton documents: siteSettings, homePage, aboutPage, buyPage, sellPage",
+        "siteSettings includes companyName ('Drenova Group'), phone, email, address, and social link placeholders",
+        "homePage includes hero settings (image, overline, title, subtitle) matching current hardcoded hero, and featuredListings referencing 6 active listing document IDs",
+        "aboutPage includes hero settings and storyContent as Portable Text blocks matching current hardcoded story narrative",
+        "buyPage includes hero settings, 3 benefits (Expert Local Knowledge, Data-Driven Search, Full-Service Support), and processSteps from buyingSteps data",
+        "sellPage includes hero settings, 3 benefits (Strategic Pricing, Professional Marketing, Expert Negotiation), and processSteps from sellingSteps data",
+        "Hero images for each page are uploaded to Sanity's asset pipeline",
+        "Singleton documents use fixed _id values matching their type name (e.g., _id: 'siteSettings', _id: 'homePage')",
+        "Typecheck passes"
+      ],
+      "priority": 10,
+      "passes": true,
+      "notes": "Add to the same scripts/seed-sanity.ts file. Singletons use fixed IDs. The featuredListings field on homePage should reference listing document IDs created in US-009 (e.g., { _type: 'reference', _ref: 'listing-1' }). Read the current hardcoded page files (buy/page.tsx, sell/page.tsx, about/page.tsx, page.tsx) to extract the exact hero text and benefit content."
+    },
+    {
+      "id": "US-011",
+      "title": "Integrate Homepage with Sanity",
+      "description": "As a content editor, I want the homepage to display content from Sanity so I can update hero, featured listings, value propositions, and testimonial.",
+      "acceptanceCriteria": [
+        "Hero section pulls image, overline, title, subtitle from homePage.hero singleton via getHomePage()",
+        "Featured listings section uses homePage.featuredListings references (up to 6), falling back to getActiveListings() if none set",
+        "Value propositions section pulls from getValuePropositions() ordered by order field",
+        "Testimonial section pulls from getTestimonials() and uses the first result",
+        "aboutSectionTitle and aboutSectionContent from homePage singleton render in the about preview section",
+        "Images use urlFor() helper with Sanity CDN",
+        "No imports from @/lib/dummy-data remain on this page",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 11,
+      "passes": true,
+      "notes": "Replace dummy-data imports with async fetch calls from frontend/src/lib/sanity/fetch.ts. The page is a Server Component so async/await works directly. Use the urlFor() helper for all images."
+    },
+    {
+      "id": "US-012",
+      "title": "Integrate About Page with Sanity",
+      "description": "As a content editor, I want the about page to display content from Sanity.",
+      "acceptanceCriteria": [
+        "Hero section pulls from aboutPage.hero singleton via getAboutPage()",
+        "Company story section renders aboutPage.storyContent using PortableTextRenderer component and aboutPage.storyImage via urlFor()",
+        "Company stats section pulls from getCompanyStats() ordered by order",
+        "Company values section pulls from getCompanyValues() ordered by order",
+        "Coverage areas section pulls from getCoverageAreas() ordered by order",
+        "No imports from @/lib/dummy-data remain on this page",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 12,
+      "passes": true,
+      "notes": "The about page uses PortableTextRenderer (from US-008) for storyContent. Import it from @/components/ui/portable-text."
+    },
+    {
+      "id": "US-013",
+      "title": "Integrate Buy Page with Sanity",
+      "description": "As a content editor, I want the buy page to display content from Sanity.",
+      "acceptanceCriteria": [
+        "Hero section pulls from buyPage.hero singleton via getBuyPage()",
+        "Benefits section pulls from buyPage.benefits array",
+        "Process steps section pulls from buyPage.processSteps array",
+        "FAQs section pulls from getFaqsByCategory('buyer') ordered by order",
+        "Coverage areas section pulls from getCoverageAreas() ordered by order",
+        "No imports from @/lib/dummy-data remain on this page",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 13,
+      "passes": true,
+      "notes": "The buy page currently has hardcoded buyerBenefits const \u2014 replace with buyPage.benefits from Sanity. Coverage areas are shared with the about page (same getCoverageAreas() call)."
+    },
+    {
+      "id": "US-014",
+      "title": "Integrate Sell Page with Sanity",
+      "description": "As a content editor, I want the sell page to display content from Sanity.",
+      "acceptanceCriteria": [
+        "Hero section pulls from sellPage.hero singleton via getSellPage()",
+        "Benefits section pulls from sellPage.benefits array",
+        "Process steps section pulls from sellPage.processSteps array",
+        "Success stories section pulls from getTestimonials() filtered for 'Sold' in detail (max 3)",
+        "FAQs section pulls from getFaqsByCategory('seller') ordered by order",
+        "No imports from @/lib/dummy-data remain on this page",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 14,
+      "passes": true,
+      "notes": "The sell page currently filters testimonials for those containing 'Sold' in the detail field. Either do this filtering in the GROQ query or client-side after fetching."
+    },
+    {
+      "id": "US-015",
+      "title": "Integrate Listings Page with Sanity",
+      "description": "As a content editor, I want the listings page to display all property listings from Sanity.",
+      "acceptanceCriteria": [
+        "All listings are fetched from Sanity via getListings()",
+        "Listing count display reflects actual Sanity document count",
+        "PropertyCard renders Sanity image via urlFor() with proper dimensions",
+        "Filter UI dropdowns remain in place (non-functional \u2014 state management is Phase 2)",
+        "No imports from @/lib/dummy-data remain on this page",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 15,
+      "passes": true,
+      "notes": "Simple page \u2014 just replace the listings import with getListings() async call."
+    },
+    {
+      "id": "US-016",
+      "title": "Integrate Team Directory page with Sanity",
+      "description": "As a content editor, I want the /team page to display agent profiles from Sanity.",
+      "acceptanceCriteria": [
+        "/team page fetches all teamMember documents via getTeamMembers()",
+        "Each team member renders via TeamMemberCard with Sanity image",
+        "No imports from @/lib/dummy-data remain on this page",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 16,
+      "passes": true,
+      "notes": "Simple page \u2014 replace teamMembers import with getTeamMembers() async call."
+    },
+    {
+      "id": "US-017",
+      "title": "Integrate Individual Agent page with Sanity",
+      "description": "As a content editor, I want the /team/[slug] page to display an agent profile from Sanity with Portable Text bio.",
+      "acceptanceCriteria": [
+        "/team/[slug] fetches a single teamMember by slug via getTeamMemberBySlug(slug)",
+        "generateStaticParams queries Sanity for all team member slugs via getTeamMembers()",
+        "generateMetadata uses Sanity data for dynamic meta title and description",
+        "Agent bio renders as Portable Text using PortableTextRenderer component",
+        "Agent image uses urlFor() helper",
+        "notFound() returned for invalid slugs",
+        "No imports from @/lib/dummy-data remain on this page",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 17,
+      "passes": true,
+      "notes": "The bio field is blockContent (Portable Text) in Sanity. Use the PortableTextRenderer from US-008. The current page renders bio as plain text \u2014 now it becomes rich text."
+    },
+    {
+      "id": "US-018",
+      "title": "Integrate Footer with Sanity site settings",
+      "description": "As a content editor, I want the footer to pull company info from Sanity's siteSettings singleton.",
+      "acceptanceCriteria": [
+        "Footer component fetches siteSettings via getSiteSettings()",
+        "Footer displays companyName, phone, email, and address from siteSettings",
+        "Social links (facebook, instagram, linkedin, twitter) are conditionally rendered \u2014 only shown if URL is set in Sanity",
+        "Header navigation links remain hardcoded (route structure is code-defined)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 18,
+      "passes": true,
+      "notes": "The footer is currently a Server Component with hardcoded data. Make it async and fetch siteSettings. If it needs to become a client component for any reason, fetch in layout.tsx and pass as props instead."
+    },
+    {
+      "id": "US-019",
+      "title": "Set up draft mode and live preview",
+      "description": "As a content editor, I want to preview unpublished draft changes on the frontend in real-time.",
+      "acceptanceCriteria": [
+        "Next.js Draft Mode is enabled via route handlers at frontend/src/app/api/draft/enable/route.ts and frontend/src/app/api/draft/disable/route.ts",
+        "The enable route validates a secret token query parameter before enabling draft mode",
+        "When draft mode is active, sanityFetch uses perspective: 'drafts' and the SANITY_API_READ_TOKEN for authenticated requests",
+        "When draft mode is inactive, sanityFetch uses perspective: 'published' and useCdn: true",
+        "A small visual banner at the top of the page indicates when draft mode is active, with a link to disable it",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 19,
+      "passes": true,
+      "notes": "Use Next.js draftMode() API. The enable route should check for a secret query param (SANITY_PREVIEW_SECRET env var). Update the sanityFetch wrapper in fetch.ts to check draftMode().isEnabled and switch between CDN/authenticated clients. The draft banner can be a simple fixed-position div in layout.tsx."
+    },
+    {
+      "id": "US-020",
+      "title": "Configure ISR revalidation webhook",
+      "description": "As a developer, I need pages to revalidate when content changes in Sanity via webhook.",
+      "acceptanceCriteria": [
+        "A revalidation route handler exists at frontend/src/app/api/revalidate/route.ts",
+        "The route accepts POST requests with Sanity webhook payloads",
+        "The route validates requests using SANITY_REVALIDATE_SECRET header/body",
+        "The route calls revalidateTag() for the relevant content type tag (e.g., 'listing', 'teamMember', 'homePage')",
+        "Time-based revalidation fallback is set to 3600 seconds (1 hour) in the sanityFetch wrapper",
+        "A .env.example file documents all required environment variables (NEXT_PUBLIC_SANITY_PROJECT_ID, NEXT_PUBLIC_SANITY_DATASET, SANITY_API_READ_TOKEN, SANITY_REVALIDATE_SECRET, SANITY_PREVIEW_SECRET)",
+        "Typecheck passes"
+      ],
+      "priority": 20,
+      "passes": true,
+      "notes": "Sanity webhooks send a POST with a JSON body containing _type and _id of the changed document. Map _type to the corresponding revalidation tag. The .env.example serves as documentation for required environment variables."
+    },
+    {
+      "id": "US-021",
+      "title": "Remove dummy data dependency and clean up",
+      "description": "As a developer, I want to remove the dummy data file and all references after Sanity integration is complete.",
+      "acceptanceCriteria": [
+        "No page files import from @/lib/dummy-data",
+        "frontend/src/lib/dummy-data.ts is deleted",
+        "All 7 content-driven pages render correctly from Sanity data",
+        "Build succeeds with no type errors or unused import warnings (npm run build)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 21,
+      "passes": true,
+      "notes": "This is the final cleanup story. Run npm run build to confirm no broken imports. Check all 7 content-driven pages in the browser: /, /about, /buy, /sell, /listings, /team, /team/[slug]. The /contact, /privacy, and /terms pages should be unaffected."
+    }
+  ]
+}

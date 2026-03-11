@@ -38,8 +38,8 @@ export const REQUIRED_SELECT_FIELDS = [
   "ModificationTimestamp",
 ] as const;
 
-/** KV key for the listings array */
+/** Redis key for the listings array */
 export const KV_LISTINGS_KEY = "listings:all";
 
-/** KV key prefix for sync log entries */
+/** Redis key prefix for sync log entries */
 export const KV_SYNC_LOG_PREFIX = "sync:log:";

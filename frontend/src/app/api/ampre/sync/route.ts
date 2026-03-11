@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
-import { kv } from "@vercel/kv";
+import { Redis } from "@upstash/redis";
+
+const redis = Redis.fromEnv();
 import { fetchAmpreProperties } from "@/lib/ampre/client";
 import { buildSyncQuery } from "@/lib/ampre/queries";
 import { mapAmpreToListing, filterPermittedProperties } from "@/lib/ampre/mapper";
@@ -22,7 +24,7 @@ import type { SyncLogEntry } from "@/lib/ampre/types";
  * 2. Fetch all brokerage listings from AMPRE (single daily retrieval)
  * 3. Filter out perm_adv=N listings (C2)
  * 4. Map through mapper (handles disp_addr suppression)
- * 5. Store in KV
+ * 5. Store in Redis
  * 6. Purge stale data (C3)
  * 7. Log sync event (M1)
  * 8. Revalidate ISR cache
@@ -52,14 +54,14 @@ export async function POST(request: Request) {
     // Step 3: Map to internal Listing type (handles disp_addr suppression)
     const listings = permitted.map(mapAmpreToListing);
 
-    // Step 4: Load existing listings for stale-data comparison
+    // Step 4: Load existing listings from Redis for stale-data comparison
     const existingListings =
-      (await kv.get<Listing[]>(KV_LISTINGS_KEY)) ?? [];
+      (await redis.get<Listing[]>(KV_LISTINGS_KEY)) ?? [];
 
-    // Step 5: Store mapped listings in KV
-    await kv.set(KV_LISTINGS_KEY, listings);
+    // Step 5: Store mapped listings in Redis
+    await redis.set(KV_LISTINGS_KEY, listings);
 
-    // Step 6: Count purged entries (listings in KV but not in response)
+    // Step 6: Count purged entries (listings in Redis but not in response)
     const newKeys = new Set(listings.map((l) => l.listingKey));
     const purgedCount = existingListings.filter(
       (l) => !newKeys.has(l.listingKey)
@@ -73,10 +75,10 @@ export async function POST(request: Request) {
       (l) => new Date(l.lastSeen) > retentionCutoff
     );
     if (freshListings.length < listings.length) {
-      await kv.set(KV_LISTINGS_KEY, freshListings);
+      await redis.set(KV_LISTINGS_KEY, freshListings);
     }
 
-    // Step 8: Log sync event to KV (M1 fix)
+    // Step 8: Log sync event to Redis (M1 fix)
     const durationMs = Date.now() - startTime;
     logEntry = {
       timestamp: new Date().toISOString(),
@@ -88,7 +90,7 @@ export async function POST(request: Request) {
       success: true,
     };
     const logKey = `${KV_SYNC_LOG_PREFIX}${Date.now()}`;
-    await kv.set(logKey, logEntry, { ex: 90 * 24 * 60 * 60 }); // Retain logs 90 days
+    await redis.set(logKey, logEntry, { ex: 90 * 24 * 60 * 60 }); // Retain logs 90 days
 
     // Step 9: Bust ISR cache so pages reflect new data
     revalidateTag("ampre-listings", { expire: 3600 });
@@ -120,9 +122,9 @@ export async function POST(request: Request) {
     // Log failure
     const logKey = `${KV_SYNC_LOG_PREFIX}${Date.now()}`;
     try {
-      await kv.set(logKey, logEntry, { ex: 90 * 24 * 60 * 60 });
+      await redis.set(logKey, logEntry, { ex: 90 * 24 * 60 * 60 });
     } catch {
-      // If KV itself is down, we can't log — fail gracefully
+      // If Redis itself is down, we can't log — fail gracefully
     }
 
     return NextResponse.json(
