@@ -35,7 +35,7 @@ export async function Footer({ navigationLinks, officeHours }: FooterProps) {
   ].filter(Boolean) as { href: string; label: string }[];
 
   return (
-    <footer className="bg-[#0E1921] dark:bg-[#030910] text-[#F0F3F5]">
+    <footer className="bg-footer-bg text-footer-text">
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-12 lg:py-16">
         <div className="mb-10">
           <p className="font-display text-lg tracking-wider font-bold uppercase">
@@ -44,8 +44,8 @@ export async function Footer({ navigationLinks, officeHours }: FooterProps) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div>
-            <p className="text-xs uppercase tracking-widest font-medium text-[#8B8E92] mb-4">
+          <nav aria-label="Footer navigation">
+            <p className="text-xs uppercase tracking-widest font-medium text-footer-muted mb-4">
               Navigation
             </p>
             <ul className="space-y-2">
@@ -53,46 +53,48 @@ export async function Footer({ navigationLinks, officeHours }: FooterProps) {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-[#C5CCD3] hover:text-white transition-colors"
+                    className="text-sm text-footer-link hover:text-white transition-colors"
                   >
                     {link.label}
                   </Link>
                 </li>
               ))}
             </ul>
-          </div>
+          </nav>
 
           <div>
-            <p className="text-xs uppercase tracking-widest font-medium text-[#8B8E92] mb-4">
+            <p className="text-xs uppercase tracking-widest font-medium text-footer-muted mb-4">
               Contact
             </p>
-            <ul className="space-y-2 text-sm text-[#C5CCD3]">
-              {address && <li className="whitespace-pre-line">{address}</li>}
-              {phone && (
-                <li>
-                  <a href={`tel:${phone.replace(/[^\d+]/g, "")}`} className="hover:text-white transition-colors">
-                    {phone}
-                  </a>
-                </li>
-              )}
-              {email && (
-                <li>
-                  <a href={`mailto:${email}`} className="hover:text-white transition-colors">
-                    {email}
-                  </a>
-                </li>
-              )}
-              {officeHours && (
-                <li className="whitespace-pre-line mt-4 text-[#8B8E92]">
-                  {officeHours}
-                </li>
-              )}
-            </ul>
+            <address className="not-italic">
+              <ul className="space-y-2 text-sm text-footer-link">
+                {address && <li className="whitespace-pre-line">{address}</li>}
+                {phone && (
+                  <li>
+                    <a href={`tel:${phone.replace(/[^\d+]/g, "")}`} className="hover:text-white transition-colors">
+                      {phone}
+                    </a>
+                  </li>
+                )}
+                {email && (
+                  <li>
+                    <a href={`mailto:${email}`} className="hover:text-white transition-colors">
+                      {email}
+                    </a>
+                  </li>
+                )}
+                {officeHours && (
+                  <li className="whitespace-pre-line mt-4 text-footer-muted">
+                    {officeHours}
+                  </li>
+                )}
+              </ul>
+            </address>
           </div>
 
           {socialLinks.length > 0 && (
             <div>
-              <p className="text-xs uppercase tracking-widest font-medium text-[#8B8E92] mb-4">
+              <p className="text-xs uppercase tracking-widest font-medium text-footer-muted mb-4">
                 Follow Us
               </p>
               <ul className="space-y-2">
@@ -100,7 +102,7 @@ export async function Footer({ navigationLinks, officeHours }: FooterProps) {
                   <li key={link.label}>
                     <a
                       href={link.href}
-                      className="text-sm text-[#C5CCD3] hover:text-white transition-colors"
+                      className="text-sm text-footer-link hover:text-white transition-colors"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -113,16 +115,16 @@ export async function Footer({ navigationLinks, officeHours }: FooterProps) {
           )}
         </div>
 
-        <div className="border-t border-[#2A3440] mt-10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-[#6B6E72]">
+        <div className="border-t border-footer-border mt-10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-footer-dim">
             &copy; {new Date().getFullYear()} {companyName}. All rights reserved.
           </p>
-          <div className="flex items-center gap-4 text-xs text-[#6B6E72]">
-            <Link href="/privacy" className="hover:text-[#C5CCD3] transition-colors">
+          <div className="flex items-center gap-4 text-xs text-footer-dim">
+            <Link href="/privacy" className="hover:text-footer-link transition-colors">
               Privacy Policy
             </Link>
             <span>·</span>
-            <Link href="/terms" className="hover:text-[#C5CCD3] transition-colors">
+            <Link href="/terms" className="hover:text-footer-link transition-colors">
               Terms of Service
             </Link>
           </div>

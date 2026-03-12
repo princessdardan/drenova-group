@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import Link from "next/link";
 import { PropertyCard } from "@/components/ui/property-card";
 import { ListingFilters } from "@/components/ui/listing-filters";
 import {
@@ -64,6 +65,12 @@ async function ListingsGrid({ filters }: { filters: Filters }) {
               <p className="text-sm text-muted mt-2">
                 Try adjusting your search criteria.
               </p>
+              <Link
+                href="/listings"
+                className="inline-flex items-center justify-center h-11 px-6 mt-6 text-sm font-semibold uppercase tracking-wider border border-foreground bg-transparent text-foreground hover:bg-foreground hover:text-background transition-colors"
+              >
+                Clear all filters
+              </Link>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
@@ -96,6 +103,8 @@ async function ListingsGrid({ filters }: { filters: Filters }) {
                       ...(filters.sort ? { sort: filters.sort } : {}),
                       page: String(pageNum),
                     }).toString()}`}
+                    aria-label={`Go to page ${pageNum}`}
+                    aria-current={pageNum === result.page ? "page" : undefined}
                     className={`inline-flex items-center justify-center h-10 w-10 rounded-lg text-sm font-medium transition-colors ${
                       pageNum === result.page
                         ? "bg-accent text-white"

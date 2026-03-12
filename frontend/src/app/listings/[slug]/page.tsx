@@ -79,17 +79,12 @@ export default async function ListingDetailPage(props: ListingDetailProps) {
             <div className="lg:col-span-2">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-3xl lg:text-4xl font-bold">
-                    {formatPrice(listing.price)}
-                  </p>
-                  {listing.addressSuppressed ? (
-                    <p className="text-lg text-muted italic mt-1">
-                      Address withheld
-                    </p>
-                  ) : (
-                    <p className="text-lg mt-1">{listing.address}</p>
-                  )}
-                  <p className="text-muted">
+                  <h1 className="text-3xl lg:text-4xl font-bold">
+                    {listing.addressSuppressed
+                      ? formatPrice(listing.price)
+                      : `${listing.address} — ${formatPrice(listing.price)}`}
+                  </h1>
+                  <p className="text-muted mt-1">
                     {listing.city}, {listing.province} {listing.postalCode}
                   </p>
                 </div>

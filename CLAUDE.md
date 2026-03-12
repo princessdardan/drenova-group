@@ -40,19 +40,26 @@ drenova-group/
 │   │   │   ├── about/page.tsx
 │   │   │   ├── buy/page.tsx
 │   │   │   ├── sell/page.tsx
-│   │   │   ├── listings/page.tsx
+│   │   │   ├── listings/
+│   │   │   │   ├── page.tsx
+│   │   │   │   └── [slug]/page.tsx
 │   │   │   ├── contact/page.tsx
 │   │   │   ├── team/
 │   │   │   │   ├── page.tsx
 │   │   │   │   └── [slug]/page.tsx
 │   │   │   ├── privacy/page.tsx
-│   │   │   └── terms/page.tsx
+│   │   │   ├── terms/page.tsx
+│   │   │   └── api/
+│   │   │       ├── ampre/sync/route.ts
+│   │   │       ├── draft/{enable,disable}/route.ts
+│   │   │       └── revalidate/route.ts
 │   │   ├── components/
 │   │   │   ├── ui/
 │   │   │   └── sections/
 │   │   ├── lib/
 │   │   │   ├── cn.ts
 │   │   │   ├── format.ts
+│   │   │   ├── ampre/          # AMPRE MLS data client, mapper, compliance
 │   │   │   └── sanity/
 │   │   │       ├── client.ts
 │   │   │       ├── image.ts
@@ -68,9 +75,9 @@ drenova-group/
     ├── tsconfig.json
     └── schemaTypes/
         ├── index.ts
-        ├── objects/
-        ├── documents/
-        └── singletons/
+        ├── objects/            # blockContent, ctaSettings, heroSettings, processStep, sectionHeading, valuationSection
+        ├── documents/          # listing, teamMember, testimonial, faq, coverageArea, companyStat, companyValue, valueProposition, legalPage
+        └── singletons/         # siteSettings, homePage, aboutPage, buyPage, sellPage, contactPage, listingsPage, teamPage
 ```
 
 **Path alias:** `@/*` maps to `./src/*` inside `frontend/`.
@@ -114,7 +121,7 @@ Three fonts loaded via `next/font/google` in `frontend/src/app/layout.tsx`:
 - **Colocation:** Page-specific components near their page; shared components in `frontend/src/components/`
 - **No component library:** Build primitives as needed. Do not install shadcn/ui, Radix, etc. unless explicitly requested
 - **Export pattern:** `export default function` for pages; named exports for shared components
-- **Client components in use:** `accordion.tsx`, `header.tsx`, `mobile-menu.tsx`, `contact-form.tsx`
+- **Client components in use:** `accordion.tsx`, `header.tsx`, `mobile-menu.tsx`, `contact-form.tsx`, `listing-filters.tsx`
 
 Read the source files in `frontend/src/components/` for current component APIs and implementations.
 
@@ -132,7 +139,7 @@ Read the source files in `frontend/src/components/` for current component APIs a
 
 | Context | Value |
 |---|---|
-| Section padding | `py-20 lg:py-32 px-6 lg:px-8` |
+| Section padding | `py-16 lg:py-24 px-6 lg:px-8` |
 | Hero section | `min-h-[70vh] lg:min-h-screen px-6 lg:px-8` |
 | Content max-width | `max-w-7xl mx-auto` |
 | Text max-width | `max-w-2xl` |
@@ -151,8 +158,10 @@ Read the source files in `frontend/src/components/` for current component APIs a
 - **Sanity image** — `@/lib/sanity/image` — `urlFor()` helper for Sanity image pipeline
 - **Sanity queries** — `@/lib/sanity/queries` — GROQ query constants for all document types
 - **Sanity fetch** — `@/lib/sanity/fetch` — Typed async fetch functions with ISR cache tags
+- **AMPRE client** — `@/lib/ampre/` — MLS data fetching, mapping to Sanity schema, RESO compliance
+- **Upstash Redis** — `@upstash/redis` — Rate limiting and caching for AMPRE sync
 
-Types are defined in `frontend/src/types/` (`listing.ts`, `team.ts`, `testimonial.ts`).
+Types are defined in `frontend/src/types/` (`listing.ts`, `team.ts`, `testimonial.ts`, `sanity.ts`).
 
 ---
 
@@ -223,20 +232,29 @@ Target a specific workspace: `npm -w frontend run dev` / `npm -w backend run <sc
 | All 10 pages | /, /buy, /sell, /listings, /about, /team, /team/[slug], /contact, /privacy, /terms |
 | Design tokens | Full light/dark mode in `globals.css` |
 | Font loading | 3 fonts via `next/font/google` |
-| 8 UI + 6 section components | See `frontend/src/components/` |
+| 11 UI + 6 section components | See `frontend/src/components/` |
 | Types, utilities, Sanity lib | See `frontend/src/types/` and `frontend/src/lib/sanity/` |
 | SEO metadata | Title template + per-page metadata |
 | Responsive design | Mobile-first across all pages |
-| Sanity Studio | `backend/` workspace, 16 schema types (3 objects, 8 documents, 5 singletons) |
+| Sanity Studio | `backend/` workspace, 23 schema types (6 objects, 9 documents, 8 singletons) |
 | Sanity frontend integration | `next-sanity`, `@sanity/image-url`, `@portabletext/react`, typed fetch functions, ISR + webhook revalidation, draft mode preview |
 | Seed script | `scripts/seed-sanity.ts` — seeds all documents and singletons into Sanity (`npm run seed`) |
+
+### Built (Phase 2 — partial)
+
+| Area | Notes |
+|---|---|
+| API routes | Draft mode enable/disable, ISR revalidation webhook, AMPRE sync endpoint |
+| AMPRE MLS integration | `lib/ampre/` — client, mapper, compliance, fetch, queries, types |
+| Listing detail page | `/listings/[slug]` with dynamic params |
+| Listing filters | Client-side search/filter component |
+| Upstash Redis | Migrated from `@vercel/kv` — rate limiting and caching |
 
 ### Not Built Yet
 
 | Area | Phase |
 |---|---|
-| API routes, form submission (server-side) | 2 |
-| MLS/IDX integration, property detail pages (`/listings/[slug]`), search/filter state | 2 |
+| Form submission (server-side contact form) | 2 |
 | Mapbox interactive map | 2 |
 | Email service (Resend/SendGrid) | 2 |
 | Three.js hero animation | 1 |

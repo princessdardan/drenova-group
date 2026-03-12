@@ -25,6 +25,7 @@ export function Accordion({ items }: AccordionProps) {
               onClick={() => setOpenIndex(isOpen ? null : i)}
               className="flex w-full items-center justify-between py-5 text-left cursor-pointer"
               aria-expanded={isOpen}
+              aria-controls={`accordion-panel-${i}`}
             >
               <span className="text-base font-semibold pr-4">{item.question}</span>
               <span
@@ -38,6 +39,8 @@ export function Accordion({ items }: AccordionProps) {
               </span>
             </button>
             <div
+              id={`accordion-panel-${i}`}
+              role="region"
               className="grid transition-[grid-template-rows] duration-200"
               style={{ gridTemplateRows: isOpen ? "1fr" : "0fr" }}
             >

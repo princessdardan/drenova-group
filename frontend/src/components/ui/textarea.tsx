@@ -14,15 +14,17 @@ export function Textarea({ label, error, id, className, ...props }: TextareaProp
       </label>
       <textarea
         id={id}
+        aria-invalid={!!error}
+        aria-describedby={error ? `${id}-error` : undefined}
         className={cn(
-          "min-h-[120px] px-4 py-3 bg-surface-alt border border-border rounded-lg text-base transition-colors focus:border-accent focus:ring-1 focus:ring-ring outline-none resize-y placeholder:text-muted-foreground",
+          "min-h-[120px] px-4 py-3 bg-surface-alt border border-border rounded-lg text-base transition-colors focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none resize-y placeholder:text-muted-foreground",
           error && "border-red-600 dark:border-red-400",
           className
         )}
         {...props}
       />
       {error && (
-        <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+        <p id={`${id}-error`} className="text-sm text-red-600 dark:text-red-400">{error}</p>
       )}
     </div>
   );

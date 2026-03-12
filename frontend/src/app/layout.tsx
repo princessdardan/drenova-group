@@ -56,21 +56,27 @@ export default async function RootLayout({
     .map(({ label, href }) => ({ label, href }));
 
   return (
-    <html lang="en" style={{ colorScheme: "light" }}>
+    <html lang="en">
       <head>
-        <meta name="color-scheme" content="light" />
+        <meta name="color-scheme" content="light dark" />
         <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async />
       </head>
       <body
         className={`${playfairDisplay.variable} ${plusJakartaSans.variable} ${geistMono.variable} font-sans antialiased`}
       >
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:bg-accent focus:text-accent-foreground focus:px-4 focus:py-2 focus:rounded-md"
+        >
+          Skip to main content
+        </a>
         {isDraftMode && <DraftBanner />}
         <Header
           navigationLinks={headerLinks}
           phone={siteSettings?.phone}
           email={siteSettings?.email}
         />
-        <main>{children}</main>
+        <main id="main-content">{children}</main>
         <Footer
           navigationLinks={footerLinks}
           officeHours={siteSettings?.officeHours}

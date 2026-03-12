@@ -12,6 +12,7 @@ interface HeroProps {
   subtitle?: string;
   children?: React.ReactNode;
   size?: "full" | "short";
+  headingLevel?: "h1" | "h2";
 }
 
 export function Hero({
@@ -22,7 +23,9 @@ export function Hero({
   subtitle,
   children,
   size = "full",
+  headingLevel = "h1",
 }: HeroProps) {
+  const Heading = headingLevel;
   return (
     <section
       className={cn(
@@ -51,9 +54,9 @@ export function Hero({
             {overline}
           </p>
         )}
-        <h1 className="font-display text-4xl lg:text-6xl font-bold tracking-tight leading-[1.1]">
+        <Heading className="font-display text-4xl lg:text-6xl font-bold tracking-tight leading-[1.1]">
           {title}
-        </h1>
+        </Heading>
         {subtitle && (
           <p className="text-lg leading-8 mt-4 text-white/80">{subtitle}</p>
         )}

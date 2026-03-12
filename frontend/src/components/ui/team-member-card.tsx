@@ -11,7 +11,7 @@ interface TeamMemberCardProps {
 
 export function TeamMemberCard({ member }: TeamMemberCardProps) {
   return (
-    <div className="bg-surface-alt overflow-hidden group">
+    <article className="bg-surface-alt overflow-hidden group">
       <Link href={`/team/${member.slug}`} className="block">
         <div className="aspect-[3/4] relative">
           <Image
@@ -40,6 +40,6 @@ export function TeamMemberCard({ member }: TeamMemberCardProps) {
           </ButtonLink>
         </div>
       </div>
-    </div>
+    </article>
   );
 }

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import { Hero } from "@/components/sections/hero";
 import { SectionHeader } from "@/components/ui/section-header";
@@ -12,6 +13,12 @@ import {
 import { getAmpreListings } from "@/lib/ampre/fetch";
 import { urlFor } from "@/lib/sanity/image";
 import { isSanityImage } from "@/types/sanity";
+
+export const metadata: Metadata = {
+  title: "Luxury Real Estate Across Illinois, Arizona & Wisconsin",
+  description:
+    "Drenova Group — a modern real estate brokerage offering expert buying and selling services with a personal approach.",
+};
 
 export default async function HomePage() {
   const [homePage, valuePropositions, testimonials] = await Promise.all([

@@ -14,6 +14,12 @@
   --accent-hover: #8E3710;
   --accent-foreground: #FFFFFF;
   --overlay: rgba(3, 9, 16, 0.65);
+  --footer-bg: #0E1921;
+  --footer-text: #F0F3F5;
+  --footer-muted: #8B8E92;
+  --footer-link: #C5CCD3;
+  --footer-border: #2A3440;
+  --footer-dim: #6B6E72;
 }
 
 /* ─── Dark Mode Tokens ─── */
@@ -31,6 +37,12 @@
     --accent-hover: #D4723A;
     --accent-foreground: #FFFFFF;
     --overlay: rgba(3, 9, 16, 0.75);
+    --footer-bg: #030910;
+    --footer-text: #F0F3F5;
+    --footer-muted: #8B8E92;
+    --footer-link: #C5CCD3;
+    --footer-border: #2A3440;
+    --footer-dim: #6B6E72;
   }
 }
 
@@ -48,9 +60,27 @@
   --color-accent-hover: var(--accent-hover);
   --color-accent-foreground: var(--accent-foreground);
   --color-overlay: var(--overlay);
+  --color-footer-bg: var(--footer-bg);
+  --color-footer-text: var(--footer-text);
+  --color-footer-muted: var(--footer-muted);
+  --color-footer-link: var(--footer-link);
+  --color-footer-border: var(--footer-border);
+  --color-footer-dim: var(--footer-dim);
   --font-sans: var(--font-plus-jakarta-sans);
   --font-display: var(--font-playfair-display);
   --font-mono: var(--font-geist-mono);
+}
+
+/* ─── Reduced Motion ─── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* ─── Base Styles ─── */
