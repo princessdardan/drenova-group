@@ -35,7 +35,6 @@ export const AI_PROHIBITION_NOTICE =
 export const REQUIRED_SELECT_FIELDS = [
   "perm_adv",
   "disp_addr",
-  "ModificationTimestamp",
 ] as const;
 
 /** Redis key for the listings array */

@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import { Redis } from "@upstash/redis";
-
-const redis = Redis.fromEnv();
 import { fetchAmpreProperties } from "@/lib/ampre/client";
 import { buildSyncQuery } from "@/lib/ampre/queries";
 import { mapAmpreToListing, filterPermittedProperties } from "@/lib/ampre/mapper";
@@ -37,6 +35,12 @@ export async function POST(request: Request) {
   return handleSync(request);
 }
 
+let _redis: Redis | null = null;
+function getRedis(): Redis {
+  if (!_redis) _redis = Redis.fromEnv();
+  return _redis;
+}
+
 async function handleSync(request: Request) {
   const startTime = Date.now();
 
@@ -64,10 +68,10 @@ async function handleSync(request: Request) {
 
     // Step 4: Load existing listings from Redis for stale-data comparison
     const existingListings =
-      (await redis.get<Listing[]>(KV_LISTINGS_KEY)) ?? [];
+      (await getRedis().get<Listing[]>(KV_LISTINGS_KEY)) ?? [];
 
     // Step 5: Store mapped listings in Redis
-    await redis.set(KV_LISTINGS_KEY, listings);
+    await getRedis().set(KV_LISTINGS_KEY, listings);
 
     // Step 6: Count purged entries (listings in Redis but not in response)
     const newKeys = new Set(listings.map((l) => l.listingKey));
@@ -83,7 +87,7 @@ async function handleSync(request: Request) {
       (l) => new Date(l.lastSeen) > retentionCutoff
     );
     if (freshListings.length < listings.length) {
-      await redis.set(KV_LISTINGS_KEY, freshListings);
+      await getRedis().set(KV_LISTINGS_KEY, freshListings);
     }
 
     // Step 8: Log sync event to Redis (M1 fix)
@@ -98,7 +102,7 @@ async function handleSync(request: Request) {
       success: true,
     };
     const logKey = `${KV_SYNC_LOG_PREFIX}${Date.now()}`;
-    await redis.set(logKey, logEntry, { ex: 90 * 24 * 60 * 60 }); // Retain logs 90 days
+    await getRedis().set(logKey, logEntry, { ex: 90 * 24 * 60 * 60 }); // Retain logs 90 days
 
     // Step 9: Bust ISR cache so pages reflect new data
     revalidateTag("ampre-listings", { expire: 3600 });
@@ -130,7 +134,7 @@ async function handleSync(request: Request) {
     // Log failure
     const logKey = `${KV_SYNC_LOG_PREFIX}${Date.now()}`;
     try {
-      await redis.set(logKey, logEntry, { ex: 90 * 24 * 60 * 60 });
+      await getRedis().set(logKey, logEntry, { ex: 90 * 24 * 60 * 60 });
     } catch {
       // If Redis itself is down, we can't log — fail gracefully
     }

@@ -60,8 +60,9 @@ const PROPERTY_SELECT_FIELDS = [
 export function buildSyncQuery(): string {
   const params = new URLSearchParams();
 
-  // Select only the fields we need
-  params.set("$select", PROPERTY_SELECT_FIELDS.join(","));
+  // Select only the fields we need (deduplicate in case REQUIRED_SELECT_FIELDS overlaps)
+  const uniqueFields = [...new Set(PROPERTY_SELECT_FIELDS)];
+  params.set("$select", uniqueFields.join(","));
 
   // Filter to active listings only
   params.set("$filter", "StandardStatus eq 'Active'");
