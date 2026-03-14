@@ -5,4 +5,5 @@ export default defineCliConfig({
     projectId: "apggi8zn",
     dataset: "production",
   },
+  studioHost: "drenova-group",
 });
