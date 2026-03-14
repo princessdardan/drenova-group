@@ -29,7 +29,15 @@ import type { SyncLogEntry } from "@/lib/ampre/types";
  * 7. Log sync event (M1)
  * 8. Revalidate ISR cache
  */
+export async function GET(request: Request) {
+  return handleSync(request);
+}
+
 export async function POST(request: Request) {
+  return handleSync(request);
+}
+
+async function handleSync(request: Request) {
   const startTime = Date.now();
 
   // Verify caller — Vercel Cron sends CRON_SECRET automatically
