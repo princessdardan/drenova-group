@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { draftMode } from "next/headers";
 import { Playfair_Display, Plus_Jakarta_Sans, Geist_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { Header } from "@/components/sections/header";
 import { Footer } from "@/components/sections/footer";
 import { DraftBanner } from "@/components/ui/draft-banner";
@@ -29,12 +30,23 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://drenovagroup.com"
+  ),
   title: {
     default: "Drenova Group | Real Estate",
     template: "%s | Drenova Group",
   },
   description:
     "Drenova Group is a modern real estate brokerage serving buyers and sellers across Illinois, Arizona, Wisconsin, Indiana, and Michigan.",
+  openGraph: {
+    type: "website",
+    siteName: "Drenova Group",
+    images: [{ url: "/og-image.png", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
 };
 
 export default async function RootLayout({
@@ -59,7 +71,6 @@ export default async function RootLayout({
     <html lang="en">
       <head>
         <meta name="color-scheme" content="light dark" />
-        <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async />
       </head>
       <body
         className={`${playfairDisplay.variable} ${plusJakartaSans.variable} ${geistMono.variable} font-sans antialiased`}
@@ -81,6 +92,7 @@ export default async function RootLayout({
           navigationLinks={footerLinks}
           officeHours={siteSettings?.officeHours}
         />
+        <Analytics />
       </body>
     </html>
   );

@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { submitContactForm } from "@/app/actions/contact";
 
 const subjectOptions = [
   { value: "buying", label: "Buying" },
@@ -18,6 +19,8 @@ interface ContactFormProps {
 
 export function ContactForm({ prefilledSubject }: ContactFormProps) {
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   function validate(form: FormData): Record<string, string> {
@@ -32,13 +35,23 @@ export function ContactForm({ prefilledSubject }: ContactFormProps) {
     return errs;
   }
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const errs = validate(formData);
     setErrors(errs);
-    if (Object.keys(errs).length === 0) {
+    if (Object.keys(errs).length > 0) return;
+
+    setSubmitting(true);
+    setServerError(null);
+
+    const result = await submitContactForm(formData);
+    setSubmitting(false);
+
+    if (result.success) {
       setSubmitted(true);
+    } else {
+      setServerError(result.error ?? "Something went wrong.");
     }
   }
 
@@ -95,8 +108,16 @@ export function ContactForm({ prefilledSubject }: ContactFormProps) {
         placeholder="How can we help you?"
         error={errors.message}
       />
-      <Button type="submit" variant="accent" className="w-full sm:w-auto mt-2">
-        Send Message
+      {serverError && (
+        <p className="text-sm text-red-600">{serverError}</p>
+      )}
+      <Button
+        type="submit"
+        variant="accent"
+        className="w-full sm:w-auto mt-2"
+        disabled={submitting}
+      >
+        {submitting ? "Sending\u2026" : "Send Message"}
       </Button>
     </form>
   );
