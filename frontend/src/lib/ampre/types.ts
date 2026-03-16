@@ -1,9 +1,12 @@
 /**
  * Raw AMPRE OData property representation.
  *
- * These fields follow the CREA Data Distribution Facility (DDF) / RESO standard.
- * `perm_adv` and `disp_addr` are mandatory display-control fields per the
- * PropTx Data License Addendum — they MUST be included in every $select.
+ * Field names follow AMPRE's OData schema (validated against $metadata).
+ *
+ * Compliance display-control fields (PropTx DLA):
+ *   DLA name   → AMPRE OData field (boolean)
+ *   perm_adv   → DDFYN, InternetEntireListingDisplayYN
+ *   disp_addr  → InternetAddressDisplayYN
  */
 export interface AmpreProperty {
   // Identity
@@ -24,18 +27,20 @@ export interface AmpreProperty {
   PostalCode: string;
   Country?: string;
 
-  // Location
-  Latitude?: number;
-  Longitude?: number;
+  // Location (null for many records — may need separate geocoding)
+  Latitude?: number | null;
+  Longitude?: number | null;
 
   // Details
   BedroomsTotal?: number;
   BathroomsTotalInteger?: number;
-  LivingArea?: number;
-  LotSizeArea?: number;
+  LivingAreaRange?: string; // String range e.g. "1100-1500", not a number
+  AboveGradeFinishedArea?: number | null; // Numeric sqft (14% populated)
+  BuildingAreaTotal?: number | null; // Numeric sqft fallback
+  LotSizeArea?: number | null;
   PropertyType?: string;
   PropertySubType?: string;
-  YearBuilt?: number;
+  YearBuilt?: number | null;
   PublicRemarks?: string;
 
   // Status
@@ -44,41 +49,51 @@ export interface AmpreProperty {
   ListingContractDate?: string;
   ModificationTimestamp: string;
 
-  // Media
-  Media?: AmpreMedia[];
-
-  // Compliance — PropTx Data License display fields (REQUIRED)
-  perm_adv: "Y" | "N";
-  disp_addr: "Y" | "N";
+  // Compliance — AMPRE equivalents of PropTx DLA perm_adv / disp_addr
+  DDFYN?: boolean;
+  InternetEntireListingDisplayYN?: boolean;
+  InternetAddressDisplayYN?: boolean;
 
   // Brokerage
   ListOfficeName?: string;
   ListAgentFullName?: string;
 }
 
+/**
+ * AMPRE Media resource — fetched separately from /odata/Media,
+ * linked to Property via ResourceRecordKey = ListingKey.
+ */
 export interface AmpreMedia {
+  MediaKey: string;
+  ResourceRecordKey: string;
   MediaURL: string;
-  MediaCategory?: string;
+  ImageSizeDescription?: string;
+  MediaModificationTimestamp?: string;
+  MediaStatus?: string;
   Order?: number;
-  ShortDescription?: string;
 }
 
-/** OData response envelope */
-export interface AmpreResponse {
+/** Generic OData response envelope */
+export interface AmpreODataResponse<T> {
   "@odata.context"?: string;
   "@odata.count"?: number;
   "@odata.nextLink"?: string;
-  value: AmpreProperty[];
+  value: T[];
 }
 
-/** Sync log entry stored in KV */
+/** Property-specific response (backward compat alias) */
+export type AmpreResponse = AmpreODataResponse<AmpreProperty>;
+
+/** Sync log entry stored in Redis */
 export interface SyncLogEntry {
   timestamp: string;
   durationMs: number;
   fetched: number;
   stored: number;
   purged: number;
-  filteredPermAdv: number;
+  filteredDdf: number;
+  mediaFetched: number;
+  mediaErrors: number;
   success: boolean;
   error?: string;
 }

@@ -1,4 +1,5 @@
-import type { AmpreResponse } from "./types";
+import type { AmpreODataResponse, AmpreProperty, AmpreMedia } from "./types";
+import { buildMediaBatchQuery } from "./queries";
 
 /**
  * AMPRE OData HTTP client.
@@ -34,19 +35,20 @@ function getToken(): string {
 }
 
 /**
- * Fetch properties from AMPRE OData endpoint.
+ * Generic OData resource fetcher with pagination.
  *
- * Handles pagination via `@odata.nextLink` to retrieve the full result set
- * in a single invocation. This function is called once per day by the sync job.
+ * Follows `@odata.nextLink` until exhausted, collecting all records into
+ * a single array. Used by both Property and Media fetchers.
  */
-export async function fetchAmpreProperties(
+async function fetchAmpreResource<T>(
+  resource: string,
   query: string
-): Promise<AmpreResponse["value"]> {
+): Promise<T[]> {
   const baseUrl = getBaseUrl();
   const token = getToken();
-  const allProperties: AmpreResponse["value"] = [];
+  const results: T[] = [];
 
-  let url: string | null = `${baseUrl}/Property?${query}`;
+  let url: string | null = `${baseUrl}/${resource}?${query}`;
 
   while (url) {
     const response = await fetch(url, {
@@ -65,11 +67,59 @@ export async function fetchAmpreProperties(
       );
     }
 
-    const data: AmpreResponse = await response.json();
-    allProperties.push(...data.value);
+    const data: AmpreODataResponse<T> = await response.json();
+    results.push(...data.value);
 
     url = data["@odata.nextLink"] ?? null;
   }
 
-  return allProperties;
+  return results;
+}
+
+/**
+ * Fetch properties from AMPRE OData endpoint.
+ *
+ * Handles pagination via `@odata.nextLink` to retrieve the full result set
+ * in a single invocation. This function is called once per day by the sync job.
+ */
+export async function fetchAmpreProperties(
+  query: string
+): Promise<AmpreProperty[]> {
+  return fetchAmpreResource<AmpreProperty>("Property", query);
+}
+
+/** Default batch size for media requests (keeps OData URLs under ~2000 chars) */
+const MEDIA_BATCH_SIZE = 100;
+
+/**
+ * Fetch media records for a set of listing keys.
+ *
+ * Splits keys into batches to stay within OData URL length limits,
+ * fetches each batch with full pagination, and accumulates results.
+ * Per-batch errors are counted but do not abort the overall fetch —
+ * property data without images is better than no sync at all.
+ */
+export async function fetchAmpreMedia(
+  listingKeys: string[],
+  batchSize: number = MEDIA_BATCH_SIZE
+): Promise<{ media: AmpreMedia[]; errors: number }> {
+  if (listingKeys.length === 0) return { media: [], errors: 0 };
+
+  const allMedia: AmpreMedia[] = [];
+  let errorCount = 0;
+
+  for (let i = 0; i < listingKeys.length; i += batchSize) {
+    const batch = listingKeys.slice(i, i + batchSize);
+    const query = buildMediaBatchQuery(batch);
+
+    try {
+      const batchMedia = await fetchAmpreResource<AmpreMedia>("Media", query);
+      allMedia.push(...batchMedia);
+    } catch {
+      // Count the error but continue — partial images > no images
+      errorCount++;
+    }
+  }
+
+  return { media: allMedia, errors: errorCount };
 }

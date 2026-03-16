@@ -33,7 +33,13 @@ export async function generateMetadata(
     ? `${listing.beds} bed, ${listing.baths} bath property in ${location}. ${formatPrice(listing.price)}.`
     : `${listing.beds} bed, ${listing.baths} bath at ${listing.address}, ${location}. ${formatPrice(listing.price)}.`;
 
-  return { title, description };
+  return {
+    title,
+    description,
+    openGraph: listing.image
+      ? { images: [{ url: listing.image, alt: title }] }
+      : undefined,
+  };
 }
 
 export default async function ListingDetailPage(props: ListingDetailProps) {

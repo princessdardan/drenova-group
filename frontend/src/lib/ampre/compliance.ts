@@ -29,12 +29,16 @@ export const AI_PROHIBITION_NOTICE =
 
 /**
  * Required $select fields that MUST be included in every AMPRE query.
- * `perm_adv` and `disp_addr` are mandatory display-control fields per
- * the PropTx Data License Addendum.
+ *
+ * The PropTx DLA refers to these as `perm_adv` and `disp_addr`, but
+ * AMPRE's OData schema uses RESO-standard names (all booleans):
+ *   perm_adv  → DDFYN + InternetEntireListingDisplayYN
+ *   disp_addr → InternetAddressDisplayYN
  */
 export const REQUIRED_SELECT_FIELDS = [
-  "perm_adv",
-  "disp_addr",
+  "DDFYN",
+  "InternetEntireListingDisplayYN",
+  "InternetAddressDisplayYN",
 ] as const;
 
 /** Redis key for the listings array */

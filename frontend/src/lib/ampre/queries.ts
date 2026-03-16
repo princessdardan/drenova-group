@@ -5,10 +5,14 @@ import { REQUIRED_SELECT_FIELDS } from "./compliance";
  *
  * Unlike a typical OData query builder that translates user-facing filters,
  * this builder creates a single "fetch all brokerage listings" query. User
- * filters are applied in-memory after reading from Vercel KV.
+ * filters are applied in-memory after reading from Redis.
  *
- * Every query MUST include `perm_adv`, `disp_addr`, and `ModificationTimestamp`
- * in $select per PropTx Data License requirements.
+ * Every query MUST include the compliance display-control fields
+ * (DDFYN, InternetEntireListingDisplayYN, InternetAddressDisplayYN)
+ * per PropTx Data License requirements.
+ *
+ * Media is a SEPARATE OData resource — fetched from /odata/Media and joined
+ * via ResourceRecordKey = ListingKey. See `buildMediaBatchQuery`.
  */
 
 const PROPERTY_SELECT_FIELDS = [
@@ -33,7 +37,9 @@ const PROPERTY_SELECT_FIELDS = [
   // Details
   "BedroomsTotal",
   "BathroomsTotalInteger",
-  "LivingArea",
+  "LivingAreaRange",
+  "AboveGradeFinishedArea",
+  "BuildingAreaTotal",
   "LotSizeArea",
   "PropertyType",
   "PropertySubType",
@@ -44,8 +50,6 @@ const PROPERTY_SELECT_FIELDS = [
   "MlsStatus",
   "ListingContractDate",
   "ModificationTimestamp",
-  // Media
-  "Media",
   // Brokerage
   "ListOfficeName",
   "ListAgentFullName",
@@ -69,6 +73,41 @@ export function buildSyncQuery(): string {
 
   // Order by modification timestamp for consistent pagination
   params.set("$orderby", "ModificationTimestamp desc");
+
+  return params.toString();
+}
+
+/**
+ * Fields to select from the Media resource.
+ * Kept minimal to reduce payload size — only what the mapper needs.
+ */
+export const MEDIA_SELECT_FIELDS = [
+  "MediaKey",
+  "ResourceRecordKey",
+  "MediaURL",
+  "ImageSizeDescription",
+  "Order",
+] as const;
+
+/**
+ * Build an OData query to fetch media for a batch of listing keys.
+ *
+ * Filters to `ImageSizeDescription eq 'Largest'` so we get full-resolution
+ * images only (AMPRE stores multiple sizes per photo).
+ */
+export function buildMediaBatchQuery(listingKeys: string[]): string {
+  const params = new URLSearchParams();
+
+  params.set("$select", MEDIA_SELECT_FIELDS.join(","));
+
+  // OData `in` operator: ResourceRecordKey in ('key1','key2',...)
+  const keyList = listingKeys.map((k) => `'${k}'`).join(",");
+  params.set(
+    "$filter",
+    `ResourceRecordKey in (${keyList}) and ImageSizeDescription eq 'Largest'`
+  );
+
+  params.set("$orderby", "ResourceRecordKey asc,Order asc");
 
   return params.toString();
 }

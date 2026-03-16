@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import { Redis } from "@upstash/redis";
-import { fetchAmpreProperties } from "@/lib/ampre/client";
+import { fetchAmpreProperties, fetchAmpreMedia } from "@/lib/ampre/client";
 import { buildSyncQuery } from "@/lib/ampre/queries";
 import { mapAmpreToListing, filterPermittedProperties } from "@/lib/ampre/mapper";
 import {
@@ -10,7 +10,7 @@ import {
   MAX_RETENTION_DAYS,
 } from "@/lib/ampre/compliance";
 import type { Listing } from "@/types/listing";
-import type { SyncLogEntry } from "@/lib/ampre/types";
+import type { AmpreMedia, SyncLogEntry } from "@/lib/ampre/types";
 
 /**
  * POST /api/ampre/sync
@@ -20,12 +20,13 @@ import type { SyncLogEntry } from "@/lib/ampre/types";
  *
  * 1. Verify CRON_SECRET
  * 2. Fetch all brokerage listings from AMPRE (single daily retrieval)
- * 3. Filter out perm_adv=N listings (C2)
- * 4. Map through mapper (handles disp_addr suppression)
- * 5. Store in Redis
- * 6. Purge stale data (C3)
- * 7. Log sync event (M1)
- * 8. Revalidate ISR cache
+ * 3. Filter out DDFYN=false / InternetEntireListingDisplayYN=false (C2)
+ * 4. Fetch media from /odata/Media, joined by ResourceRecordKey
+ * 5. Map through mapper (handles address suppression + media)
+ * 6. Store in Redis
+ * 7. Purge stale data (C3)
+ * 8. Log sync event (M1)
+ * 9. Revalidate ISR cache
  */
 export async function GET(request: Request) {
   return handleSync(request);
@@ -59,27 +60,55 @@ async function handleSync(request: Request) {
     const query = buildSyncQuery();
     const rawProperties = await fetchAmpreProperties(query);
 
-    // Step 2: Filter out perm_adv=N (C2 fix)
+    // Step 2: Filter out non-displayable listings (C2 fix)
     const { permitted, filteredCount } =
       filterPermittedProperties(rawProperties);
 
-    // Step 3: Map to internal Listing type (handles disp_addr suppression)
-    const listings = permitted.map(mapAmpreToListing);
+    // Step 3: Fetch media for permitted listings
+    const listingKeys = permitted.map((p) => p.ListingKey);
+    let mediaMap = new Map<string, AmpreMedia[]>();
+    let mediaFetched = 0;
+    let mediaErrors = 0;
 
-    // Step 4: Load existing listings from Redis for stale-data comparison
+    try {
+      const mediaResult = await fetchAmpreMedia(listingKeys);
+      mediaFetched = mediaResult.media.length;
+      mediaErrors = mediaResult.errors;
+
+      // Group media by ResourceRecordKey for O(1) lookup during mapping
+      for (const m of mediaResult.media) {
+        const existing = mediaMap.get(m.ResourceRecordKey);
+        if (existing) {
+          existing.push(m);
+        } else {
+          mediaMap.set(m.ResourceRecordKey, [m]);
+        }
+      }
+    } catch {
+      // Media fetch failed entirely — continue with empty images
+      // Property data is more important than images
+      mediaErrors = 1;
+    }
+
+    // Step 4: Map to internal Listing type (handles address suppression + media)
+    const listings = permitted.map((p) =>
+      mapAmpreToListing(p, mediaMap.get(p.ListingKey) ?? [])
+    );
+
+    // Step 5: Load existing listings from Redis for stale-data comparison
     const existingListings =
       (await getRedis().get<Listing[]>(KV_LISTINGS_KEY)) ?? [];
 
-    // Step 5: Store mapped listings in Redis
+    // Step 6: Store mapped listings in Redis
     await getRedis().set(KV_LISTINGS_KEY, listings);
 
-    // Step 6: Count purged entries (listings in Redis but not in response)
+    // Step 7: Count purged entries (listings in Redis but not in response)
     const newKeys = new Set(listings.map((l) => l.listingKey));
     const purgedCount = existingListings.filter(
       (l) => !newKeys.has(l.listingKey)
     ).length;
 
-    // Step 7: Secondary safety net — flag any listings with lastSeen > 60 days
+    // Step 8: Secondary safety net — flag any listings with lastSeen > 60 days
     // (shouldn't happen since we replace the entire array, but defense-in-depth)
     const retentionCutoff = new Date();
     retentionCutoff.setDate(retentionCutoff.getDate() - MAX_RETENTION_DAYS);
@@ -90,7 +119,7 @@ async function handleSync(request: Request) {
       await getRedis().set(KV_LISTINGS_KEY, freshListings);
     }
 
-    // Step 8: Log sync event to Redis (M1 fix)
+    // Step 9: Log sync event to Redis (M1 fix)
     const durationMs = Date.now() - startTime;
     logEntry = {
       timestamp: new Date().toISOString(),
@@ -98,13 +127,15 @@ async function handleSync(request: Request) {
       fetched: rawProperties.length,
       stored: freshListings.length,
       purged: purgedCount,
-      filteredPermAdv: filteredCount,
+      filteredDdf: filteredCount,
+      mediaFetched,
+      mediaErrors,
       success: true,
     };
     const logKey = `${KV_SYNC_LOG_PREFIX}${Date.now()}`;
     await getRedis().set(logKey, logEntry, { ex: 90 * 24 * 60 * 60 }); // Retain logs 90 days
 
-    // Step 9: Bust ISR cache so pages reflect new data
+    // Step 10: Bust ISR cache
     revalidateTag("ampre-listings", { expire: 3600 });
 
     return NextResponse.json({
@@ -112,7 +143,9 @@ async function handleSync(request: Request) {
       fetched: rawProperties.length,
       stored: freshListings.length,
       purged: purgedCount,
-      filteredPermAdv: filteredCount,
+      filteredDdf: filteredCount,
+      mediaFetched,
+      mediaErrors,
       durationMs,
     });
   } catch (error) {
@@ -126,7 +159,9 @@ async function handleSync(request: Request) {
       fetched: 0,
       stored: 0,
       purged: 0,
-      filteredPermAdv: 0,
+      filteredDdf: 0,
+      mediaFetched: 0,
+      mediaErrors: 0,
       success: false,
       error: errorMessage,
     };
