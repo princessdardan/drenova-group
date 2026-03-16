@@ -62,19 +62,15 @@ const PROPERTY_SELECT_FIELDS = [
  * Fetches all active listings for the brokerage.
  */
 export function buildSyncQuery(): string {
-  const params = new URLSearchParams();
-
-  // Select only the fields we need (deduplicate in case REQUIRED_SELECT_FIELDS overlaps)
+  // Build OData query string manually — URLSearchParams encodes $, commas,
+  // and single quotes which breaks OData parameter parsing.
   const uniqueFields = [...new Set(PROPERTY_SELECT_FIELDS)];
-  params.set("$select", uniqueFields.join(","));
 
-  // Filter to active listings only
-  params.set("$filter", "StandardStatus eq 'Active'");
-
-  // Order by modification timestamp for consistent pagination
-  params.set("$orderby", "ModificationTimestamp desc");
-
-  return params.toString();
+  return [
+    `$select=${uniqueFields.join(",")}`,
+    `$filter=StandardStatus eq 'Active'`,
+    `$orderby=ModificationTimestamp desc`,
+  ].join("&");
 }
 
 /**
@@ -96,18 +92,12 @@ export const MEDIA_SELECT_FIELDS = [
  * images only (AMPRE stores multiple sizes per photo).
  */
 export function buildMediaBatchQuery(listingKeys: string[]): string {
-  const params = new URLSearchParams();
-
-  params.set("$select", MEDIA_SELECT_FIELDS.join(","));
-
   // OData `in` operator: ResourceRecordKey in ('key1','key2',...)
   const keyList = listingKeys.map((k) => `'${k}'`).join(",");
-  params.set(
-    "$filter",
-    `ResourceRecordKey in (${keyList}) and ImageSizeDescription eq 'Largest'`
-  );
 
-  params.set("$orderby", "ResourceRecordKey asc,Order asc");
-
-  return params.toString();
+  return [
+    `$select=${MEDIA_SELECT_FIELDS.join(",")}`,
+    `$filter=ResourceRecordKey in (${keyList}) and ImageSizeDescription eq 'Largest'`,
+    `$orderby=ResourceRecordKey asc,Order asc`,
+  ].join("&");
 }
