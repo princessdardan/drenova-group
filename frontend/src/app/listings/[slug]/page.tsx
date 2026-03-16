@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAmpreListingBySlug } from "@/lib/ampre/fetch";
 import { formatPrice, formatNumber } from "@/lib/format";
+import { ImageCarousel } from "@/components/ui/image-carousel";
 
 interface ListingDetailProps {
   params: Promise<{ slug: string }>;
@@ -48,34 +48,20 @@ export default async function ListingDetailPage(props: ListingDetailProps) {
 
   if (!listing) notFound();
 
-  const hasImages = listing.images && listing.images.length > 0;
   const location = listing.addressSuppressed
     ? `${listing.city}, ${listing.province}`
     : `${listing.address}, ${listing.city}, ${listing.province} ${listing.postalCode}`;
 
   return (
     <div className="pt-20 lg:pt-24">
-      {/* Image Gallery */}
-      {hasImages && (
-        <section className="bg-surface">
-          <div className="max-w-7xl mx-auto">
-            <div className="aspect-[16/9] lg:aspect-[21/9] relative">
-              <Image
-                src={listing.images![0]}
-                alt={
-                  listing.addressSuppressed
-                    ? `Property in ${listing.city}, ${listing.province}`
-                    : `${listing.address}, ${listing.city}, ${listing.province}`
-                }
-                fill
-                className="object-cover"
-                sizes="100vw"
-                priority
-              />
-            </div>
-          </div>
-        </section>
-      )}
+      <ImageCarousel
+        images={listing.images?.length ? listing.images : [listing.image]}
+        alt={
+          listing.addressSuppressed
+            ? `Property in ${listing.city}, ${listing.province}`
+            : `${listing.address}, ${listing.city}, ${listing.province}`
+        }
+      />
 
       {/* Listing Details */}
       <section className="py-12 px-6 lg:py-16 lg:px-8">
@@ -195,27 +181,6 @@ export default async function ListingDetailPage(props: ListingDetailProps) {
         </div>
       </section>
 
-      {/* Additional Images */}
-      {listing.images && listing.images.length > 1 && (
-        <section className="bg-surface py-12 px-6 lg:py-16 lg:px-8">
-          <div className="max-w-7xl mx-auto">
-            <h2 className="text-xl font-semibold mb-6">Gallery</h2>
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-              {listing.images.slice(1).map((imageUrl, i) => (
-                <div key={i} className="aspect-[4/3] relative rounded-lg overflow-hidden">
-                  <Image
-                    src={imageUrl}
-                    alt={`Property photo ${i + 2}`}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 50vw, 33vw"
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
     </div>
   );
 }
