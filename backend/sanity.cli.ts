@@ -6,4 +6,7 @@ export default defineCliConfig({
     dataset: "production",
   },
   studioHost: "drenova-group",
+  deployment: {
+    appId: "x17hc39entt43rwj7d1v78rj",
+  },
 });
