@@ -123,11 +123,24 @@ export const MEDIA_SELECT_FIELDS = [
 ] as const;
 
 /**
+ * Maximum records to request per media batch.
+ *
+ * AMPRE's Media endpoint defaults to 100 records per page and does NOT
+ * provide @odata.nextLink for pagination. We must use $top to request
+ * all records upfront. With the 'Large' size filter, 25 listings × 40
+ * photos × 1 size = ~1000 records max per batch.
+ */
+const MEDIA_BATCH_TOP = 1500;
+
+/**
  * Build an OData query to fetch media for a batch of listing keys.
  *
- * Fetches ALL available image sizes — the mapper picks the best size
- * per logical image (grouped by Order). This avoids zero-image results
- * when a listing lacks a specific size like 'Large'.
+ * Filters to ImageSizeDescription='Large' only — good quality for web
+ * display at ~1/5th the payload of fetching all size variants. Verified
+ * that 'Large' covers 100% of photos across sampled AMPRE listings.
+ *
+ * Uses $top because AMPRE's Media endpoint does not provide @odata.nextLink
+ * and defaults to 100 records per page. $count=true lets us detect truncation.
  */
 export function buildMediaBatchQuery(listingKeys: string[]): string {
   // OData `in` operator: ResourceRecordKey in ('key1','key2',...)
@@ -135,7 +148,9 @@ export function buildMediaBatchQuery(listingKeys: string[]): string {
 
   return [
     `$select=${MEDIA_SELECT_FIELDS.join(",")}`,
-    `$filter=ResourceRecordKey in (${keyList})`,
+    `$filter=ResourceRecordKey in (${keyList}) and ImageSizeDescription eq 'Large'`,
     `$orderby=ResourceRecordKey asc,Order asc`,
+    `$top=${MEDIA_BATCH_TOP}`,
+    `$count=true`,
   ].join("&");
 }

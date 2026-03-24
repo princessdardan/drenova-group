@@ -100,8 +100,9 @@ async function handleSync(request: Request) {
       // Property data is more important than images
       mediaErrors = 1;
     }
+    const listingsWithImages = mediaMap.size;
     console.log(
-      `[sync] Media fetched: ${mediaFetched} records, ${mediaErrors} errors in ${Date.now() - mediaStart}ms`
+      `[sync] Media fetched: ${mediaFetched} records for ${listingsWithImages}/${listingKeys.length} listings, ${mediaErrors} errors in ${Date.now() - mediaStart}ms`
     );
 
     // Step 4: Map to internal Listing type (handles address suppression + media)
@@ -147,6 +148,7 @@ async function handleSync(request: Request) {
       filteredDdf: filteredCount,
       mediaFetched,
       mediaErrors,
+      listingsWithImages,
       success: true,
       ...(batchErrors.length > 0 && { batchErrors }),
     };
@@ -164,6 +166,7 @@ async function handleSync(request: Request) {
       filteredDdf: filteredCount,
       mediaFetched,
       mediaErrors,
+      listingsWithImages,
       durationMs,
       ...(batchErrors.length > 0 && { batchErrors }),
     });
@@ -181,6 +184,7 @@ async function handleSync(request: Request) {
       filteredDdf: 0,
       mediaFetched: 0,
       mediaErrors: 0,
+      listingsWithImages: 0,
       success: false,
       error: errorMessage,
     };

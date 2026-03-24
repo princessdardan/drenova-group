@@ -142,6 +142,8 @@ export interface SyncLogEntry {
   filteredDdf: number;
   mediaFetched: number;
   mediaErrors: number;
+  /** Number of listings that received at least one image */
+  listingsWithImages: number;
   success: boolean;
   error?: string;
   batchErrors?: BatchError[];

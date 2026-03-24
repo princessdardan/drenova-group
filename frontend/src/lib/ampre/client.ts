@@ -39,6 +39,17 @@ function getToken(): string {
   return token;
 }
 
+/** Result from fetchAmpreResource — includes diagnostic info for partial fetches */
+interface FetchResult<T> {
+  records: T[];
+  /** HTTP status that terminated the fetch early (only set when partial=true) */
+  terminatedByStatus?: number;
+  /** Error message if a network/parse error terminated the fetch */
+  terminatedByError?: string;
+  /** Number of pages successfully fetched before termination or completion */
+  pagesFetched: number;
+}
+
 /**
  * Generic OData resource fetcher with pagination.
  *
@@ -57,11 +68,13 @@ async function fetchAmpreResource<T>(
   query: string,
   partial: boolean = false,
   label?: string
-): Promise<T[]> {
+): Promise<FetchResult<T>> {
   const baseUrl = getBaseUrl();
   const token = getToken();
-  const results: T[] = [];
-  let page = 0;
+  const records: T[] = [];
+  let pagesFetched = 0;
+  let terminatedByStatus: number | undefined;
+  let terminatedByError: string | undefined;
 
   let url: string | null = `${baseUrl}/${resource}?${query}`;
 
@@ -76,7 +89,13 @@ async function fetchAmpreResource<T>(
       });
 
       if (!response.ok) {
-        if (partial) break; // stop paginating, keep what we have
+        if (partial) {
+          terminatedByStatus = response.status;
+          console.warn(
+            `[ampre] ${label ?? resource}: HTTP ${response.status} on page ${pagesFetched + 1} (${records.length} records collected so far)`
+          );
+          break;
+        }
         // Do NOT log response body — may contain MLS data (§4)
         throw new AmpreError(
           `AMPRE API returned ${response.status} ${response.statusText}`,
@@ -85,23 +104,39 @@ async function fetchAmpreResource<T>(
       }
 
       const data: AmpreODataResponse<T> = await response.json();
-      results.push(...data.value);
-      page++;
+      records.push(...data.value);
+      pagesFetched++;
 
       if (label) {
         console.log(
-          `[ampre] ${label} page ${page}: +${data.value.length} (${results.length} total)`
+          `[ampre] ${label} page ${pagesFetched}: +${data.value.length} (${records.length} total)`
+        );
+      }
+
+      // Detect truncation: @odata.count tells us the total matching records.
+      // If count > records collected and there's no nextLink, $top was too low.
+      const totalCount = data["@odata.count"];
+      if (totalCount != null && totalCount > records.length && !data["@odata.nextLink"]) {
+        console.warn(
+          `[ampre] ${label ?? resource}: truncated — ${records.length}/${totalCount} records (increase $top)`
         );
       }
 
       url = data["@odata.nextLink"] ?? null;
     } catch (error) {
-      if (partial) break; // network error — keep partial results
+      if (partial) {
+        terminatedByError =
+          error instanceof Error ? error.message : "Unknown error";
+        console.warn(
+          `[ampre] ${label ?? resource}: error on page ${pagesFetched + 1} (${records.length} records collected so far): ${terminatedByError}`
+        );
+        break;
+      }
       throw error;
     }
   }
 
-  return results;
+  return { records, terminatedByStatus, terminatedByError, pagesFetched };
 }
 
 /**
@@ -147,7 +182,13 @@ async function mapWithConcurrency<T, R>(
 export async function fetchAmpreProperties(
   query: string
 ): Promise<AmpreProperty[]> {
-  return fetchAmpreResource<AmpreProperty>("Property", query, false, "Property");
+  const result = await fetchAmpreResource<AmpreProperty>(
+    "Property",
+    query,
+    false,
+    "Property"
+  );
+  return result.records;
 }
 
 /** Default batch size for media requests (keeps OData URLs under ~2000 chars) */
@@ -198,7 +239,7 @@ export async function fetchAmpreMedia(
     }
   );
 
-  // Collect results and errors
+  // Collect results and errors — now detects silent failures via FetchResult
   const allMedia: AmpreMedia[] = [];
   const batchErrors: BatchError[] = [];
   let errorCount = 0;
@@ -206,14 +247,34 @@ export async function fetchAmpreMedia(
   for (let i = 0; i < settled.length; i++) {
     const result = settled[i];
     if (result.status === "fulfilled") {
-      allMedia.push(...result.value);
+      const { records, terminatedByStatus, terminatedByError } = result.value;
+      allMedia.push(...records);
+
+      // Count batches that failed on their first page (got 0 records due to error)
+      const wasTerminated = terminatedByStatus != null || terminatedByError != null;
+      if (wasTerminated && records.length === 0) {
+        const reason = terminatedByStatus
+          ? `HTTP ${terminatedByStatus}`
+          : terminatedByError ?? "Unknown error";
+        batchErrors.push({
+          batch: i + 1,
+          listingCount: batches[i].length,
+          error: `Terminated with 0 records: ${reason}`,
+        });
+        errorCount++;
+      } else if (wasTerminated && records.length > 0) {
+        // Partial success — got some records before failure. Log but don't count as error.
+        console.warn(
+          `[ampre] Media batch ${i + 1}: partial result (${records.length} records before termination)`
+        );
+      }
     } else {
       const msg =
         result.reason instanceof Error
           ? result.reason.message
           : "Unknown error";
       console.error(
-        `[ampre] Media batch ${i + 1} failed (${batches[i].length} listings): ${msg}`
+        `[ampre] Media batch ${i + 1} rejected (${batches[i].length} listings): ${msg}`
       );
       batchErrors.push({
         batch: i + 1,
