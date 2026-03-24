@@ -1,3 +1,5 @@
+export const maxDuration = 120; // seconds — requires Vercel Pro plan
+
 import { NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import { Redis } from "@upstash/redis";
@@ -10,7 +12,7 @@ import {
   MAX_RETENTION_DAYS,
 } from "@/lib/ampre/compliance";
 import type { Listing } from "@/types/listing";
-import type { AmpreMedia, SyncLogEntry } from "@/lib/ampre/types";
+import type { AmpreMedia, SyncLogEntry, BatchError } from "@/lib/ampre/types";
 
 /**
  * POST /api/ampre/sync
@@ -59,21 +61,30 @@ async function handleSync(request: Request) {
     // Step 1: Fetch all brokerage listings from AMPRE
     const query = buildSyncQuery();
     const rawProperties = await fetchAmpreProperties(query);
+    console.log(
+      `[sync] Properties fetched: ${rawProperties.length} in ${Date.now() - startTime}ms`
+    );
 
     // Step 2: Filter out non-displayable listings (C2 fix)
     const { permitted, filteredCount } =
       filterPermittedProperties(rawProperties);
+    console.log(
+      `[sync] After DDF filter: ${permitted.length} permitted, ${filteredCount} filtered`
+    );
 
     // Step 3: Fetch media for permitted listings
     const listingKeys = permitted.map((p) => p.ListingKey);
-    let mediaMap = new Map<string, AmpreMedia[]>();
+    const mediaMap = new Map<string, AmpreMedia[]>();
     let mediaFetched = 0;
     let mediaErrors = 0;
+    let batchErrors: BatchError[] = [];
+    const mediaStart = Date.now();
 
     try {
       const mediaResult = await fetchAmpreMedia(listingKeys);
       mediaFetched = mediaResult.media.length;
       mediaErrors = mediaResult.errors;
+      batchErrors = mediaResult.batchErrors;
 
       // Group media by ResourceRecordKey for O(1) lookup during mapping
       for (const m of mediaResult.media) {
@@ -89,10 +100,16 @@ async function handleSync(request: Request) {
       // Property data is more important than images
       mediaErrors = 1;
     }
+    console.log(
+      `[sync] Media fetched: ${mediaFetched} records, ${mediaErrors} errors in ${Date.now() - mediaStart}ms`
+    );
 
     // Step 4: Map to internal Listing type (handles address suppression + media)
     const listings = permitted.map((p) =>
       mapAmpreToListing(p, mediaMap.get(p.ListingKey) ?? [])
+    );
+    console.log(
+      `[sync] Mapped ${listings.length} listings in ${Date.now() - startTime}ms`
     );
 
     // Step 5: Load existing listings from Redis for stale-data comparison
@@ -131,6 +148,7 @@ async function handleSync(request: Request) {
       mediaFetched,
       mediaErrors,
       success: true,
+      ...(batchErrors.length > 0 && { batchErrors }),
     };
     const logKey = `${KV_SYNC_LOG_PREFIX}${Date.now()}`;
     await getRedis().set(logKey, logEntry, { ex: 90 * 24 * 60 * 60 }); // Retain logs 90 days
@@ -147,6 +165,7 @@ async function handleSync(request: Request) {
       mediaFetched,
       mediaErrors,
       durationMs,
+      ...(batchErrors.length > 0 && { batchErrors }),
     });
   } catch (error) {
     const durationMs = Date.now() - startTime;

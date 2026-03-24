@@ -103,6 +103,43 @@ const DESIRED_MEDIA_FIELDS = [
   "Order",
 ];
 
+// ─── Pagination helper ───────────────────────────────────────────────────────
+
+/**
+ * Fetch all pages of an OData resource by following @odata.nextLink.
+ * Logs progress per page. Returns all records + totalCount from @odata.count.
+ */
+async function fetchAllPages(url, headers, label = "fetch") {
+  const records = [];
+  let totalCount = null;
+  let page = 0;
+  let nextUrl = url;
+
+  while (nextUrl) {
+    const res = await fetch(nextUrl, { headers });
+    if (!res.ok) {
+      const body = await res.text();
+      throw new Error(`${label} failed on page ${page + 1}: ${res.status} ${res.statusText}\n${body}`);
+    }
+
+    const data = await res.json();
+    records.push(...data.value);
+    page++;
+
+    if (totalCount === null && data["@odata.count"] != null) {
+      totalCount = data["@odata.count"];
+    }
+
+    console.log(
+      `[${label.padEnd(5)}] Page ${page}: +${data.value.length} records (${records.length}${totalCount != null ? `/${totalCount}` : ""} accumulated)`
+    );
+
+    nextUrl = data["@odata.nextLink"] ?? null;
+  }
+
+  return { records, totalCount, pages: page };
+}
+
 // ─── Main ────────────────────────────────────────────────────────────────────
 
 run().catch((err) => {
@@ -174,69 +211,76 @@ async function run() {
 
   console.log("");
 
-  // ── Step 4: ONE Property data request ──────────────────────────────────────
+  // ── Step 4: Property data request (all pages) ──────────────────────────────
   // Media is a separate resource (not a nav prop on Property) — fetched in step 5
   const propertyUrl = encodeURI(
     `${baseUrl}/Property?$select=${validPropertySelect.join(",")}&$filter=StandardStatus eq 'Active'&$orderby=ModificationTimestamp desc&$count=true`
   );
 
   console.log(`[prop ] GET ${propertyUrl}\n`);
-  const propRes = await fetch(propertyUrl, { headers });
+  const { records: properties, totalCount: propCount, pages: propPages } =
+    await fetchAllPages(propertyUrl, headers, "prop");
 
-  if (!propRes.ok) {
-    const body = await propRes.text();
-    throw new Error(`Property fetch failed: ${propRes.status} ${propRes.statusText}\n${body}`);
-  }
-
-  const propData = await propRes.json();
-  const properties = propData.value;
-  const propCount = propData["@odata.count"];
-
-  console.log(`[prop ] ${propRes.status} OK — ${properties.length} records (${propCount} total matching)\n`);
+  console.log(`[prop ] Done — ${properties.length} records across ${propPages} page(s) (${propCount} total matching)\n`);
 
   await writeFile(resolve(dataDir, "property.json"), JSON.stringify(properties, null, 2));
 
-  // ── Step 5: ONE Media data request ─────────────────────────────────────────
-  const since = new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString();
+  // ── Step 5: Media data requests (batched by listing key) ──────────────────
+  // Fetch media for the properties we just retrieved, using ResourceRecordKey
+  // filter (same approach as the production sync). This scopes results to our
+  // listings instead of date-filtering the entire MLS media table.
   const mediaSelectParam = validMediaSelect.length > 0
     ? `$select=${validMediaSelect.join(",")}&`
     : "";
 
-  const mediaUrl = encodeURI(
-    `${baseUrl}/Media?${mediaSelectParam}$filter=ModificationTimestamp ge ${since}&$orderby=ModificationTimestamp desc&$top=200&$count=true`
-  );
+  const MEDIA_BATCH_SIZE = 50;
+  const listingKeys = properties.map((p) => p.ListingKey);
+  const allMedia = [];
+  let mediaBatchErrors = 0;
 
-  console.log(`[media] GET ${mediaUrl}\n`);
-  const mediaRes = await fetch(mediaUrl, { headers });
+  for (let i = 0; i < listingKeys.length; i += MEDIA_BATCH_SIZE) {
+    const batch = listingKeys.slice(i, i + MEDIA_BATCH_SIZE);
+    const batchNum = Math.floor(i / MEDIA_BATCH_SIZE) + 1;
+    const totalBatches = Math.ceil(listingKeys.length / MEDIA_BATCH_SIZE);
+    const keyList = batch.map((k) => `'${k}'`).join(",");
 
-  if (!mediaRes.ok) {
-    const body = await mediaRes.text();
-    throw new Error(`Media fetch failed: ${mediaRes.status} ${mediaRes.statusText}\n${body}`);
+    const mediaUrl = encodeURI(
+      `${baseUrl}/Media?${mediaSelectParam}$filter=ResourceRecordKey in (${keyList})&$orderby=ResourceRecordKey asc,Order asc&$count=true`
+    );
+
+    console.log(`[media] Batch ${batchNum}/${totalBatches} (${batch.length} listings)`);
+
+    try {
+      const { records: batchMedia } = await fetchAllPages(mediaUrl, headers, "media");
+      allMedia.push(...batchMedia);
+    } catch (err) {
+      console.error(`[media] Batch ${batchNum} failed: ${err.message}`);
+      mediaBatchErrors++;
+    }
   }
 
-  const mediaData = await mediaRes.json();
-  const media = mediaData.value;
-  const mediaCount = mediaData["@odata.count"];
-
-  console.log(`[media] ${mediaRes.status} OK — ${media.length} records (${mediaCount} total matching)\n`);
+  const media = allMedia;
+  console.log(`[media] Done — ${media.length} total media records for ${listingKeys.length} listings (${mediaBatchErrors} batch errors)\n`);
 
   await writeFile(resolve(dataDir, "media.json"), JSON.stringify(media, null, 2));
 
   // ── Summary ────────────────────────────────────────────────────────────────
+  const mediaBatches = Math.ceil(listingKeys.length / MEDIA_BATCH_SIZE);
   const summary = {
     fetchedAt: new Date().toISOString(),
     source: baseUrl,
-    dataRequests: 2,
     metadataRequests: 1,
     property: {
       returned: properties.length,
       totalMatching: propCount,
+      pages: propPages,
       fieldsRequested: validPropertySelect,
       note: "Media is a separate resource — join via ResourceRecordKey = ListingKey",
     },
     media: {
       returned: media.length,
-      totalMatching: mediaCount,
+      batches: mediaBatches,
+      batchErrors: mediaBatchErrors,
       fieldsRequested: validMediaSelect,
     },
     fieldValidation: {
@@ -249,8 +293,8 @@ async function run() {
 
   console.log(`[run  ] Done. Files written to scripts/data/`);
   console.log(`        ├── metadata.json  (full OData schema — ${propertyFields?.size} Property fields, ${mediaFields?.size} Media fields)`);
-  console.log(`        ├── property.json  (${properties.length} listings with expanded Media)`);
-  console.log(`        ├── media.json     (${media.length} media records)`);
+  console.log(`        ├── property.json  (${properties.length} listings across ${propPages} pages)`);
+  console.log(`        ├── media.json     (${media.length} media records from ${mediaBatches} batches)`);
   console.log(`        └── summary.json`);
 }
 

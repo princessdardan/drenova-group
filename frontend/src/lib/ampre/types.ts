@@ -43,6 +43,54 @@ export interface AmpreProperty {
   YearBuilt?: number | null;
   PublicRemarks?: string;
 
+  // Property Features
+  Heating?: string | string[];
+  Cooling?: string | string[];
+  ParkingTotal?: number | null;
+  GarageSpaces?: number | null;
+  GarageYN?: boolean;
+  AttachedGarageYN?: boolean;
+  FireplacesTotal?: number | null;
+  FireplaceYN?: boolean;
+  Stories?: number | null;
+  ArchitecturalStyle?: string | string[];
+  ConstructionMaterials?: string | string[];
+  Roof?: string | string[];
+  Basement?: string | string[];
+  ExteriorFeatures?: string | string[];
+  InteriorFeatures?: string | string[];
+  Flooring?: string | string[];
+  Appliances?: string | string[];
+  LaundryFeatures?: string | string[];
+  WaterSource?: string | string[];
+  Sewer?: string | string[];
+  PoolPrivateYN?: boolean;
+  WaterfrontYN?: boolean;
+  View?: string | string[];
+
+  // Room breakdown
+  BathroomsFull?: number | null;
+  BathroomsHalf?: number | null;
+
+  // Financial
+  TaxAnnualAmount?: number | null;
+  TaxYear?: number | null;
+  AssociationFee?: number | null;
+  AssociationFeeFrequency?: string;
+  AssociationYN?: boolean;
+
+  // Lot & Land
+  LotSizeDimensions?: string;
+  LotFeatures?: string | string[];
+  Zoning?: string;
+  DirectionFaces?: string;
+
+  // Dates & Market
+  OnMarketDate?: string;
+  DaysOnMarket?: number | null;
+  CloseDate?: string;
+  ClosePrice?: number | null;
+
   // Status
   StandardStatus: string;
   MlsStatus?: string;
@@ -84,6 +132,13 @@ export interface AmpreODataResponse<T> {
 /** Property-specific response (backward compat alias) */
 export type AmpreResponse = AmpreODataResponse<AmpreProperty>;
 
+/** Details about a failed media batch */
+export interface BatchError {
+  batch: number;
+  listingCount: number;
+  error: string;
+}
+
 /** Sync log entry stored in Redis */
 export interface SyncLogEntry {
   timestamp: string;
@@ -96,4 +151,5 @@ export interface SyncLogEntry {
   mediaErrors: number;
   success: boolean;
   error?: string;
+  batchErrors?: BatchError[];
 }

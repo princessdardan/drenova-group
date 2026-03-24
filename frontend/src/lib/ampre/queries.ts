@@ -45,6 +45,49 @@ const PROPERTY_SELECT_FIELDS = [
   "PropertySubType",
   "YearBuilt",
   "PublicRemarks",
+  // Property Features
+  "Heating",
+  "Cooling",
+  "ParkingTotal",
+  "GarageSpaces",
+  "GarageYN",
+  "AttachedGarageYN",
+  "FireplacesTotal",
+  "FireplaceYN",
+  "Stories",
+  "ArchitecturalStyle",
+  "ConstructionMaterials",
+  "Roof",
+  "Basement",
+  "ExteriorFeatures",
+  "InteriorFeatures",
+  "Flooring",
+  "Appliances",
+  "LaundryFeatures",
+  "WaterSource",
+  "Sewer",
+  "PoolPrivateYN",
+  "WaterfrontYN",
+  "View",
+  // Room breakdown
+  "BathroomsFull",
+  "BathroomsHalf",
+  // Financial
+  "TaxAnnualAmount",
+  "TaxYear",
+  "AssociationFee",
+  "AssociationFeeFrequency",
+  "AssociationYN",
+  // Lot & Land
+  "LotSizeDimensions",
+  "LotFeatures",
+  "Zoning",
+  "DirectionFaces",
+  // Dates & Market
+  "OnMarketDate",
+  "DaysOnMarket",
+  "CloseDate",
+  "ClosePrice",
   // Status
   "StandardStatus",
   "MlsStatus",
@@ -88,8 +131,9 @@ export const MEDIA_SELECT_FIELDS = [
 /**
  * Build an OData query to fetch media for a batch of listing keys.
  *
- * Filters to `ImageSizeDescription eq 'Largest'` so we get full-resolution
- * images only (AMPRE stores multiple sizes per photo).
+ * Fetches ALL available image sizes — the mapper picks the best size
+ * per logical image (grouped by Order). This avoids zero-image results
+ * when a listing lacks a specific size like 'Large'.
  */
 export function buildMediaBatchQuery(listingKeys: string[]): string {
   // OData `in` operator: ResourceRecordKey in ('key1','key2',...)
@@ -97,7 +141,7 @@ export function buildMediaBatchQuery(listingKeys: string[]): string {
 
   return [
     `$select=${MEDIA_SELECT_FIELDS.join(",")}`,
-    `$filter=ResourceRecordKey in (${keyList}) and ImageSizeDescription eq 'Largest'`,
+    `$filter=ResourceRecordKey in (${keyList})`,
     `$orderby=ResourceRecordKey asc,Order asc`,
   ].join("&");
 }
