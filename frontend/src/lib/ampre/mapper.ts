@@ -194,34 +194,27 @@ export function mapAmpreToListing(
     latitude: suppressAddress ? null : (property.Latitude ?? null),
     longitude: suppressAddress ? null : (property.Longitude ?? null),
 
-    // Features
-    heating: normalizeStringArray(property.Heating),
+    // Features (field names mapped from AMPRE schema to internal Listing type)
+    heating: property.HeatType ? [property.HeatType] : undefined,
     cooling: normalizeStringArray(property.Cooling),
     parkingTotal: property.ParkingTotal ?? undefined,
-    garageSpaces: property.GarageSpaces ?? undefined,
+    garageSpaces: property.GarageParkingSpaces ? parseInt(property.GarageParkingSpaces, 10) || undefined : undefined,
     hasGarage: property.GarageYN ?? undefined,
     attachedGarage: property.AttachedGarageYN ?? undefined,
     fireplaces: property.FireplacesTotal ?? undefined,
     hasFireplace: property.FireplaceYN ?? undefined,
-    stories: property.Stories ?? undefined,
+    stories: property.LegalStories ? parseInt(property.LegalStories, 10) || undefined : undefined,
     architecturalStyle: normalizeStringArray(property.ArchitecturalStyle),
     constructionMaterials: normalizeStringArray(property.ConstructionMaterials),
     roof: normalizeStringArray(property.Roof),
     basement: normalizeStringArray(property.Basement),
     exteriorFeatures: normalizeStringArray(property.ExteriorFeatures),
     interiorFeatures: normalizeStringArray(property.InteriorFeatures),
-    flooring: normalizeStringArray(property.Flooring),
-    appliances: normalizeStringArray(property.Appliances),
     laundryFeatures: normalizeStringArray(property.LaundryFeatures),
     waterSource: normalizeStringArray(property.WaterSource),
     sewer: normalizeStringArray(property.Sewer),
-    hasPool: property.PoolPrivateYN ?? undefined,
     hasWaterfront: property.WaterfrontYN ?? undefined,
     view: normalizeStringArray(property.View),
-
-    // Room breakdown
-    bathroomsFull: property.BathroomsFull ?? undefined,
-    bathroomsHalf: property.BathroomsHalf ?? undefined,
 
     // Financial
     taxAnnualAmount: property.TaxAnnualAmount ?? undefined,
@@ -237,7 +230,7 @@ export function mapAmpreToListing(
     directionFaces: property.DirectionFaces ?? undefined,
 
     // Dates & Market
-    onMarketDate: property.OnMarketDate ?? undefined,
+    onMarketDate: property.OriginalEntryTimestamp ?? undefined,
     daysOnMarket: property.DaysOnMarket ?? undefined,
     closeDate: property.CloseDate ?? undefined,
     closePrice: property.ClosePrice ?? undefined,

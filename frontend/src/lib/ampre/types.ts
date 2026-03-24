@@ -43,34 +43,27 @@ export interface AmpreProperty {
   YearBuilt?: number | null;
   PublicRemarks?: string;
 
-  // Property Features
-  Heating?: string | string[];
+  // Property Features (names match AMPRE $metadata, not RESO DD)
+  HeatType?: string;
   Cooling?: string | string[];
   ParkingTotal?: number | null;
-  GarageSpaces?: number | null;
+  GarageParkingSpaces?: string; // String in AMPRE (e.g. "2"), not number
   GarageYN?: boolean;
   AttachedGarageYN?: boolean;
   FireplacesTotal?: number | null;
   FireplaceYN?: boolean;
-  Stories?: number | null;
+  LegalStories?: string; // String in AMPRE (e.g. "2"), not number
   ArchitecturalStyle?: string | string[];
   ConstructionMaterials?: string | string[];
   Roof?: string | string[];
   Basement?: string | string[];
   ExteriorFeatures?: string | string[];
   InteriorFeatures?: string | string[];
-  Flooring?: string | string[];
-  Appliances?: string | string[];
   LaundryFeatures?: string | string[];
   WaterSource?: string | string[];
   Sewer?: string | string[];
-  PoolPrivateYN?: boolean;
   WaterfrontYN?: boolean;
   View?: string | string[];
-
-  // Room breakdown
-  BathroomsFull?: number | null;
-  BathroomsHalf?: number | null;
 
   // Financial
   TaxAnnualAmount?: number | null;
@@ -86,7 +79,7 @@ export interface AmpreProperty {
   DirectionFaces?: string;
 
   // Dates & Market
-  OnMarketDate?: string;
+  OriginalEntryTimestamp?: string;
   DaysOnMarket?: number | null;
   CloseDate?: string;
   ClosePrice?: number | null;
