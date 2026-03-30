@@ -1,4 +1,4 @@
-import { defineType, defineField, defineArrayMember } from "sanity";
+import { defineType, defineField } from "sanity";
 import { HomeIcon } from "@sanity/icons";
 
 export const homePage = defineType({
@@ -14,57 +14,125 @@ export const homePage = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
-      name: "featuredListingKeys",
-      title: "Featured Listing Keys",
-      description:
-        "AMPRE listing keys to feature on the homepage. These listings must exist in the daily AMPRE sync.",
-      type: "array",
-      of: [defineArrayMember({ type: "string" })],
-      validation: (rule) => rule.max(6),
-    }),
-    defineField({
-      name: "featuredListingsHeading",
-      title: "Featured Listings Heading",
-      type: "sectionHeading",
-    }),
-    defineField({
-      name: "aboutSectionOverline",
-      title: "About Section Overline",
-      type: "string",
-    }),
-    defineField({
-      name: "aboutSectionTitle",
-      title: "About Section Title",
-      type: "string",
-    }),
-    defineField({
-      name: "aboutSectionContent",
-      title: "About Section Content",
-      type: "text",
-      rows: 4,
-    }),
-    defineField({
-      name: "aboutSectionImage",
-      title: "About Section Image",
-      type: "image",
-      options: { hotspot: true },
+      name: "aboutSection",
+      title: "About Section",
+      type: "object",
       fields: [
-        {
-          name: "alt",
+        defineField({
+          name: "title",
+          title: "Title",
           type: "string",
-          title: "Alt Text",
-        },
+          validation: (rule) => rule.required(),
+        }),
+        defineField({
+          name: "description",
+          title: "Description",
+          type: "text",
+          rows: 4,
+        }),
+        defineField({
+          name: "buttonText",
+          title: "Button Text",
+          type: "string",
+          initialValue: "Learn More",
+        }),
+        defineField({
+          name: "buttonHref",
+          title: "Button Link",
+          type: "string",
+          initialValue: "/about",
+        }),
+        defineField({
+          name: "image",
+          title: "Portrait Photo",
+          type: "image",
+          options: { hotspot: true },
+          description:
+            "Portrait photo of the agent/team for the about section.",
+          fields: [
+            { name: "alt", type: "string", title: "Alt Text" },
+          ],
+        }),
       ],
     }),
     defineField({
-      name: "valuePropsHeading",
-      title: "Value Propositions Heading",
-      type: "sectionHeading",
+      name: "workWithUsHeading",
+      title: "Work With Us Heading",
+      type: "string",
+      initialValue: "Work With Us",
     }),
     defineField({
-      name: "cta",
-      title: "CTA Section",
-      type: "ctaSettings",
+      name: "ctaCard1",
+      title: "CTA Card 1 (Selling)",
+      type: "object",
+      fields: [
+        defineField({
+          name: "image",
+          title: "Card Image",
+          type: "image",
+          options: { hotspot: true },
+          fields: [
+            { name: "alt", type: "string", title: "Alt Text" },
+          ],
+        }),
+        defineField({
+          name: "title",
+          title: "Title",
+          type: "string",
+          initialValue: "The best selling experience",
+        }),
+        defineField({
+          name: "subtitle",
+          title: "Subtitle",
+          type: "string",
+        }),
+      ],
+    }),
+    defineField({
+      name: "ctaCard2",
+      title: "CTA Card 2 (Buying)",
+      type: "object",
+      fields: [
+        defineField({
+          name: "image",
+          title: "Card Image",
+          type: "image",
+          options: { hotspot: true },
+          fields: [
+            { name: "alt", type: "string", title: "Alt Text" },
+          ],
+        }),
+        defineField({
+          name: "title",
+          title: "Title",
+          type: "string",
+          initialValue: "An unparalleled buying experience",
+        }),
+        defineField({
+          name: "subtitle",
+          title: "Subtitle",
+          type: "string",
+        }),
+      ],
+    }),
+    defineField({
+      name: "contactForm",
+      title: "Contact Form Section",
+      type: "object",
+      fields: [
+        defineField({
+          name: "heading",
+          title: "Heading",
+          type: "string",
+          initialValue: "Start Your Home Journey Today",
+        }),
+        defineField({
+          name: "subtitle",
+          title: "Subtitle",
+          type: "text",
+          rows: 3,
+        }),
+      ],
     }),
   ],
   preview: {

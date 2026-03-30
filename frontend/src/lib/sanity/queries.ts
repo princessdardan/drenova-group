@@ -88,14 +88,28 @@ export const homePageQuery = groq`*[_type == "homePage"][0] {
   _id,
   _type,
   hero,
-  featuredListingKeys,
-  featuredListingsHeading,
-  aboutSectionOverline,
-  aboutSectionTitle,
-  aboutSectionContent,
-  aboutSectionImage,
-  valuePropsHeading,
-  cta
+  aboutSection {
+    title,
+    description,
+    buttonText,
+    buttonHref,
+    image
+  },
+  workWithUsHeading,
+  ctaCard1 {
+    image,
+    title,
+    subtitle
+  },
+  ctaCard2 {
+    image,
+    title,
+    subtitle
+  },
+  contactForm {
+    heading,
+    subtitle
+  }
 }`;
 
 export const aboutPageQuery = groq`*[_type == "aboutPage"][0] {
@@ -193,4 +207,26 @@ export const legalPageBySlugQuery = groq`*[_type == "legalPage" && slug.current 
   "slug": slug.current,
   lastUpdated,
   body
+}`;
+
+// ─── Guide page queries ─────────────────────────────────────────────
+
+export const buyersGuidePageQuery = groq`*[_type == "buyersGuidePage"][0] {
+  _id,
+  _type,
+  hero,
+  guideTitle,
+  guideDescription,
+  guideImage,
+  cta
+}`;
+
+export const sellersGuidePageQuery = groq`*[_type == "sellersGuidePage"][0] {
+  _id,
+  _type,
+  hero,
+  guideTitle,
+  guideDescription,
+  guideImage,
+  cta
 }`;

@@ -7,6 +7,8 @@ import { urlFor } from "@/lib/sanity/image";
 interface HeroProps {
   image: string | SanityImage;
   imageAlt: string;
+  backgroundType?: "image" | "video";
+  videoUrl?: string;
   overline?: string;
   title: string;
   subtitle?: string;
@@ -18,6 +20,8 @@ interface HeroProps {
 export function Hero({
   image,
   imageAlt,
+  backgroundType = "image",
+  videoUrl,
   overline,
   title,
   subtitle,
@@ -29,10 +33,11 @@ export function Hero({
   return (
     <section
       className={cn(
-        "relative flex items-center justify-center",
+        "relative flex items-center justify-center overflow-hidden",
         size === "full" ? "min-h-[70vh] lg:min-h-screen" : "min-h-[50vh]"
       )}
     >
+      {/* Image — always rendered as poster/fallback */}
       <Image
         src={
           isSanityImage(image)
@@ -47,6 +52,21 @@ export function Hero({
         priority
         sizes="100vw"
       />
+
+      {/* Video — overlays image when backgroundType is video */}
+      {backgroundType === "video" && videoUrl && (
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover motion-reduce:hidden"
+          aria-hidden="true"
+        >
+          <source src={videoUrl} type="video/mp4" />
+        </video>
+      )}
+
       <div className="absolute inset-0 bg-overlay" />
       <div className="relative z-10 text-center text-white max-w-3xl px-6 py-20">
         {overline && (

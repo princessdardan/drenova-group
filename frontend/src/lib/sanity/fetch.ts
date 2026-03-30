@@ -18,6 +18,8 @@ import {
   teamPageQuery,
   listingsPageQuery,
   legalPageBySlugQuery,
+  buyersGuidePageQuery,
+  sellersGuidePageQuery,
 } from "./queries";
 import type { TeamMember } from "@/types/team";
 import type { Testimonial } from "@/types/testimonial";
@@ -36,6 +38,8 @@ import type {
   TeamPage,
   ListingsPage,
   LegalPage,
+  BuyersGuidePage,
+  SellersGuidePage,
 } from "@/types/sanity";
 
 const DEFAULT_REVALIDATE = 3600;
@@ -152,4 +156,18 @@ export function getLegalPageBySlug(slug: string): Promise<LegalPage | null> {
   return sanityFetch<LegalPage | null>(legalPageBySlugQuery, ["legalPage"], {
     slug,
   });
+}
+
+// ─── Guide page fetchers ────────────────────────────────────────────
+
+export function getBuyersGuidePage(): Promise<BuyersGuidePage | null> {
+  return sanityFetch<BuyersGuidePage | null>(buyersGuidePageQuery, [
+    "buyersGuidePage",
+  ]);
+}
+
+export function getSellersGuidePage(): Promise<SellersGuidePage | null> {
+  return sanityFetch<SellersGuidePage | null>(sellersGuidePageQuery, [
+    "sellersGuidePage",
+  ]);
 }

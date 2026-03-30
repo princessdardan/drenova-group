@@ -33,6 +33,8 @@ export interface SanityImage {
 
 export interface HeroSettings {
   image: SanityImage;
+  backgroundType?: "image" | "video";
+  videoUrl?: string;
   overline?: string;
   title: string;
   subtitle?: string;
@@ -157,14 +159,28 @@ export interface HomePage {
   _id: string;
   _type: "homePage";
   hero: HeroSettings;
-  featuredListingKeys?: string[];
-  featuredListingsHeading?: SectionHeading;
-  aboutSectionOverline?: string;
-  aboutSectionTitle?: string;
-  aboutSectionContent?: string;
-  aboutSectionImage?: SanityImage;
-  valuePropsHeading?: SectionHeading;
-  cta?: CtaSettings;
+  aboutSection?: {
+    title: string;
+    description?: string;
+    buttonText?: string;
+    buttonHref?: string;
+    image?: SanityImage;
+  };
+  workWithUsHeading?: string;
+  ctaCard1?: {
+    image?: SanityImage;
+    title?: string;
+    subtitle?: string;
+  };
+  ctaCard2?: {
+    image?: SanityImage;
+    title?: string;
+    subtitle?: string;
+  };
+  contactForm?: {
+    heading?: string;
+    subtitle?: string;
+  };
 }
 
 export interface AboutPage {
@@ -233,4 +249,35 @@ export interface ListingsPage {
   overline?: string;
   title?: string;
   featuredListingKeys?: string[];
+}
+
+export interface LeadSubmission {
+  _id: string;
+  _type: "leadSubmission";
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  source: "buyers-guide" | "sellers-guide" | "homepage";
+  submittedAt: string;
+}
+
+export interface BuyersGuidePage {
+  _id: string;
+  _type: "buyersGuidePage";
+  hero: HeroSettings;
+  guideTitle?: string;
+  guideDescription?: string;
+  guideImage?: SanityImage;
+  cta?: CtaSettings;
+}
+
+export interface SellersGuidePage {
+  _id: string;
+  _type: "sellersGuidePage";
+  hero: HeroSettings;
+  guideTitle?: string;
+  guideDescription?: string;
+  guideImage?: SanityImage;
+  cta?: CtaSettings;
 }

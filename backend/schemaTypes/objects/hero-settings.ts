@@ -21,6 +21,27 @@ export const heroSettings = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: "backgroundType",
+      title: "Background Type",
+      type: "string",
+      options: {
+        list: [
+          { title: "Image", value: "image" },
+          { title: "Video", value: "video" },
+        ],
+        layout: "radio",
+      },
+      initialValue: "image",
+    }),
+    defineField({
+      name: "videoUrl",
+      title: "Video URL",
+      type: "url",
+      description:
+        "Direct URL to an MP4 video file. The image above serves as the poster/fallback frame.",
+      hidden: ({ parent }) => parent?.backgroundType !== "video",
+    }),
+    defineField({
       name: "overline",
       title: "Overline",
       type: "string",

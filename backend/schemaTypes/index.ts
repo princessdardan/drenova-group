@@ -15,6 +15,7 @@ import { companyStat } from "./documents/company-stat";
 import { companyValue } from "./documents/company-value";
 import { valueProposition } from "./documents/value-proposition";
 import { legalPage } from "./documents/legal-page";
+import { leadSubmission } from "./documents/lead-submission";
 
 // Singletons
 import { siteSettings } from "./singletons/site-settings";
@@ -25,6 +26,8 @@ import { sellPage } from "./singletons/sell-page";
 import { contactPage } from "./singletons/contact-page";
 import { teamPage } from "./singletons/team-page";
 import { listingsPage } from "./singletons/listings-page";
+import { buyersGuidePage } from "./singletons/buyers-guide-page";
+import { sellersGuidePage } from "./singletons/sellers-guide-page";
 
 export const schemaTypes = [
   // Objects (must be registered before types that reference them)
@@ -44,6 +47,7 @@ export const schemaTypes = [
   companyValue,
   valueProposition,
   legalPage,
+  leadSubmission,
 
   // Singletons
   siteSettings,
@@ -54,4 +58,6 @@ export const schemaTypes = [
   contactPage,
   teamPage,
   listingsPage,
+  buyersGuidePage,
+  sellersGuidePage,
 ];

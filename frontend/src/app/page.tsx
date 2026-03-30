@@ -1,166 +1,234 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { Hero } from "@/components/sections/hero";
-import { SectionHeader } from "@/components/ui/section-header";
-import { PropertyCard } from "@/components/ui/property-card";
 import { ButtonLink } from "@/components/ui/button";
-import { CtaSection } from "@/components/sections/cta-section";
-import {
-  getHomePage,
-  getValuePropositions,
-  getTestimonials,
-} from "@/lib/sanity/fetch";
-import { getAmpreListings } from "@/lib/ampre/fetch";
+import { LeadForm } from "@/components/sections/lead-form";
+import { getHomePage } from "@/lib/sanity/fetch";
 import { urlFor } from "@/lib/sanity/image";
 import { isSanityImage } from "@/types/sanity";
 
 export const metadata: Metadata = {
   title: "Luxury Real Estate Across Illinois, Arizona & Wisconsin",
   description:
-    "Drenova Group — a modern real estate brokerage offering expert buying and selling services with a personal approach.",
+    "Drenova Group — a modern real estate brokerage offering expert buying and selling services with a personal approach. Start your home journey today.",
 };
 
 export default async function HomePage() {
-  const [homePage, valuePropositions, testimonials] = await Promise.all([
-    getHomePage(),
-    getValuePropositions(),
-    getTestimonials(),
-  ]);
-
-  // Fetch latest listings from AMPRE (via KV)
-  const { listings: featuredListings } = await getAmpreListings({ pageSize: 6 });
-
-  const testimonial = testimonials[0] ?? null;
-
-  const flh = homePage?.featuredListingsHeading;
-  const vph = homePage?.valuePropsHeading;
-  const cta = homePage?.cta;
+  const homePage = await getHomePage();
 
   return (
     <>
       {/* ─── Hero ─── */}
       <Hero
-        image={homePage?.hero?.image ?? "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1600&q=80"}
-        imageAlt="Modern luxury home with warm lighting"
+        image={
+          homePage?.hero?.image ??
+          "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1600&q=80"
+        }
+        imageAlt="Modern luxury home"
+        backgroundType={homePage?.hero?.backgroundType ?? "image"}
+        videoUrl={homePage?.hero?.videoUrl}
         overline={homePage?.hero?.overline ?? "Drenova Group Real Estate"}
-        title={homePage?.hero?.title ?? "Your Home's Story Starts Here"}
-        subtitle={homePage?.hero?.subtitle ?? "Modern brokerage. Local expertise. Multi-state coverage across Illinois, Arizona, Wisconsin, Indiana, and Michigan."}
+        title={
+          homePage?.hero?.title ?? "Here to Guide You On Your Home Journey"
+        }
+        subtitle={
+          homePage?.hero?.subtitle ??
+          "Proud to be your trusted real estate expert, guiding you every step of the way."
+        }
       >
-        <ButtonLink href="/listings" className="border-white text-white hover:bg-white hover:text-black">
-          Browse Listings
-        </ButtonLink>
-        <ButtonLink href="/sell" className="border-white text-white hover:bg-white hover:text-black">
-          Sell Your Home
+        <ButtonLink
+          href="#contact"
+          className="border-white text-white hover:bg-white hover:text-black"
+        >
+          Get Started
         </ButtonLink>
       </Hero>
 
-      {/* ─── Featured Listings ─── */}
-      <section className="bg-surface py-16 px-6 lg:py-24 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <SectionHeader
-            overline={flh?.overline ?? "Featured Properties"}
-            title={flh?.title ?? "Explore Our Listings"}
-            description={flh?.description ?? "Hand-picked properties across our coverage areas, ready for you to make them home."}
-            className="mb-12"
-          />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            {featuredListings.slice(0, 6).map((listing) => (
-              <PropertyCard key={listing.id} listing={listing} />
-            ))}
-          </div>
-          <div className="text-center mt-10">
-            <ButtonLink href="/listings">View All Listings</ButtonLink>
-          </div>
-        </div>
-      </section>
+      {/* ─── About Us CTA ─── */}
+      <section className="bg-background py-16 px-6 lg:py-24 lg:px-8 relative overflow-hidden">
+        <p
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-display text-[10rem] lg:text-[18rem] font-bold uppercase text-foreground/[0.03] select-none pointer-events-none leading-none whitespace-nowrap"
+          aria-hidden="true"
+        >
+          ABOUT
+        </p>
 
-      {/* ─── About Split Panel ─── */}
-      <section className="bg-background">
-        <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[500px]">
-          <div className="flex flex-col justify-center px-8 lg:px-16 py-16">
-            <p className="text-xs uppercase tracking-widest font-medium text-accent mb-4">
-              {homePage?.aboutSectionOverline ?? "About Us"}
-            </p>
-            <h2 className="font-display text-3xl lg:text-5xl font-bold tracking-tight mb-6">
-              {homePage?.aboutSectionTitle ?? "An Elevated Approach to Real Estate"}
-            </h2>
-            <p className="text-muted leading-7 mb-8">
-              {homePage?.aboutSectionContent ?? "At Drenova Group, we combine deep local knowledge with modern tools and a client-first philosophy. Whether you're buying your first home or selling a luxury property, our experienced team delivers personalized service and exceptional results."}
-            </p>
+        <div className="max-w-7xl mx-auto relative z-10">
+          <p className="text-xs uppercase tracking-widest font-medium text-accent mb-8 text-center lg:text-left">
+            About Us
+          </p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <div>
-              <ButtonLink href="/about">Learn More</ButtonLink>
+              <h2 className="font-display text-3xl lg:text-5xl font-bold tracking-tight mb-6">
+                {homePage?.aboutSection?.title ??
+                  "Proud to Be Your Real Estate Expert."}
+              </h2>
+              <p className="text-muted leading-7 mb-8">
+                {homePage?.aboutSection?.description ??
+                  "With years of experience and a deep understanding of the local market, we provide personalized service and expert guidance to help you achieve your real estate goals."}
+              </p>
+              <ButtonLink
+                href={homePage?.aboutSection?.buttonHref ?? "/about"}
+              >
+                {homePage?.aboutSection?.buttonText ?? "Learn More"}
+              </ButtonLink>
+            </div>
+
+            <div className="relative aspect-[3/4] max-w-md mx-auto lg:mx-0 lg:ml-auto overflow-hidden">
+              <Image
+                src={
+                  homePage?.aboutSection?.image &&
+                  isSanityImage(homePage.aboutSection.image)
+                    ? urlFor(homePage.aboutSection.image)
+                        .width(800)
+                        .height(1067)
+                        .fit("crop")
+                        .url()
+                    : "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=800&q=80"
+                }
+                alt={
+                  homePage?.aboutSection?.image?.alt ??
+                  "Real estate agent portrait"
+                }
+                fill
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 40vw"
+              />
             </div>
           </div>
-          <div className="relative min-h-[400px] lg:min-h-0">
-            <Image
-              src={
-                homePage?.aboutSectionImage && isSanityImage(homePage.aboutSectionImage)
-                  ? urlFor(homePage.aboutSectionImage).width(1200).height(800).fit("crop").url()
-                  : "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=80"
-              }
-              alt={homePage?.aboutSectionImage?.alt ?? "Warm interior of a modern home"}
-              fill
-              className="object-cover"
-              sizes="(max-width: 1024px) 100vw, 50vw"
-            />
-          </div>
         </div>
       </section>
 
-      {/* ─── Value Propositions ─── */}
-      <section className="bg-surface py-16 px-6 lg:py-24 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <SectionHeader
-            overline={vph?.overline ?? "Why Drenova Group"}
-            title={vph?.title ?? "What Sets Us Apart"}
-            className="mb-12"
-          />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            {valuePropositions.map((prop, i) => (
-              <div key={prop._id}>
-                <span className="font-display text-6xl lg:text-8xl font-bold text-accent/20">
-                  {String(i + 1).padStart(2, "0")}
+      {/* ─── Work With Us ─── */}
+      <section className="bg-surface py-16 px-6 lg:py-24 lg:px-8 relative overflow-hidden">
+        <p
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-display text-[10rem] lg:text-[18rem] font-bold uppercase text-foreground/[0.03] select-none pointer-events-none leading-none whitespace-nowrap"
+          aria-hidden="true"
+        >
+          START
+        </p>
+
+        <div className="max-w-7xl mx-auto relative z-10">
+          <h2 className="font-display text-3xl lg:text-5xl font-bold tracking-tight text-center mb-12">
+            {homePage?.workWithUsHeading ?? "Work With Us"}
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+            {/* Card 1: Selling */}
+            <a
+              href="#contact"
+              className="group relative block aspect-[4/3] overflow-hidden rounded-lg"
+            >
+              <Image
+                src={
+                  homePage?.ctaCard1?.image &&
+                  isSanityImage(homePage.ctaCard1.image)
+                    ? urlFor(homePage.ctaCard1.image)
+                        .width(900)
+                        .height(675)
+                        .fit("crop")
+                        .url()
+                    : "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=900&q=80"
+                }
+                alt={
+                  homePage?.ctaCard1?.image?.alt ?? "Luxury home exterior"
+                }
+                fill
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-8 text-white">
+                <h3 className="font-display text-2xl lg:text-3xl font-bold tracking-tight mb-4">
+                  {homePage?.ctaCard1?.title ??
+                    "The best selling experience"}
+                </h3>
+                {homePage?.ctaCard1?.subtitle && (
+                  <p className="text-sm text-white/80 mb-4">
+                    {homePage.ctaCard1.subtitle}
+                  </p>
+                )}
+                <span className="inline-flex items-center justify-center uppercase tracking-wider font-semibold border border-white text-white h-12 px-8 text-sm transition-colors duration-200 group-hover:bg-white group-hover:text-black">
+                  Get Started
                 </span>
-                <div className="w-12 h-px bg-border mt-4 mb-6" />
-                <h3 className="text-lg font-semibold mb-2">{prop.title}</h3>
-                <p className="text-base text-muted leading-7">{prop.description}</p>
               </div>
-            ))}
+            </a>
+
+            {/* Card 2: Buying */}
+            <a
+              href="#contact"
+              className="group relative block aspect-[4/3] overflow-hidden rounded-lg"
+            >
+              <Image
+                src={
+                  homePage?.ctaCard2?.image &&
+                  isSanityImage(homePage.ctaCard2.image)
+                    ? urlFor(homePage.ctaCard2.image)
+                        .width(900)
+                        .height(675)
+                        .fit("crop")
+                        .url()
+                    : "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=900&q=80"
+                }
+                alt={
+                  homePage?.ctaCard2?.image?.alt ?? "Luxury home interior"
+                }
+                fill
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-8 text-white">
+                <h3 className="font-display text-2xl lg:text-3xl font-bold tracking-tight mb-4">
+                  {homePage?.ctaCard2?.title ??
+                    "An unparalleled buying experience"}
+                </h3>
+                {homePage?.ctaCard2?.subtitle && (
+                  <p className="text-sm text-white/80 mb-4">
+                    {homePage.ctaCard2.subtitle}
+                  </p>
+                )}
+                <span className="inline-flex items-center justify-center uppercase tracking-wider font-semibold border border-white text-white h-12 px-8 text-sm transition-colors duration-200 group-hover:bg-white group-hover:text-black">
+                  Get Started
+                </span>
+              </div>
+            </a>
           </div>
         </div>
       </section>
 
-      {/* ─── Testimonial ─── */}
-      {testimonial && (
-        <section className="relative py-24 lg:py-32">
-          <Image
-            src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1600&q=80"
-            alt="Modern living room"
-            fill
-            className="object-cover"
-            sizes="100vw"
-          />
-          <div className="absolute inset-0 bg-black/50" />
-          <div className="relative z-10 max-w-2xl mx-auto px-6 text-center text-white">
-            <p className="font-display text-xl lg:text-3xl italic leading-relaxed">
-              &ldquo;{testimonial.quote}&rdquo;
-            </p>
-            <p className="mt-6 text-sm font-medium">{testimonial.name}</p>
-            <p className="text-sm text-white/60">{testimonial.detail}</p>
-          </div>
-        </section>
-      )}
-
-      {/* ─── CTA ─── */}
-      <CtaSection
-        title={cta?.title ?? "Ready to Get Started?"}
-        subtitle={cta?.subtitle ?? "Whether you're buying or selling, our team is here to guide you every step of the way."}
+      {/* ─── Contact Form ─── */}
+      <section
+        id="contact"
+        className="bg-footer-bg py-16 px-6 lg:py-24 lg:px-8"
+        style={
+          {
+            "--background": "#030910",
+            "--foreground": "#F0F3F5",
+            "--surface-alt": "#172029",
+            "--border": "#2A3440",
+            "--muted": "#8B8E92",
+            "--muted-foreground": "#6B6E72",
+            "--ring": "#C4622A",
+            "--accent": "#C4622A",
+          } as React.CSSProperties
+        }
       >
-        <ButtonLink href="/contact">Contact Us</ButtonLink>
-        <ButtonLink href="/listings" variant="minimal">
-          Browse Listings
-        </ButtonLink>
-      </CtaSection>
+        <div className="max-w-2xl mx-auto text-center">
+          <h2 className="font-display text-3xl lg:text-5xl font-bold tracking-tight text-footer-text mb-4">
+            {homePage?.contactForm?.heading ??
+              "Start Your Home Journey Today"}
+          </h2>
+          {(homePage?.contactForm?.subtitle) && (
+            <p className="text-lg text-footer-muted leading-8 mb-8">
+              {homePage.contactForm.subtitle}
+            </p>
+          )}
+          <div className="text-left text-footer-text">
+            <LeadForm source="homepage" showPhone />
+          </div>
+        </div>
+      </section>
     </>
   );
 }

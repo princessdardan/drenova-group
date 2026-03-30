@@ -19,6 +19,8 @@ const TAG_MAP: Record<string, string[]> = {
   teamPage: ["teamPage"],
   listingsPage: ["listingsPage"],
   legalPage: ["legalPage"],
+  buyersGuidePage: ["buyersGuidePage"],
+  sellersGuidePage: ["sellersGuidePage"],
 };
 
 export async function POST(request: NextRequest) {

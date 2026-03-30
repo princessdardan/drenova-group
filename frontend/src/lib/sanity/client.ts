@@ -21,3 +21,11 @@ export const previewClient = createClient({
   token: process.env.SANITY_API_READ_TOKEN,
   perspective: "drafts",
 });
+
+export const writeClient = createClient({
+  projectId,
+  dataset,
+  apiVersion,
+  useCdn: false,
+  token: process.env.SANITY_API_WRITE_TOKEN,
+});

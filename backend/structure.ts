@@ -24,6 +24,8 @@ const SINGLETON_TYPES = [
   "contactPage",
   "teamPage",
   "listingsPage",
+  "buyersGuidePage",
+  "sellersGuidePage",
 ];
 
 export const structure: StructureResolver = (S) =>
@@ -88,6 +90,24 @@ export const structure: StructureResolver = (S) =>
                     .title("Sell Page"),
                 ),
               S.listItem()
+                .title("Buyers Guide Page")
+                .icon(DocumentTextIcon)
+                .child(
+                  S.document()
+                    .schemaType("buyersGuidePage")
+                    .documentId("buyersGuidePage")
+                    .title("Buyers Guide Page"),
+                ),
+              S.listItem()
+                .title("Sellers Guide Page")
+                .icon(DocumentTextIcon)
+                .child(
+                  S.document()
+                    .schemaType("sellersGuidePage")
+                    .documentId("sellersGuidePage")
+                    .title("Sellers Guide Page"),
+                ),
+              S.listItem()
                 .title("Contact Page")
                 .icon(EnvelopeIcon)
                 .child(
@@ -140,4 +160,7 @@ export const structure: StructureResolver = (S) =>
       S.documentTypeListItem("legalPage")
         .title("Legal Pages")
         .icon(DocumentTextIcon),
+      S.documentTypeListItem("leadSubmission")
+        .title("Lead Submissions")
+        .icon(EnvelopeIcon),
     ]);
