@@ -1,0 +1,21 @@
+name: Deploy Sanity Studio
+
+on:
+  push:
+    branches: [clean-main]
+    paths: [backend/**]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx sanity deploy
+        working-directory: backend
+        env:
+          SANITY_AUTH_TOKEN: ${{ secrets.SANITY_AUTH_TOKEN }}
