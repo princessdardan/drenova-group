@@ -4,6 +4,7 @@ import { visionTool } from "@sanity/vision";
 import { schemaTypes } from "./schemaTypes";
 import { structure } from "./structure";
 
+// Singleton types are excluded from the "create new" menu in the Studio
 const SINGLETON_TYPES = [
   "siteSettings",
   "homePage",
