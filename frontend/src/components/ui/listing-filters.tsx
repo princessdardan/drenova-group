@@ -66,10 +66,10 @@ export function ListingFilters({
       <div className="max-w-7xl mx-auto flex flex-wrap items-center gap-3">
         <FilterSelect
           aria-label="Listing type"
-          value={searchParams.get("transactionType") ?? ""}
+          value={searchParams.get("transactionType") ?? "Sale"}
           onChange={(e) => updateParam("transactionType", e.target.value)}
         >
-          <option value="">For Sale</option>
+          <option value="Sale">For Sale</option>
           <option value="Lease">For Lease</option>
           <option value="All">All Listings</option>
         </FilterSelect>
