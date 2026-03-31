@@ -158,9 +158,11 @@ export default async function AboutPage() {
         title={cta?.title ?? "Meet Our Team"}
         subtitle={cta?.subtitle ?? "The people behind Drenova Group are what make us different."}
       >
-        <ButtonLink href="/team">View Team</ButtonLink>
-        <ButtonLink href="/contact" variant="minimal">
-          Get in Touch
+        <ButtonLink href={cta?.primaryButtonHref ?? "/team"}>
+          {cta?.primaryButtonText ?? "View Team"}
+        </ButtonLink>
+        <ButtonLink href={cta?.secondaryButtonHref ?? "/contact"} variant="minimal">
+          {cta?.secondaryButtonText ?? "Get in Touch"}
         </ButtonLink>
       </CtaSection>
     </>

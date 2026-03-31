@@ -22,7 +22,7 @@ export function CtaSection({ title, subtitle, children, bg = "surface" }: CtaSec
         {subtitle && (
           <p className="text-lg text-muted leading-8 mb-8">{subtitle}</p>
         )}
-        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
           {children}
         </div>
       </div>

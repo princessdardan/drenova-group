@@ -38,6 +38,8 @@ export interface HeroSettings {
   overline?: string;
   title: string;
   subtitle?: string;
+  buttonText?: string;
+  buttonHref?: string;
 }
 
 export interface ProcessStep {
@@ -63,6 +65,10 @@ export interface SectionHeading {
 export interface CtaSettings {
   title: string;
   subtitle?: string;
+  primaryButtonText?: string;
+  primaryButtonHref?: string;
+  secondaryButtonText?: string;
+  secondaryButtonHref?: string;
 }
 
 export interface ValuationSection {
@@ -171,11 +177,15 @@ export interface HomePage {
     image?: SanityImage;
     title?: string;
     subtitle?: string;
+    buttonText?: string;
+    buttonHref?: string;
   };
   ctaCard2?: {
     image?: SanityImage;
     title?: string;
     subtitle?: string;
+    buttonText?: string;
+    buttonHref?: string;
   };
   contactForm?: {
     heading?: string;

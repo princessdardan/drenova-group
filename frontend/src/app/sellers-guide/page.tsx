@@ -97,9 +97,11 @@ export default async function SellersGuidePage() {
             "Connect with an agent to get a free valuation of your property."
           }
         >
-          <ButtonLink href="/sell">Get Your Home&apos;s Value</ButtonLink>
-          <ButtonLink href="/contact" variant="minimal">
-            Talk to an Agent
+          <ButtonLink href={cta.primaryButtonHref ?? "/sell"}>
+            {cta.primaryButtonText ?? "Get Your Home's Value"}
+          </ButtonLink>
+          <ButtonLink href={cta.secondaryButtonHref ?? "/contact"} variant="minimal">
+            {cta.secondaryButtonText ?? "Talk to an Agent"}
           </ButtonLink>
         </CtaSection>
       )}

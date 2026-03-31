@@ -601,10 +601,13 @@ async function seedHomePage() {
       _key: id,
     })),
     featuredListingsHeading: homePageData.featuredListingsHeading,
-    aboutSectionOverline: homePageData.aboutSectionOverline,
-    aboutSectionTitle: homePageData.aboutSectionTitle,
-    aboutSectionContent: homePageData.aboutSectionContent,
-    aboutSectionImage: aboutImage,
+    aboutSection: {
+      title: homePageData.aboutSectionTitle,
+      description: homePageData.aboutSectionContent,
+      image: aboutImage,
+      buttonText: "Learn More",
+      buttonHref: "/about",
+    },
     valuePropsHeading: homePageData.valuePropsHeading,
     cta: homePageData.cta,
   });

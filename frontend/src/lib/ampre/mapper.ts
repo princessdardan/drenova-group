@@ -31,6 +31,12 @@ function normalizeStringArray(
   return parts.length > 0 ? parts : undefined;
 }
 
+function mapTransactionType(raw: string | undefined): "Sale" | "Lease" {
+  if (!raw) return "Sale";
+  if (raw.toLowerCase().includes("lease")) return "Lease";
+  return "Sale";
+}
+
 function buildAddress(property: AmpreProperty): string {
   if (property.UnparsedAddress) return property.UnparsedAddress;
 
@@ -123,6 +129,7 @@ export function mapAmpreToListing(
     status: property.StandardStatus,
     propertyType: property.PropertyType ?? "Residential",
     propertySubType: property.PropertySubType,
+    transactionType: mapTransactionType(property.TransactionType),
     yearBuilt: property.YearBuilt ?? undefined,
     description: property.PublicRemarks,
     listOfficeName: property.ListOfficeName,

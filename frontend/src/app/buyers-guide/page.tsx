@@ -96,9 +96,11 @@ export default async function BuyersGuidePage() {
             "Browse our listings or connect with an agent to begin your home buying journey."
           }
         >
-          <ButtonLink href="/listings">Browse Listings</ButtonLink>
-          <ButtonLink href="/contact" variant="minimal">
-            Talk to an Agent
+          <ButtonLink href={cta.primaryButtonHref ?? "/listings"}>
+            {cta.primaryButtonText ?? "Browse Listings"}
+          </ButtonLink>
+          <ButtonLink href={cta.secondaryButtonHref ?? "/contact"} variant="minimal">
+            {cta.secondaryButtonText ?? "Talk to an Agent"}
           </ButtonLink>
         </CtaSection>
       )}

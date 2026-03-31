@@ -12,7 +12,8 @@
     "start": "npm -w frontend run start",
     "lint": "npm -w frontend run lint",
     "studio": "npm -w backend run dev",
-    "seed": "tsx scripts/seed-sanity.ts"
+    "seed": "tsx scripts/seed-sanity.ts",
+    "test:e2e": "npm -w frontend run test:e2e"
   },
   "devDependencies": {
     "@sanity/client": "^7.17.0",

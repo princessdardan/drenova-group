@@ -86,6 +86,18 @@ export const homePage = defineType({
           title: "Subtitle",
           type: "string",
         }),
+        defineField({
+          name: "buttonText",
+          title: "Button Text",
+          type: "string",
+          initialValue: "Get Started",
+        }),
+        defineField({
+          name: "buttonHref",
+          title: "Button Link",
+          type: "string",
+          initialValue: "#contact",
+        }),
       ],
     }),
     defineField({
@@ -112,6 +124,18 @@ export const homePage = defineType({
           name: "subtitle",
           title: "Subtitle",
           type: "string",
+        }),
+        defineField({
+          name: "buttonText",
+          title: "Button Text",
+          type: "string",
+          initialValue: "Get Started",
+        }),
+        defineField({
+          name: "buttonHref",
+          title: "Button Link",
+          type: "string",
+          initialValue: "#contact",
         }),
       ],
     }),

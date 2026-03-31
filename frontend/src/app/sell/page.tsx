@@ -46,8 +46,11 @@ export default async function SellPage() {
         title={sellPage?.hero?.title ?? "Sell with Confidence"}
         subtitle={sellPage?.hero?.subtitle ?? "Expert pricing, professional marketing, and skilled negotiation — we handle every detail."}
       >
-        <ButtonLink href="/contact" className="border-white text-white hover:bg-white hover:text-black">
-          Get a Valuation
+        <ButtonLink
+          href={sellPage?.hero?.buttonHref ?? "/contact"}
+          className="border-white text-white hover:bg-white hover:text-black"
+        >
+          {sellPage?.hero?.buttonText ?? "Get a Valuation"}
         </ButtonLink>
       </Hero>
 
@@ -179,11 +182,11 @@ export default async function SellPage() {
         subtitle={cta?.subtitle ?? "Connect with an agent today and take the first step toward a successful sale."}
         bg="background"
       >
-        <ButtonLink href="/contact" variant="accent">
-          Get Your Home&apos;s Value
+        <ButtonLink href={cta?.primaryButtonHref ?? "/contact"} variant="accent">
+          {cta?.primaryButtonText ?? "Get Your Home's Value"}
         </ButtonLink>
-        <ButtonLink href="/contact" variant="minimal">
-          Connect with an Agent
+        <ButtonLink href={cta?.secondaryButtonHref ?? "/contact"} variant="minimal">
+          {cta?.secondaryButtonText ?? "Connect with an Agent"}
         </ButtonLink>
       </CtaSection>
     </>

@@ -43,6 +43,7 @@ const PROPERTY_SELECT_FIELDS = [
   "LotSizeArea",
   "PropertyType",
   "PropertySubType",
+  "TransactionType",
   "YearBuilt",
   "PublicRemarks",
   // Property Features (names validated against AMPRE $metadata)

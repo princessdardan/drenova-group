@@ -37,10 +37,10 @@ export default async function HomePage() {
         }
       >
         <ButtonLink
-          href="#contact"
+          href={homePage?.hero?.buttonHref ?? "#contact"}
           className="border-white text-white hover:bg-white hover:text-black"
         >
-          Get Started
+          {homePage?.hero?.buttonText ?? "Get Started"}
         </ButtonLink>
       </Hero>
 
@@ -116,7 +116,7 @@ export default async function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
             {/* Card 1: Selling */}
             <a
-              href="#contact"
+              href={homePage?.ctaCard1?.buttonHref ?? "#contact"}
               className="group relative block aspect-[4/3] overflow-hidden rounded-lg"
             >
               <Image
@@ -149,14 +149,14 @@ export default async function HomePage() {
                   </p>
                 )}
                 <span className="inline-flex items-center justify-center uppercase tracking-wider font-semibold border border-white text-white h-12 px-8 text-sm transition-colors duration-200 group-hover:bg-white group-hover:text-black">
-                  Get Started
+                  {homePage?.ctaCard1?.buttonText ?? "Get Started"}
                 </span>
               </div>
             </a>
 
             {/* Card 2: Buying */}
             <a
-              href="#contact"
+              href={homePage?.ctaCard2?.buttonHref ?? "#contact"}
               className="group relative block aspect-[4/3] overflow-hidden rounded-lg"
             >
               <Image
@@ -189,7 +189,7 @@ export default async function HomePage() {
                   </p>
                 )}
                 <span className="inline-flex items-center justify-center uppercase tracking-wider font-semibold border border-white text-white h-12 px-8 text-sm transition-colors duration-200 group-hover:bg-white group-hover:text-black">
-                  Get Started
+                  {homePage?.ctaCard2?.buttonText ?? "Get Started"}
                 </span>
               </div>
             </a>

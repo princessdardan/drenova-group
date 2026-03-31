@@ -40,6 +40,7 @@ export interface AmpreProperty {
   LotSizeArea?: number | null;
   PropertyType?: string;
   PropertySubType?: string;
+  TransactionType?: string; // RESO DD: "For Sale", "For Lease", "For Sale or Lease"
   YearBuilt?: number | null;
   PublicRemarks?: string;
 

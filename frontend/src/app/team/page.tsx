@@ -48,7 +48,9 @@ export default async function TeamPage() {
         title={cta?.title ?? "Get in Touch"}
         subtitle={cta?.subtitle ?? "Have a question or ready to start? We'd love to hear from you."}
       >
-        <ButtonLink href="/contact">Contact Us</ButtonLink>
+        <ButtonLink href={cta?.primaryButtonHref ?? "/contact"}>
+          {cta?.primaryButtonText ?? "Contact Us"}
+        </ButtonLink>
       </CtaSection>
     </>
   );

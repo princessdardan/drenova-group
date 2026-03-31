@@ -14,6 +14,7 @@ export interface Listing {
   status: string;
   propertyType: string;
   propertySubType?: string;
+  transactionType?: "Sale" | "Lease";
   yearBuilt?: number;
   lotSize?: number;
   description?: string;

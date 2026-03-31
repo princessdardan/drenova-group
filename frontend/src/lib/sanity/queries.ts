@@ -99,12 +99,16 @@ export const homePageQuery = groq`*[_type == "homePage"][0] {
   ctaCard1 {
     image,
     title,
-    subtitle
+    subtitle,
+    buttonText,
+    buttonHref
   },
   ctaCard2 {
     image,
     title,
-    subtitle
+    subtitle,
+    buttonText,
+    buttonHref
   },
   contactForm {
     heading,

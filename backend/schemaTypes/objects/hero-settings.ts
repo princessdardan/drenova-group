@@ -59,5 +59,17 @@ export const heroSettings = defineType({
       type: "text",
       rows: 3,
     }),
+    defineField({
+      name: "buttonText",
+      title: "Button Text",
+      type: "string",
+      description: "Label for the hero call-to-action button",
+    }),
+    defineField({
+      name: "buttonHref",
+      title: "Button Link",
+      type: "string",
+      description: "URL or path the hero button links to (e.g. /contact)",
+    }),
   ],
 });

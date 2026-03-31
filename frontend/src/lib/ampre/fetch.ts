@@ -20,6 +20,7 @@ function isKvConfigured(): boolean {
 
 export interface ListingFilters {
   propertyType?: string;
+  transactionType?: "Sale" | "Lease" | "All";
   minBeds?: number;
   minPrice?: number;
   maxPrice?: number;
@@ -48,6 +49,20 @@ async function getAllListingsFromKV(): Promise<Listing[]> {
 
 function applyFilters(listings: Listing[], filters: ListingFilters): Listing[] {
   let result = listings;
+
+  // Default to "Sale" — lease listings hidden unless explicitly requested
+  const txType = filters.transactionType ?? "Sale";
+  if (txType !== "All") {
+    result = result.filter((l) => (l.transactionType ?? "Sale") === txType);
+  }
+
+  // Default to residential types when no propertyType filter is set and viewing for-sale
+  if (!filters.propertyType && txType === "Sale") {
+    const residentialTypes = new Set(["residential", "condominium"]);
+    result = result.filter((l) =>
+      residentialTypes.has(l.propertyType.toLowerCase())
+    );
+  }
 
   if (filters.propertyType) {
     result = result.filter(
@@ -146,18 +161,34 @@ export async function getAmpreListingBySlug(
 
 /**
  * Get all unique cities from current listings (for filter dropdowns).
+ * Scoped to the active transaction type so options reflect the current view.
  */
-export async function getAmpreListingCities(): Promise<string[]> {
+export async function getAmpreListingCities(
+  transactionType?: "Sale" | "Lease" | "All"
+): Promise<string[]> {
   const all = await getAllListingsFromKV();
-  const cities = [...new Set(all.map((l) => l.city))];
+  const txType = transactionType ?? "Sale";
+  const filtered =
+    txType === "All"
+      ? all
+      : all.filter((l) => (l.transactionType ?? "Sale") === txType);
+  const cities = [...new Set(filtered.map((l) => l.city))];
   return cities.sort();
 }
 
 /**
  * Get all unique property types from current listings (for filter dropdowns).
+ * Scoped to the active transaction type so options reflect the current view.
  */
-export async function getAmpreListingPropertyTypes(): Promise<string[]> {
+export async function getAmpreListingPropertyTypes(
+  transactionType?: "Sale" | "Lease" | "All"
+): Promise<string[]> {
   const all = await getAllListingsFromKV();
-  const types = [...new Set(all.map((l) => l.propertyType))];
+  const txType = transactionType ?? "Sale";
+  const filtered =
+    txType === "All"
+      ? all
+      : all.filter((l) => (l.transactionType ?? "Sale") === txType);
+  const types = [...new Set(filtered.map((l) => l.propertyType))];
   return types.sort();
 }

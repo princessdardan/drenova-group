@@ -80,7 +80,7 @@ export function Hero({
         {subtitle && (
           <p className="text-lg leading-8 mt-4 text-white/80">{subtitle}</p>
         )}
-        {children && <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 mt-8">{children}</div>}
+        {children && <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mt-8">{children}</div>}
       </div>
     </section>
   );

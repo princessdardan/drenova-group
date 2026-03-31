@@ -29,8 +29,15 @@ function parseFilters(
     return typeof v === "string" ? v : undefined;
   };
 
+  const rawTxType = get("transactionType");
+  const transactionType =
+    rawTxType === "Sale" || rawTxType === "Lease" || rawTxType === "All"
+      ? rawTxType
+      : undefined;
+
   return {
     propertyType: get("propertyType"),
+    transactionType,
     minBeds: get("minBeds") ? Number(get("minBeds")) : undefined,
     maxPrice: get("maxPrice") ? Number(get("maxPrice")) : undefined,
     minPrice: get("minPrice") ? Number(get("minPrice")) : undefined,
@@ -43,8 +50,8 @@ function parseFilters(
 async function ListingsGrid({ filters }: { filters: Filters }) {
   const [result, cities, propertyTypes] = await Promise.all([
     getAmpreListings(filters),
-    getAmpreListingCities(),
-    getAmpreListingPropertyTypes(),
+    getAmpreListingCities(filters.transactionType),
+    getAmpreListingPropertyTypes(filters.transactionType),
   ]);
 
   return (
@@ -90,6 +97,9 @@ async function ListingsGrid({ filters }: { filters: Filters }) {
                   <a
                     key={pageNum}
                     href={`/listings?${new URLSearchParams({
+                      ...(filters.transactionType
+                        ? { transactionType: filters.transactionType }
+                        : {}),
                       ...(filters.propertyType
                         ? { propertyType: filters.propertyType }
                         : {}),

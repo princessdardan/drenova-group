@@ -13,7 +13,7 @@
   --accent: #A94310;
   --accent-hover: #8E3710;
   --accent-foreground: #FFFFFF;
-  --overlay: rgba(3, 9, 16, 0.65);
+  --overlay: rgba(3, 9, 16, 0.45);
   --footer-bg: #0E1921;
   --footer-text: #F0F3F5;
   --footer-muted: #8B8E92;
@@ -36,7 +36,7 @@
     --accent: #C4622A;
     --accent-hover: #D4723A;
     --accent-foreground: #FFFFFF;
-    --overlay: rgba(3, 9, 16, 0.75);
+    --overlay: rgba(3, 9, 16, 0.55);
     --footer-bg: #030910;
     --footer-text: #F0F3F5;
     --footer-muted: #8B8E92;

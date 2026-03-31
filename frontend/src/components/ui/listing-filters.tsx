@@ -54,6 +54,7 @@ export function ListingFilters({
   );
 
   const activeFilterCount = [
+    searchParams.get("transactionType"),
     searchParams.get("propertyType"),
     searchParams.get("minBeds"),
     searchParams.get("maxPrice"),
@@ -63,6 +64,16 @@ export function ListingFilters({
   return (
     <section className="bg-surface-alt border-b border-border py-4 px-6 lg:px-8">
       <div className="max-w-7xl mx-auto flex flex-wrap items-center gap-3">
+        <FilterSelect
+          aria-label="Listing type"
+          value={searchParams.get("transactionType") ?? ""}
+          onChange={(e) => updateParam("transactionType", e.target.value)}
+        >
+          <option value="">For Sale</option>
+          <option value="Lease">For Lease</option>
+          <option value="All">All Listings</option>
+        </FilterSelect>
+
         <FilterSelect
           aria-label="Property type"
           value={searchParams.get("propertyType") ?? ""}
