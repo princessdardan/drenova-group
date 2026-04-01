@@ -46,3 +46,9 @@ export const KV_LISTINGS_KEY = "listings:all";
 
 /** Redis key prefix for sync log entries */
 export const KV_SYNC_LOG_PREFIX = "sync:log:";
+
+/** Permitted property types — only residential listings are fetched and stored. */
+export const RESIDENTIAL_PROPERTY_TYPES = [
+  "Residential Freehold",
+  "Residential Condo & Other",
+] as const;

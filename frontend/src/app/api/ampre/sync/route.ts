@@ -10,6 +10,7 @@ import {
   KV_LISTINGS_KEY,
   KV_SYNC_LOG_PREFIX,
   MAX_RETENTION_DAYS,
+  RESIDENTIAL_PROPERTY_TYPES,
 } from "@/lib/ampre/compliance";
 import type { Listing } from "@/types/listing";
 import type { AmpreMedia, SyncLogEntry, BatchError } from "@/lib/ampre/types";
@@ -72,8 +73,21 @@ async function handleSync(request: Request) {
       `[sync] After DDF filter: ${permitted.length} permitted, ${filteredCount} filtered`
     );
 
+    // Step 2b: Filter to residential property types only (defense-in-depth)
+    const residential = permitted.filter(
+      (p) =>
+        p.PropertyType != null &&
+        (RESIDENTIAL_PROPERTY_TYPES as readonly string[]).includes(p.PropertyType)
+    );
+    const filteredNonResidential = permitted.length - residential.length;
+    if (filteredNonResidential > 0) {
+      console.warn(
+        `[sync] Filtered ${filteredNonResidential} non-residential listings (should be 0 — check OData filter)`
+      );
+    }
+
     // Step 3: Fetch media for permitted listings
-    const listingKeys = permitted.map((p) => p.ListingKey);
+    const listingKeys = residential.map((p) => p.ListingKey);
     const mediaMap = new Map<string, AmpreMedia[]>();
     let mediaFetched = 0;
     let mediaErrors = 0;
@@ -106,7 +120,7 @@ async function handleSync(request: Request) {
     );
 
     // Step 4: Map to internal Listing type (handles address suppression + media)
-    const listings = permitted.map((p) =>
+    const listings = residential.map((p) =>
       mapAmpreToListing(p, mediaMap.get(p.ListingKey) ?? [])
     );
     console.log(
@@ -146,6 +160,7 @@ async function handleSync(request: Request) {
       stored: freshListings.length,
       purged: purgedCount,
       filteredDdf: filteredCount,
+      filteredNonResidential,
       mediaFetched,
       mediaErrors,
       listingsWithImages,
@@ -164,6 +179,7 @@ async function handleSync(request: Request) {
       stored: freshListings.length,
       purged: purgedCount,
       filteredDdf: filteredCount,
+      filteredNonResidential,
       mediaFetched,
       mediaErrors,
       listingsWithImages,
@@ -182,6 +198,7 @@ async function handleSync(request: Request) {
       stored: 0,
       purged: 0,
       filteredDdf: 0,
+      filteredNonResidential: 0,
       mediaFetched: 0,
       mediaErrors: 0,
       listingsWithImages: 0,

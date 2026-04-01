@@ -1,4 +1,4 @@
-import { REQUIRED_SELECT_FIELDS } from "./compliance";
+import { REQUIRED_SELECT_FIELDS, RESIDENTIAL_PROPERTY_TYPES } from "./compliance";
 
 /**
  * AMPRE OData query builder for the daily sync job.
@@ -104,9 +104,14 @@ export function buildSyncQuery(): string {
   // and single quotes which breaks OData parameter parsing.
   const uniqueFields = [...new Set(PROPERTY_SELECT_FIELDS)];
 
+  // Restrict to residential property types only
+  const propertyTypeFilter = RESIDENTIAL_PROPERTY_TYPES
+    .map((t) => `PropertyType eq '${t}'`)
+    .join(" or ");
+
   return [
     `$select=${uniqueFields.join(",")}`,
-    `$filter=StandardStatus eq 'Active'`,
+    `$filter=StandardStatus eq 'Active' and (${propertyTypeFilter})`,
     `$orderby=ModificationTimestamp desc`,
   ].join("&");
 }

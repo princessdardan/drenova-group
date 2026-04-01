@@ -56,14 +56,6 @@ function applyFilters(listings: Listing[], filters: ListingFilters): Listing[] {
     result = result.filter((l) => (l.transactionType ?? "Sale") === txType);
   }
 
-  // Default to residential types when no propertyType filter is set and viewing for-sale
-  if (!filters.propertyType && txType === "Sale") {
-    const residentialTypes = new Set(["residential", "condominium"]);
-    result = result.filter((l) =>
-      residentialTypes.has(l.propertyType.toLowerCase())
-    );
-  }
-
   if (filters.propertyType) {
     result = result.filter(
       (l) => l.propertyType.toLowerCase() === filters.propertyType!.toLowerCase()
