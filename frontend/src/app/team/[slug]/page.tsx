@@ -20,9 +20,16 @@ export async function generateMetadata({
   const { slug } = await params;
   const member = await getTeamMemberBySlug(slug);
   if (!member) return {};
+  const ogImage = isSanityImage(member.image)
+    ? urlFor(member.image).width(1200).height(630).fit("crop").url()
+    : typeof member.image === "string" ? member.image : undefined;
+
   return {
     title: member.name,
     description: `${member.name} — ${member.role} at Drenova Group.`,
+    openGraph: ogImage
+      ? { images: [{ url: ogImage, alt: member.name }] }
+      : undefined,
   };
 }
 

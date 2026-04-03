@@ -4,6 +4,8 @@ import { SectionHeader } from "@/components/ui/section-header";
 import { Accordion } from "@/components/ui/accordion";
 import { ButtonLink } from "@/components/ui/button";
 import { CtaSection } from "@/components/sections/cta-section";
+import { Reveal } from "@/components/ui/reveal";
+import { StaggerChildren } from "@/components/ui/stagger-children";
 import { getBuyPage, getFaqsByCategory, getCoverageAreas } from "@/lib/sanity/fetch";
 import { urlFor } from "@/lib/sanity/image";
 import { isSanityImage } from "@/types/sanity";
@@ -61,14 +63,14 @@ export default async function BuyPage() {
               description={bh?.description}
               className="mb-12"
             />
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <StaggerChildren className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {benefits.map((benefit) => (
                 <div key={benefit._key} className="bg-surface-alt p-6 lg:p-8 rounded-lg border border-border">
                   <h3 className="text-lg font-semibold mb-3">{benefit.title}</h3>
                   <p className="text-muted leading-7">{benefit.description}</p>
                 </div>
               ))}
-            </div>
+            </StaggerChildren>
           </div>
         </section>
       )}
@@ -83,7 +85,7 @@ export default async function BuyPage() {
               description={ph?.description ?? "A clear, transparent process from start to finish."}
               className="mb-12"
             />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+            <StaggerChildren className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
               {processSteps.map((step) => (
                 <div key={step._key}>
                   <span className="font-display text-6xl lg:text-8xl font-bold text-accent/20">
@@ -94,7 +96,7 @@ export default async function BuyPage() {
                   <p className="text-base text-muted leading-7">{step.description}</p>
                 </div>
               ))}
-            </div>
+            </StaggerChildren>
           </div>
         </section>
       )}
@@ -109,7 +111,7 @@ export default async function BuyPage() {
               description={ch?.description ?? "We bring local expertise to every community across our five-state coverage area."}
               className="mb-12"
             />
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+            <StaggerChildren className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
               {coverageAreas.map((area) => (
                 <div
                   key={area._id}
@@ -119,7 +121,7 @@ export default async function BuyPage() {
                   <p className="text-sm text-muted">{area.cities.join(", ")}</p>
                 </div>
               ))}
-            </div>
+            </StaggerChildren>
           </div>
         </section>
       )}
@@ -134,7 +136,9 @@ export default async function BuyPage() {
               description={fh?.description}
               className="mb-12"
             />
-            <Accordion items={buyerFaqs} />
+            <Reveal>
+              <Accordion items={buyerFaqs} />
+            </Reveal>
           </div>
         </section>
       )}

@@ -53,7 +53,7 @@ export function ImageCarousel({ images, alt }: ImageCarouselProps) {
         aria-label="Property photos"
         tabIndex={0}
         onKeyDown={hasMultiple ? handleKeyDown : undefined}
-        className="relative outline-none"
+        className="relative outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
       >
         {/* Hero image area */}
         <div className="relative aspect-[4/3] lg:aspect-[16/9] xl:aspect-[21/9] bg-surface overflow-hidden">
@@ -69,6 +69,7 @@ export function ImageCarousel({ images, alt }: ImageCarouselProps) {
               )}
               sizes="100vw"
               priority={i === 0}
+              loading={i === 0 ? "eager" : "lazy"}
               aria-hidden={i !== currentIndex}
             />
           ))}

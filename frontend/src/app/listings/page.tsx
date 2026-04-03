@@ -115,7 +115,7 @@ async function ListingsGrid({ filters }: { filters: Filters }) {
                     }).toString()}`}
                     aria-label={`Go to page ${pageNum}`}
                     aria-current={pageNum === result.page ? "page" : undefined}
-                    className={`inline-flex items-center justify-center h-10 w-10 rounded-lg text-sm font-medium transition-colors ${
+                    className={`inline-flex items-center justify-center h-10 w-10 rounded-lg text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none ${
                       pageNum === result.page
                         ? "bg-accent text-white"
                         : "bg-surface-alt border border-border hover:bg-surface"

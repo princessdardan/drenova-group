@@ -37,9 +37,15 @@ drenova-group/
 │   │   │   ├── layout.tsx
 │   │   │   ├── page.tsx
 │   │   │   ├── globals.css
+│   │   │   ├── error.tsx
+│   │   │   ├── not-found.tsx
+│   │   │   ├── robots.ts
+│   │   │   ├── sitemap.ts
 │   │   │   ├── about/page.tsx
 │   │   │   ├── buy/page.tsx
 │   │   │   ├── sell/page.tsx
+│   │   │   ├── buyers-guide/page.tsx
+│   │   │   ├── sellers-guide/page.tsx
 │   │   │   ├── listings/
 │   │   │   │   ├── page.tsx
 │   │   │   │   └── [slug]/page.tsx
@@ -49,6 +55,7 @@ drenova-group/
 │   │   │   │   └── [slug]/page.tsx
 │   │   │   ├── privacy/page.tsx
 │   │   │   ├── terms/page.tsx
+│   │   │   ├── actions/          # Server actions (contact.ts, lead.ts)
 │   │   │   └── api/
 │   │   │       ├── ampre/sync/route.ts
 │   │   │       ├── draft/{enable,disable}/route.ts
@@ -76,8 +83,8 @@ drenova-group/
     └── schemaTypes/
         ├── index.ts
         ├── objects/            # blockContent, ctaSettings, heroSettings, processStep, sectionHeading, valuationSection
-        ├── documents/          # listing, teamMember, testimonial, faq, coverageArea, companyStat, companyValue, valueProposition, legalPage
-        └── singletons/         # siteSettings, homePage, aboutPage, buyPage, sellPage, contactPage, listingsPage, teamPage
+        ├── documents/          # listing, teamMember, testimonial, faq, coverageArea, companyStat, companyValue, valueProposition, legalPage, leadSubmission
+        └── singletons/         # siteSettings, homePage, aboutPage, buyPage, sellPage, contactPage, listingsPage, teamPage, buyersGuidePage, sellersGuidePage
 ```
 
 **Path alias:** `@/*` maps to `./src/*` inside `frontend/`.
@@ -121,7 +128,9 @@ Three fonts loaded via `next/font/google` in `frontend/src/app/layout.tsx`:
 - **Colocation:** Page-specific components near their page; shared components in `frontend/src/components/`
 - **No component library:** Build primitives as needed. Do not install shadcn/ui, Radix, etc. unless explicitly requested
 - **Export pattern:** `export default function` for pages; named exports for shared components
-- **Client components in use:** `accordion.tsx`, `header.tsx`, `mobile-menu.tsx`, `contact-form.tsx`, `listing-filters.tsx`
+- **UI components (15):** `accordion`, `button`, `draft-banner`, `image-carousel`, `image-lightbox`, `input`, `listing-filters`, `portable-text`, `property-card`, `reveal`, `section-header`, `select`, `stagger-children`, `team-member-card`, `textarea`
+- **Section components (8):** `contact-form`, `cta-section`, `footer`, `header`, `hero`, `hero-content`, `lead-form`, `mobile-menu`
+- **Client components:** `accordion.tsx`, `header.tsx`, `mobile-menu.tsx`, `contact-form.tsx`, `listing-filters.tsx`, `image-carousel.tsx`, `image-lightbox.tsx`, `lead-form.tsx`, `reveal.tsx`, `stagger-children.tsx`, `hero-content.tsx`
 
 Read the source files in `frontend/src/components/` for current component APIs and implementations.
 
@@ -148,6 +157,15 @@ Read the source files in `frontend/src/components/` for current component APIs a
 | Form fields gap | `gap-4` |
 | Button groups gap | `gap-3 sm:gap-4` |
 
+### Z-Index Scale
+
+| Layer | Z-index | Component |
+|---|---|---|
+| Skip link | `z-[100]` | `layout.tsx` |
+| Mobile menu | `z-50` | `mobile-menu.tsx` |
+| Header | `z-40` | `header.tsx` |
+| Sticky price bar | `z-30` | `listings/[slug]/page.tsx` |
+
 ---
 
 ## 6. Utilities
@@ -160,6 +178,9 @@ Read the source files in `frontend/src/components/` for current component APIs a
 - **Sanity fetch** — `@/lib/sanity/fetch` — Typed async fetch functions with ISR cache tags
 - **AMPRE client** — `@/lib/ampre/` — MLS data fetching, mapping to Sanity schema, RESO compliance
 - **Upstash Redis** — `@upstash/redis` — Rate limiting and caching for AMPRE sync
+- **Contact action** — `@/app/actions/contact` — Server action for contact form submission
+- **Lead action** — `@/app/actions/lead` — Server action for lead/guide form submission
+- **Resend** — `resend` — Email delivery for contact and lead forms
 
 Types are defined in `frontend/src/types/` (`listing.ts`, `team.ts`, `testimonial.ts`, `sanity.ts`).
 
@@ -167,10 +188,13 @@ Types are defined in `frontend/src/types/` (`listing.ts`, `team.ts`, `testimonia
 
 ## 7. Assets
 
-- Static assets in `frontend/public/` — currently default Next.js SVGs only
+- Static assets in `frontend/public/`
+- `public/og-image.png` — Default OG image placeholder (1200x630)
+- `public/apple-touch-icon.png` — Apple touch icon
+- `src/app/favicon.ico` — Favicon (Next.js convention)
 - No custom icons yet — create `frontend/public/icons/` when needed
-- Brand assets (logo, favicons, OG images) not yet added
-- All images use Unsplash URLs (configured in `frontend/next.config.ts`)
+- Logo asset not yet added — header/footer use text placeholder
+- Images use Unsplash URLs + Sanity CDN + AMPRE MLS (configured in `frontend/next.config.ts`)
 
 ---
 
@@ -181,7 +205,7 @@ Types are defined in `frontend/src/types/` (`listing.ts`, `team.ts`, `testimonia
 | Layer | Technology | Pages | Status |
 |---|---|---|---|
 | 3D scenes | Three.js + React Three Fiber | Homepage hero | Planned |
-| UI transitions | motion.dev | All pages | Planned |
+| UI transitions | motion.dev | All pages | **Available now** |
 | Decorative | reactbits | Marketing pages only | Planned |
 | Micro-interactions | Tailwind CSS transitions | All pages | **Available now** |
 
@@ -206,6 +230,8 @@ export const metadata: Metadata = {
 };
 ```
 
+Programmatic SEO files: `robots.ts` and `sitemap.ts` in `frontend/src/app/`.
+
 ---
 
 ## 10. Development Commands
@@ -229,14 +255,14 @@ Target a specific workspace: `npm -w frontend run dev` / `npm -w backend run <sc
 | Area | Notes |
 |---|---|
 | Monorepo structure | npm workspaces: `frontend/` + `backend/` |
-| All 10 pages | /, /buy, /sell, /listings, /about, /team, /team/[slug], /contact, /privacy, /terms |
+| 14 routes | /, /buy, /sell, /listings, /listings/[slug], /about, /team, /team/[slug], /contact, /buyers-guide, /sellers-guide, /privacy, /terms + error/not-found |
 | Design tokens | Full light/dark mode in `globals.css` |
 | Font loading | 3 fonts via `next/font/google` |
-| 11 UI + 6 section components | See `frontend/src/components/` |
+| 15 UI + 8 section components | See `frontend/src/components/` |
 | Types, utilities, Sanity lib | See `frontend/src/types/` and `frontend/src/lib/sanity/` |
-| SEO metadata | Title template + per-page metadata |
+| SEO metadata | Title template + per-page metadata, robots.ts, sitemap.ts |
 | Responsive design | Mobile-first across all pages |
-| Sanity Studio | `backend/` workspace, 23 schema types (6 objects, 9 documents, 8 singletons) |
+| Sanity Studio | `backend/` workspace, 26 schema types (6 objects, 10 documents, 10 singletons) |
 | Sanity frontend integration | `next-sanity`, `@sanity/image-url`, `@portabletext/react`, typed fetch functions, ISR + webhook revalidation, draft mode preview |
 | Seed script | `scripts/seed-sanity.ts` — seeds all documents and singletons into Sanity (`npm run seed`) |
 
@@ -246,18 +272,22 @@ Target a specific workspace: `npm -w frontend run dev` / `npm -w backend run <sc
 |---|---|
 | API routes | Draft mode enable/disable, ISR revalidation webhook, AMPRE sync endpoint |
 | AMPRE MLS integration | `lib/ampre/` — client, mapper, compliance, fetch, queries, types |
-| Listing detail page | `/listings/[slug]` with dynamic params |
-| Listing filters | Client-side search/filter component |
+| Listing detail page | `/listings/[slug]` with dynamic params, breadcrumb, mobile sticky price bar |
+| Listing filters | Client-side search/filter with collapsible mobile layout |
 | Upstash Redis | Migrated from `@vercel/kv` — rate limiting and caching |
+| Server actions | Contact form + lead form submissions via `app/actions/` |
+| Email delivery | Resend integration for contact and lead forms |
+| Buyers/sellers guides | `/buyers-guide`, `/sellers-guide` with lead capture forms |
+| Favicon + OG placeholder | `favicon.ico`, `apple-touch-icon.png`, `og-image.png` |
 
 ### Not Built Yet
 
 | Area | Phase |
 |---|---|
-| Form submission (server-side contact form) | 2 |
 | Mapbox interactive map | 2 |
-| Email service (Resend/SendGrid) | 2 |
 | Three.js hero animation | 1 |
-| Custom brand assets (logo, favicon, OG images) | 1 |
-| motion.dev animations, reactbits effects | 3 |
+| Custom logo asset | 1 |
+| ~~Branded OG images (per-page)~~ | ~~1~~ Done |
+| ~~motion.dev scroll animations~~ | ~~3~~ Done |
+| reactbits decorative effects | 3 |
 | Sentry error tracking | 3 |

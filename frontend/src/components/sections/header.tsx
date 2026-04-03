@@ -4,10 +4,13 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { MobileMenu } from "@/components/sections/mobile-menu";
 
-const defaultDesktopLinks = [
+const defaultLinks = [
   { href: "/buy", label: "Buy" },
   { href: "/sell", label: "Sell" },
   { href: "/listings", label: "Listings" },
+  { href: "/about", label: "About" },
+  { href: "/team", label: "Team" },
+  { href: "/contact", label: "Contact" },
 ];
 
 interface HeaderProps {
@@ -20,10 +23,7 @@ export function Header({ navigationLinks, phone, email }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
-  // Desktop header shows a subset of links (first 3 by default)
-  const desktopLinks = navigationLinks
-    ? navigationLinks.slice(0, 3)
-    : defaultDesktopLinks;
+  const allLinks = navigationLinks ?? defaultLinks;
 
   useEffect(() => {
     function handleScroll() {
@@ -51,8 +51,8 @@ export function Header({ navigationLinks, phone, email }: HeaderProps) {
           </Link>
 
           <div className="flex items-center gap-8">
-            <nav className="hidden md:flex items-center gap-8" aria-label="Main">
-              {desktopLinks.map((link) => (
+            <nav className="hidden lg:flex items-center gap-8" aria-label="Main">
+              {allLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
@@ -66,7 +66,7 @@ export function Header({ navigationLinks, phone, email }: HeaderProps) {
             <button
               type="button"
               onClick={() => setMenuOpen(true)}
-              className="p-2 cursor-pointer"
+              className="p-2 cursor-pointer lg:hidden"
               aria-label="Open menu"
               aria-expanded={menuOpen}
               aria-controls="mobile-menu"

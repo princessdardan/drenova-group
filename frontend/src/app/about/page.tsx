@@ -5,6 +5,8 @@ import { SectionHeader } from "@/components/ui/section-header";
 import { ButtonLink } from "@/components/ui/button";
 import { CtaSection } from "@/components/sections/cta-section";
 import { PortableTextRenderer } from "@/components/ui/portable-text";
+import { Reveal } from "@/components/ui/reveal";
+import { StaggerChildren } from "@/components/ui/stagger-children";
 import {
   getAboutPage,
   getCompanyStats,
@@ -51,7 +53,7 @@ export default async function AboutPage() {
           About
         </div>
         <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 min-h-[500px]">
-          <div className="flex flex-col justify-center px-8 lg:px-16 py-16">
+          <Reveal direction="left" className="flex flex-col justify-center px-8 lg:px-16 py-16">
             <p className="text-xs uppercase tracking-widest font-medium text-accent mb-4">
               {aboutPage?.storyOverline ?? "Founded 2011"}
             </p>
@@ -80,7 +82,7 @@ export default async function AboutPage() {
                 </p>
               </>
             )}
-          </div>
+          </Reveal>
           <div className="relative min-h-[400px] lg:min-h-0">
             <Image
               src={
@@ -106,14 +108,14 @@ export default async function AboutPage() {
             description={vh?.description ?? "The principles that guide every interaction, negotiation, and decision we make."}
             className="mb-12"
           />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <StaggerChildren className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {companyValues.map((value) => (
               <div key={value._id} className="bg-surface-alt p-6 rounded-lg border border-border">
                 <h3 className="text-lg font-semibold mb-2">{value.title}</h3>
                 <p className="text-sm text-muted leading-6">{value.description}</p>
               </div>
             ))}
-          </div>
+          </StaggerChildren>
         </div>
       </section>
 
@@ -126,20 +128,20 @@ export default async function AboutPage() {
             description={ch?.description ?? "Local expertise across five states and growing."}
             className="mb-12"
           />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+          <StaggerChildren className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
             {coverageAreas.map((area) => (
               <div key={area._id} className="bg-surface-alt p-6 rounded-lg border border-border text-center">
                 <h3 className="font-semibold text-lg mb-1">{area.state}</h3>
                 <p className="text-sm text-muted">{area.cities.join(", ")}</p>
               </div>
             ))}
-          </div>
+          </StaggerChildren>
         </div>
       </section>
 
       {/* ─── Stats ─── */}
       <section className="bg-surface py-16 px-6 lg:py-24 lg:px-8">
-        <div className="max-w-5xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+        <StaggerChildren className="max-w-5xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
           {companyStats.map((stat) => (
             <div key={stat._id}>
               <p className="font-display text-4xl lg:text-6xl font-bold tracking-tight">
@@ -150,7 +152,7 @@ export default async function AboutPage() {
               </p>
             </div>
           ))}
-        </div>
+        </StaggerChildren>
       </section>
 
       {/* ─── CTA ─── */}

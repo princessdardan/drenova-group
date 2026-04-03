@@ -3,6 +3,7 @@ import { cn } from "@/lib/cn";
 import type { SanityImage } from "@/types/sanity";
 import { isSanityImage } from "@/types/sanity";
 import { urlFor } from "@/lib/sanity/image";
+import { HeroContent } from "./hero-content";
 
 interface HeroProps {
   image: string | SanityImage;
@@ -29,7 +30,6 @@ export function Hero({
   size = "full",
   headingLevel = "h1",
 }: HeroProps) {
-  const Heading = headingLevel;
   return (
     <section
       className={cn(
@@ -68,20 +68,14 @@ export function Hero({
       )}
 
       <div className="absolute inset-0 bg-overlay" />
-      <div className="relative z-10 text-center text-white max-w-3xl px-6 py-20">
-        {overline && (
-          <p className="text-xs uppercase tracking-widest font-medium mb-4 text-white/80">
-            {overline}
-          </p>
-        )}
-        <Heading className="font-display text-4xl lg:text-6xl font-bold tracking-tight leading-[1.1]">
-          {title}
-        </Heading>
-        {subtitle && (
-          <p className="text-lg leading-8 mt-4 text-white/80">{subtitle}</p>
-        )}
-        {children && <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mt-8">{children}</div>}
-      </div>
+      <HeroContent
+        overline={overline}
+        title={title}
+        subtitle={subtitle}
+        headingLevel={headingLevel}
+      >
+        {children}
+      </HeroContent>
     </section>
   );
 }

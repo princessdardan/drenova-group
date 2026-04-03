@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Hero } from "@/components/sections/hero";
 import { ContactForm } from "@/components/sections/contact-form";
+import { Reveal } from "@/components/ui/reveal";
+import { StaggerChildren } from "@/components/ui/stagger-children";
 import { getContactPage, getSiteSettings } from "@/lib/sanity/fetch";
 
 export const metadata: Metadata = {
@@ -38,14 +40,14 @@ export default async function ContactPage() {
       {/* ─── Form + Office Info ─── */}
       <section className="bg-background py-16 px-6 lg:py-24 lg:px-8">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
-          <div>
+          <Reveal>
             <h2 className="font-display text-2xl lg:text-4xl font-bold tracking-tight mb-6">
               Send Us a Message
             </h2>
             <ContactForm />
-          </div>
+          </Reveal>
 
-          <div>
+          <Reveal delay={0.1}>
             <h2 className="font-display text-2xl lg:text-4xl font-bold tracking-tight mb-6">
               Office Information
             </h2>
@@ -83,13 +85,13 @@ export default async function ContactPage() {
                 <p className="leading-7 whitespace-pre-line">{officeHours}</p>
               </div>
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
       {/* ─── Quick Links ─── */}
       <section className="bg-surface py-16 px-6 lg:py-24 lg:px-8">
-        <div className="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <StaggerChildren className="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-6">
           {(quickLinks && quickLinks.length > 0 ? quickLinks : defaultQuickLinks).map((link) => (
             <Link
               key={link.href}
@@ -109,7 +111,7 @@ export default async function ContactPage() {
               )}
             </Link>
           ))}
-        </div>
+        </StaggerChildren>
       </section>
     </>
   );

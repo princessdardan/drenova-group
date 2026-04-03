@@ -5,6 +5,8 @@ import { SectionHeader } from "@/components/ui/section-header";
 import { Accordion } from "@/components/ui/accordion";
 import { ButtonLink } from "@/components/ui/button";
 import { CtaSection } from "@/components/sections/cta-section";
+import { Reveal } from "@/components/ui/reveal";
+import { StaggerChildren } from "@/components/ui/stagger-children";
 import { getSellPage, getFaqsByCategory, getTestimonials } from "@/lib/sanity/fetch";
 import { urlFor } from "@/lib/sanity/image";
 import { isSanityImage } from "@/types/sanity";
@@ -64,14 +66,14 @@ export default async function SellPage() {
               description={bh?.description}
               className="mb-12"
             />
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <StaggerChildren className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {benefits.map((benefit) => (
                 <div key={benefit._key} className="bg-surface-alt p-6 lg:p-8 rounded-lg border border-border">
                   <h3 className="text-lg font-semibold mb-3">{benefit.title}</h3>
                   <p className="text-muted leading-7">{benefit.description}</p>
                 </div>
               ))}
-            </div>
+            </StaggerChildren>
           </div>
         </section>
       )}
@@ -86,7 +88,7 @@ export default async function SellPage() {
               description={ph?.description ?? "A proven, step-by-step approach to getting top dollar for your home."}
               className="mb-12"
             />
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-12">
+            <StaggerChildren className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-12">
               {processSteps.map((step) => (
                 <div key={step._key}>
                   <span className="font-display text-6xl lg:text-8xl font-bold text-accent/20">
@@ -97,7 +99,7 @@ export default async function SellPage() {
                   <p className="text-base text-muted leading-7">{step.description}</p>
                 </div>
               ))}
-            </div>
+            </StaggerChildren>
           </div>
         </section>
       )}
@@ -118,7 +120,7 @@ export default async function SellPage() {
               sizes="(max-width: 1024px) 100vw, 50vw"
             />
           </div>
-          <div className="flex flex-col justify-center px-8 lg:px-16 py-16">
+          <Reveal className="flex flex-col justify-center px-8 lg:px-16 py-16">
             <p className="text-xs uppercase tracking-widest font-medium text-accent mb-4">
               {val?.overline ?? "Free Home Valuation"}
             </p>
@@ -133,7 +135,7 @@ export default async function SellPage() {
                 {val?.ctaText ?? "Request Valuation"}
               </ButtonLink>
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
@@ -171,7 +173,9 @@ export default async function SellPage() {
               description={fh?.description}
               className="mb-12"
             />
-            <Accordion items={sellerFaqs} />
+            <Reveal>
+              <Accordion items={sellerFaqs} />
+            </Reveal>
           </div>
         </section>
       )}

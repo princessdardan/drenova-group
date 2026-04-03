@@ -3,6 +3,7 @@ import { Hero } from "@/components/sections/hero";
 import { TeamMemberCard } from "@/components/ui/team-member-card";
 import { CtaSection } from "@/components/sections/cta-section";
 import { ButtonLink } from "@/components/ui/button";
+import { StaggerChildren } from "@/components/ui/stagger-children";
 import { getTeamMembers, getTeamPage } from "@/lib/sanity/fetch";
 
 export const metadata: Metadata = {
@@ -35,11 +36,11 @@ export default async function TeamPage() {
       {/* ─── Team Grid ─── */}
       <section className="bg-background py-16 px-6 lg:py-24 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          <StaggerChildren className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {teamMembers.map((member) => (
               <TeamMemberCard key={member.slug} member={member} />
             ))}
-          </div>
+          </StaggerChildren>
         </div>
       </section>
 

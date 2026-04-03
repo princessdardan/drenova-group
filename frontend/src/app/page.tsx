@@ -3,6 +3,8 @@ import Image from "next/image";
 import { Hero } from "@/components/sections/hero";
 import { ButtonLink } from "@/components/ui/button";
 import { LeadForm } from "@/components/sections/lead-form";
+import { Reveal } from "@/components/ui/reveal";
+import { StaggerChildren } from "@/components/ui/stagger-children";
 import { getHomePage } from "@/lib/sanity/fetch";
 import { urlFor } from "@/lib/sanity/image";
 import { isSanityImage } from "@/types/sanity";
@@ -58,7 +60,7 @@ export default async function HomePage() {
             About Us
           </p>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            <div>
+            <Reveal>
               <h2 className="font-display text-3xl lg:text-5xl font-bold tracking-tight mb-6">
                 {homePage?.aboutSection?.title ??
                   "Proud to Be Your Real Estate Expert."}
@@ -72,8 +74,9 @@ export default async function HomePage() {
               >
                 {homePage?.aboutSection?.buttonText ?? "Learn More"}
               </ButtonLink>
-            </div>
+            </Reveal>
 
+            <Reveal direction="right" delay={0.1}>
             <div className="relative aspect-[3/4] max-w-md mx-auto lg:mx-0 lg:ml-auto overflow-hidden">
               <Image
                 src={
@@ -95,6 +98,7 @@ export default async function HomePage() {
                 sizes="(max-width: 1024px) 100vw, 40vw"
               />
             </div>
+            </Reveal>
           </div>
         </div>
       </section>
@@ -113,33 +117,35 @@ export default async function HomePage() {
             {homePage?.workWithUsHeading ?? "Work With Us"}
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+          <StaggerChildren className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
             {/* Card 1: Selling */}
             <a
               href={homePage?.ctaCard1?.buttonHref ?? "#contact"}
-              className="group relative block aspect-[4/3] overflow-hidden rounded-lg"
+              className="group flex flex-col overflow-hidden rounded-lg md:relative md:block md:aspect-[4/3] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
             >
-              <Image
-                src={
-                  homePage?.ctaCard1?.image &&
-                  isSanityImage(homePage.ctaCard1.image)
-                    ? urlFor(homePage.ctaCard1.image)
-                        .width(900)
-                        .height(675)
-                        .fit("crop")
-                        .url()
-                    : "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=900&q=80"
-                }
-                alt={
-                  homePage?.ctaCard1?.image?.alt ?? "Luxury home exterior"
-                }
-                fill
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
-                sizes="(max-width: 768px) 100vw, 50vw"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-8 text-white">
-                <h3 className="font-display text-2xl lg:text-3xl font-bold tracking-tight mb-4">
+              <div className="relative aspect-[3/2] shrink-0 overflow-hidden md:absolute md:inset-0 md:aspect-auto">
+                <Image
+                  src={
+                    homePage?.ctaCard1?.image &&
+                    isSanityImage(homePage.ctaCard1.image)
+                      ? urlFor(homePage.ctaCard1.image)
+                          .width(900)
+                          .height(675)
+                          .fit("crop")
+                          .url()
+                      : "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=900&q=80"
+                  }
+                  alt={
+                    homePage?.ctaCard1?.image?.alt ?? "Luxury home exterior"
+                  }
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                />
+              </div>
+              <div className="hidden md:block absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
+              <div className="bg-footer-bg p-5 text-white md:absolute md:bottom-0 md:left-0 md:right-0 md:bg-transparent md:p-6 lg:p-8">
+                <h3 className="font-display text-2xl lg:text-3xl font-bold tracking-tight mb-3 md:mb-4">
                   {homePage?.ctaCard1?.title ??
                     "The best selling experience"}
                 </h3>
@@ -157,29 +163,31 @@ export default async function HomePage() {
             {/* Card 2: Buying */}
             <a
               href={homePage?.ctaCard2?.buttonHref ?? "#contact"}
-              className="group relative block aspect-[4/3] overflow-hidden rounded-lg"
+              className="group flex flex-col overflow-hidden rounded-lg md:relative md:block md:aspect-[4/3] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
             >
-              <Image
-                src={
-                  homePage?.ctaCard2?.image &&
-                  isSanityImage(homePage.ctaCard2.image)
-                    ? urlFor(homePage.ctaCard2.image)
-                        .width(900)
-                        .height(675)
-                        .fit("crop")
-                        .url()
-                    : "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=900&q=80"
-                }
-                alt={
-                  homePage?.ctaCard2?.image?.alt ?? "Luxury home interior"
-                }
-                fill
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
-                sizes="(max-width: 768px) 100vw, 50vw"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-8 text-white">
-                <h3 className="font-display text-2xl lg:text-3xl font-bold tracking-tight mb-4">
+              <div className="relative aspect-[3/2] shrink-0 overflow-hidden md:absolute md:inset-0 md:aspect-auto">
+                <Image
+                  src={
+                    homePage?.ctaCard2?.image &&
+                    isSanityImage(homePage.ctaCard2.image)
+                      ? urlFor(homePage.ctaCard2.image)
+                          .width(900)
+                          .height(675)
+                          .fit("crop")
+                          .url()
+                      : "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=900&q=80"
+                  }
+                  alt={
+                    homePage?.ctaCard2?.image?.alt ?? "Luxury home interior"
+                  }
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                />
+              </div>
+              <div className="hidden md:block absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
+              <div className="bg-footer-bg p-5 text-white md:absolute md:bottom-0 md:left-0 md:right-0 md:bg-transparent md:p-6 lg:p-8">
+                <h3 className="font-display text-2xl lg:text-3xl font-bold tracking-tight mb-3 md:mb-4">
                   {homePage?.ctaCard2?.title ??
                     "An unparalleled buying experience"}
                 </h3>
@@ -193,7 +201,7 @@ export default async function HomePage() {
                 </span>
               </div>
             </a>
-          </div>
+          </StaggerChildren>
         </div>
       </section>
 
@@ -214,7 +222,7 @@ export default async function HomePage() {
           } as React.CSSProperties
         }
       >
-        <div className="max-w-2xl mx-auto text-center">
+        <Reveal className="max-w-2xl lg:max-w-3xl mx-auto text-center">
           <h2 className="font-display text-3xl lg:text-5xl font-bold tracking-tight text-footer-text mb-4">
             {homePage?.contactForm?.heading ??
               "Start Your Home Journey Today"}
@@ -227,7 +235,7 @@ export default async function HomePage() {
           <div className="text-left text-footer-text">
             <LeadForm source="homepage" showPhone />
           </div>
-        </div>
+        </Reveal>
       </section>
     </>
   );

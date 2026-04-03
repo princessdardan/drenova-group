@@ -153,7 +153,7 @@ export default async function ListingDetailPage(props: ListingDetailProps) {
     listing.closePrice != null;
 
   return (
-    <div className="pt-20 lg:pt-24">
+    <div className="pt-20 lg:pt-24 pb-20 lg:pb-0">
       <ImageCarousel
         images={listing.images?.length ? listing.images : [listing.image]}
         alt={
@@ -166,6 +166,19 @@ export default async function ListingDetailPage(props: ListingDetailProps) {
       {/* Listing Details */}
       <section className="py-12 px-6 lg:py-16 lg:px-8">
         <div className="max-w-7xl mx-auto">
+          {/* Breadcrumb */}
+          <nav className="mb-6 text-sm text-muted" aria-label="Breadcrumb">
+            <Link href="/listings" className="hover:text-accent transition-colors">
+              Listings
+            </Link>
+            <span className="mx-2">/</span>
+            <span className="text-foreground">
+              {listing.addressSuppressed
+                ? `Property in ${listing.city}`
+                : listing.address}
+            </span>
+          </nav>
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16">
             {/* Main Content */}
             <div className="lg:col-span-2">
@@ -549,6 +562,26 @@ export default async function ListingDetailPage(props: ListingDetailProps) {
           </div>
         </div>
       </section>
+
+      {/* Mobile sticky price/CTA bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-30 bg-background/95 backdrop-blur-sm border-t border-border px-6 py-3 lg:hidden">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="text-lg font-bold">{formatPrice(listing.price)}</p>
+            {!listing.addressSuppressed && (
+              <p className="text-xs text-muted truncate max-w-[180px]">
+                {listing.address}
+              </p>
+            )}
+          </div>
+          <Link
+            href="/contact"
+            className="shrink-0 bg-accent text-white font-semibold py-2.5 px-5 rounded-lg text-sm hover:bg-accent/90 transition-colors"
+          >
+            Request Info
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
