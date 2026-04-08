@@ -141,7 +141,6 @@ export interface SyncLogEntry {
   stored: number;
   purged: number;
   filteredDdf: number;
-  filteredNonResidential: number;
   mediaFetched: number;
   mediaErrors: number;
   /** Number of listings that received at least one image */

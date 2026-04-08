@@ -127,7 +127,7 @@ export function mapAmpreToListing(
     image: getPrimaryImage(media),
     images: getAllImages(media),
     status: property.StandardStatus,
-    propertyType: property.PropertyType ?? "Residential",
+    propertyType: property.PropertyType ?? "Other",
     propertySubType: property.PropertySubType,
     transactionType: mapTransactionType(property.TransactionType),
     yearBuilt: property.YearBuilt ?? undefined,
