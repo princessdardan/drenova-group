@@ -47,8 +47,7 @@ export default async function HomePage() {
         {homePage?.hero?.secondaryButtonText && (
           <ButtonLink
             href={homePage?.hero?.secondaryButtonHref ?? "/listings"}
-            variant="glass"
-            className="w-full sm:w-auto"
+            className="border-white text-white hover:bg-white hover:text-black w-full sm:w-auto"
           >
             {homePage.hero.secondaryButtonText}
           </ButtonLink>
