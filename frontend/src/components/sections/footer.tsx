@@ -68,7 +68,7 @@ export async function Footer({ navigationLinks, officeHours }: FooterProps) {
               {companyName}
             </p>
             <p className="text-sm text-footer-muted leading-relaxed max-w-xs">
-              Luxury real estate across Illinois, Arizona & Wisconsin. Your trusted partner in finding the perfect property.
+              Toronto, GTA & surrounding areas real estate. Your trusted partner in buying and selling your home.
             </p>
           </div>
 

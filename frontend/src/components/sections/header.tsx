@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { MobileMenu } from "@/components/sections/mobile-menu";
 
 const defaultLinks = [
@@ -20,18 +21,24 @@ interface HeaderProps {
 }
 
 export function Header({ navigationLinks, phone, email }: HeaderProps) {
+  const pathname = usePathname();
+  const isHomepage = pathname === "/";
+
   const [menuOpen, setMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [scrolled, setScrolled] = useState(!isHomepage);
 
   const allLinks = navigationLinks ?? defaultLinks;
 
   useEffect(() => {
+    // Only track scroll on homepage; other pages always show scrolled state
+    if (!isHomepage) return;
+
     function handleScroll() {
       setScrolled(window.scrollY > 50);
     }
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [isHomepage]);
 
   return (
     <>
