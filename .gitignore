@@ -47,3 +47,4 @@ backend/dist/
 # AMPRE sample data (MLS confidentiality §4)
 scripts/data/
 .claude/projects/-Users-dardan-Documents-drenova-group/memory/feedback_ampre_single_fetch.md
+docs/sanity-deploy-hooks-guide.md

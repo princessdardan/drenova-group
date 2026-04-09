@@ -40,6 +40,8 @@ export interface HeroSettings {
   subtitle?: string;
   buttonText?: string;
   buttonHref?: string;
+  secondaryButtonText?: string;
+  secondaryButtonHref?: string;
 }
 
 export interface ProcessStep {

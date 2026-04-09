@@ -40,10 +40,19 @@ export default async function HomePage() {
       >
         <ButtonLink
           href={homePage?.hero?.buttonHref ?? "#contact"}
-          className="border-white text-white hover:bg-white hover:text-black"
+          className="border-white text-white hover:bg-white hover:text-black w-full sm:w-auto"
         >
           {homePage?.hero?.buttonText ?? "Get Started"}
         </ButtonLink>
+        {homePage?.hero?.secondaryButtonText && (
+          <ButtonLink
+            href={homePage?.hero?.secondaryButtonHref ?? "/listings"}
+            variant="glass"
+            className="w-full sm:w-auto"
+          >
+            {homePage.hero.secondaryButtonText}
+          </ButtonLink>
+        )}
       </Hero>
 
       {/* ─── About Us CTA ─── */}
