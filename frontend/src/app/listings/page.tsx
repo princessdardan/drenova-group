@@ -62,19 +62,19 @@ async function ListingsGrid({ filters }: { filters: Filters }) {
         total={result.total}
       />
 
-      <section className="bg-background py-12 px-6 lg:py-16 lg:px-8">
-        <div className="max-w-7xl mx-auto">
+      <section className="bg-background section-md">
+        <div className="swiss-container">
           {result.listings.length === 0 ? (
-            <div className="text-center py-16">
-              <p className="text-lg text-muted">
+            <div className="text-center py-16 dimensional-card">
+              <p className="text-lg text-muted mb-2">
                 No properties match your filters.
               </p>
-              <p className="text-sm text-muted mt-2">
+              <p className="text-sm text-muted-foreground mb-6">
                 Try adjusting your search criteria.
               </p>
               <Link
                 href="/listings"
-                className="inline-flex items-center justify-center h-11 px-6 mt-6 text-sm font-semibold uppercase tracking-wider border border-foreground bg-transparent text-foreground hover:bg-foreground hover:text-background transition-colors"
+                className="inline-flex items-center justify-center h-12 px-8 text-sm font-semibold uppercase tracking-wider border-2 border-foreground bg-transparent text-foreground hover:bg-foreground hover:text-background transition-all duration-200"
               >
                 Clear all filters
               </Link>
@@ -115,10 +115,10 @@ async function ListingsGrid({ filters }: { filters: Filters }) {
                     }).toString()}`}
                     aria-label={`Go to page ${pageNum}`}
                     aria-current={pageNum === result.page ? "page" : undefined}
-                    className={`inline-flex items-center justify-center h-10 w-10 rounded-lg text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none ${
+                    className={`inline-flex items-center justify-center h-12 w-12 rounded-lg text-sm font-medium transition-all duration-200 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none ${
                       pageNum === result.page
-                        ? "bg-accent text-white"
-                        : "bg-surface-alt border border-border hover:bg-surface"
+                        ? "bg-accent text-white shadow-md"
+                        : "dimensional-card hover:shadow-lg"
                     }`}
                   >
                     {pageNum}
@@ -141,12 +141,12 @@ export default async function ListingsPage(props: ListingsPageProps) {
   return (
     <div className="pt-20 lg:pt-24">
       {/* Page Header */}
-      <section className="bg-surface py-12 px-6 lg:py-16 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <p className="text-xs uppercase tracking-widest font-medium text-accent mb-2">
+      <section className="bg-surface section-md">
+        <div className="swiss-container">
+          <p className="text-xs uppercase tracking-[0.15em] font-medium text-accent mb-3">
             {listingsPage?.overline ?? "Properties"}
           </p>
-          <h1 className="font-display text-3xl lg:text-5xl font-bold tracking-tight mb-2">
+          <h1 className="font-display text-display-sm font-bold tracking-tight">
             {listingsPage?.title ?? "All Listings"}
           </h1>
         </div>
@@ -154,8 +154,10 @@ export default async function ListingsPage(props: ListingsPageProps) {
 
       <Suspense
         fallback={
-          <div className="py-16 text-center text-muted">
-            Loading listings...
+          <div className="section-md text-center text-muted swiss-container">
+            <div className="dimensional-card p-12">
+              <p className="text-lg">Loading listings...</p>
+            </div>
           </div>
         }
       >

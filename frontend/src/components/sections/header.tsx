@@ -36,10 +36,10 @@ export function Header({ navigationLinks, phone, email }: HeaderProps) {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-40 transition-colors duration-200 ${
+        className={`fixed z-40 transition-all duration-300 ease-out ${
           scrolled
-            ? "bg-background/95 backdrop-blur-sm border-b border-border"
-            : "bg-transparent"
+            ? "glass-nav top-4 left-4 right-4 rounded-2xl max-w-[calc(100%-2rem)] mx-auto"
+            : "top-0 left-0 right-0 text-white"
         }`}
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between h-16 lg:h-20 px-6 lg:px-8">
@@ -56,7 +56,7 @@ export function Header({ navigationLinks, phone, email }: HeaderProps) {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-sm uppercase tracking-wider font-medium hover:text-accent transition-colors"
+                  className="text-sm uppercase tracking-wider font-medium hover:text-accent transition-colors duration-200"
                 >
                   {link.label}
                 </Link>
@@ -66,7 +66,7 @@ export function Header({ navigationLinks, phone, email }: HeaderProps) {
             <button
               type="button"
               onClick={() => setMenuOpen(true)}
-              className="p-2 cursor-pointer lg:hidden"
+              className="p-2 cursor-pointer lg:hidden hover:text-accent transition-colors duration-200"
               aria-label="Open menu"
               aria-expanded={menuOpen}
               aria-controls="mobile-menu"

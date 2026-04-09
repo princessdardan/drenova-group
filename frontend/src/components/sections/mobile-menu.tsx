@@ -93,14 +93,16 @@ export function MobileMenu({
       style={{ transform: isOpen ? "translateX(0)" : "translateX(100%)" }}
       aria-hidden={!isOpen}
     >
-      <div className="absolute inset-0 bg-background" />
+      {/* Glass background */}
+      <div className="absolute inset-0 glass-strong" />
+      
       <div className="relative flex flex-col h-full px-8 py-6">
         <div className="flex justify-end">
           <button
             ref={closeButtonRef}
             type="button"
             onClick={onClose}
-            className="p-2 text-foreground cursor-pointer"
+            className="p-2 text-foreground cursor-pointer hover:text-accent transition-colors duration-200"
             aria-label="Close menu"
           >
             <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
@@ -108,21 +110,23 @@ export function MobileMenu({
             </svg>
           </button>
         </div>
+        
         <nav className="flex flex-col items-center justify-center flex-1 gap-8">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               onClick={onClose}
-              className="font-display text-3xl lg:text-4xl font-bold tracking-tight hover:text-accent transition-colors"
+              className="font-display text-3xl lg:text-4xl font-bold tracking-tight hover:text-accent transition-colors duration-200"
             >
               {link.label}
             </Link>
           ))}
         </nav>
+        
         <div className="text-center pb-8">
           <p className="text-sm text-muted">{email ?? "info@drenovagroup.com"}</p>
-          <p className="text-sm text-muted">{phone ?? "(555) 123-4567"}</p>
+          <p className="text-sm text-muted mt-1">{phone ?? "(555) 123-4567"}</p>
         </div>
       </div>
     </div>

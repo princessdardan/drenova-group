@@ -59,24 +59,30 @@ export async function Footer({ navigationLinks, officeHours }: FooterProps) {
 
   return (
     <footer className="bg-footer-bg text-footer-text">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-12 lg:py-16">
-        <div className="mb-10">
-          <p className="font-display text-lg tracking-wider font-bold uppercase">
-            {companyName}
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <nav aria-label="Footer navigation">
-            <p className="text-xs uppercase tracking-widest font-medium text-footer-muted mb-4">
-              Navigation
+      <div className="swiss-container section-md">
+        {/* Swiss Grid Layout */}
+        <div className="swiss-grid items-start">
+          {/* Brand Column - Spans 4 columns */}
+          <div className="col-span-12 lg:col-span-4">
+            <p className="font-display text-lg tracking-wider font-bold uppercase mb-6">
+              {companyName}
             </p>
-            <ul className="space-y-2">
+            <p className="text-sm text-footer-muted leading-relaxed max-w-xs">
+              Luxury real estate across Illinois, Arizona & Wisconsin. Your trusted partner in finding the perfect property.
+            </p>
+          </div>
+
+          {/* Navigation Column - Spans 2 columns */}
+          <nav className="col-span-6 lg:col-span-2" aria-label="Footer navigation">
+            <p className="text-xs uppercase tracking-widest font-medium text-footer-muted mb-4">
+              Navigate
+            </p>
+            <ul className="space-y-3">
               {navLinks.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-footer-link hover:text-white transition-colors"
+                    className="text-sm text-footer-link hover:text-white transition-colors duration-200"
                   >
                     {link.label}
                   </Link>
@@ -85,47 +91,57 @@ export async function Footer({ navigationLinks, officeHours }: FooterProps) {
             </ul>
           </nav>
 
-          <div>
+          {/* Contact Column - Spans 3 columns */}
+          <div className="col-span-6 lg:col-span-3">
             <p className="text-xs uppercase tracking-widest font-medium text-footer-muted mb-4">
               Contact
             </p>
-            <address className="not-italic">
-              <ul className="space-y-2 text-sm text-footer-link">
-                {address && <li className="whitespace-pre-line">{address}</li>}
-                {phone && (
-                  <li>
-                    <a href={`tel:${phone.replace(/[^\d+]/g, "")}`} className="hover:text-white transition-colors">
-                      {phone}
-                    </a>
-                  </li>
-                )}
-                {email && (
-                  <li>
-                    <a href={`mailto:${email}`} className="hover:text-white transition-colors">
-                      {email}
-                    </a>
-                  </li>
-                )}
-                {officeHours && (
-                  <li className="whitespace-pre-line mt-4 text-footer-muted">
-                    {officeHours}
-                  </li>
-                )}
-              </ul>
+            <address className="not-italic space-y-3">
+              {address && (
+                <p className="text-sm text-footer-link whitespace-pre-line">
+                  {address}
+                </p>
+              )}
+              {phone && (
+                <p>
+                  <a 
+                    href={`tel:${phone.replace(/[^\d+]/g, "")}`} 
+                    className="text-sm text-footer-link hover:text-white transition-colors duration-200"
+                  >
+                    {phone}
+                  </a>
+                </p>
+              )}
+              {email && (
+                <p>
+                  <a 
+                    href={`mailto:${email}`} 
+                    className="text-sm text-footer-link hover:text-white transition-colors duration-200"
+                  >
+                    {email}
+                  </a>
+                </p>
+              )}
+              {officeHours && (
+                <p className="text-sm text-footer-muted whitespace-pre-line mt-4 pt-4 border-t border-footer-border">
+                  {officeHours}
+                </p>
+              )}
             </address>
           </div>
 
+          {/* Social Column - Spans 3 columns */}
           {socialLinks.length > 0 && (
-            <div>
+            <div className="col-span-12 lg:col-span-3">
               <p className="text-xs uppercase tracking-widest font-medium text-footer-muted mb-4">
-                Follow Us
+                Follow
               </p>
               <ul className="flex items-center gap-4">
                 {socialLinks.map((link) => (
                   <li key={link.label}>
                     <a
                       href={link.href}
-                      className="text-footer-link hover:text-white transition-colors"
+                      className="text-footer-link hover:text-white transition-colors duration-200 p-2 -m-2"
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={link.label}
@@ -139,17 +155,23 @@ export async function Footer({ navigationLinks, officeHours }: FooterProps) {
           )}
         </div>
 
-        <div className="border-t border-footer-border mt-10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+        {/* Bottom Bar */}
+        <div className="border-t border-footer-border mt-12 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-footer-dim">
             &copy; {new Date().getFullYear()} {companyName}. All rights reserved.
           </p>
-          <div className="flex items-center gap-4 text-xs text-footer-dim">
-            <Link href="/privacy" className="hover:text-footer-link transition-colors">
-              Privacy Policy
+          <div className="flex items-center gap-6 text-xs text-footer-dim">
+            <Link 
+              href="/privacy" 
+              className="hover:text-footer-link transition-colors duration-200"
+            >
+              Privacy
             </Link>
-            <span>·</span>
-            <Link href="/terms" className="hover:text-footer-link transition-colors">
-              Terms of Service
+            <Link 
+              href="/terms" 
+              className="hover:text-footer-link transition-colors duration-200"
+            >
+              Terms
             </Link>
           </div>
         </div>

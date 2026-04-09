@@ -48,6 +48,7 @@ export default async function HomePage() {
 
       {/* ─── About Us CTA ─── */}
       <section className="bg-background py-16 px-6 lg:py-24 lg:px-8 relative overflow-hidden">
+        {/* Background watermark */}
         <p
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-display text-[10rem] lg:text-[18rem] font-bold uppercase text-foreground/[0.03] select-none pointer-events-none leading-none whitespace-nowrap"
           aria-hidden="true"
@@ -77,7 +78,7 @@ export default async function HomePage() {
             </Reveal>
 
             <Reveal direction="right" delay={0.1}>
-            <div className="relative aspect-[3/4] max-w-md mx-auto lg:mx-0 lg:ml-auto overflow-hidden">
+            <div className="relative aspect-[3/4] max-w-md mx-auto lg:mx-0 lg:ml-auto overflow-hidden rounded-lg">
               <Image
                 src={
                   homePage?.aboutSection?.image &&
@@ -105,6 +106,7 @@ export default async function HomePage() {
 
       {/* ─── Work With Us ─── */}
       <section className="bg-surface py-16 px-6 lg:py-24 lg:px-8 relative overflow-hidden">
+        {/* Background watermark */}
         <p
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-display text-[10rem] lg:text-[18rem] font-bold uppercase text-foreground/[0.03] select-none pointer-events-none leading-none whitespace-nowrap"
           aria-hidden="true"
@@ -117,13 +119,13 @@ export default async function HomePage() {
             {homePage?.workWithUsHeading ?? "Work With Us"}
           </h2>
 
-          <StaggerChildren className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+          <StaggerChildren className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 max-w-6xl mx-auto">
             {/* Card 1: Selling */}
             <a
               href={homePage?.ctaCard1?.buttonHref ?? "#contact"}
-              className="group flex flex-col overflow-hidden rounded-lg md:relative md:block md:aspect-[4/3] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+              className="group flex flex-col overflow-hidden dimensional-card focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
             >
-              <div className="relative aspect-[3/2] shrink-0 overflow-hidden md:absolute md:inset-0 md:aspect-auto">
+              <div className="relative aspect-[16/10] overflow-hidden">
                 <Image
                   src={
                     homePage?.ctaCard1?.image &&
@@ -139,33 +141,33 @@ export default async function HomePage() {
                     homePage?.ctaCard1?.image?.alt ?? "Luxury home exterior"
                   }
                   fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
                 />
-              </div>
-              <div className="hidden md:block absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
-              <div className="bg-footer-bg p-5 text-white md:absolute md:bottom-0 md:left-0 md:right-0 md:bg-transparent md:p-6 lg:p-8">
-                <h3 className="font-display text-2xl lg:text-3xl font-bold tracking-tight mb-3 md:mb-4">
-                  {homePage?.ctaCard1?.title ??
-                    "The best selling experience"}
-                </h3>
-                {homePage?.ctaCard1?.subtitle && (
-                  <p className="text-sm text-white/80 mb-4">
-                    {homePage.ctaCard1.subtitle}
-                  </p>
-                )}
-                <span className="inline-flex items-center justify-center uppercase tracking-wider font-semibold border border-white text-white h-12 px-8 text-sm transition-colors duration-200 group-hover:bg-white group-hover:text-black">
-                  {homePage?.ctaCard1?.buttonText ?? "Get Started"}
-                </span>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-8 text-white">
+                  <h3 className="font-display text-2xl lg:text-3xl font-bold tracking-tight mb-2">
+                    {homePage?.ctaCard1?.title ??
+                      "The best selling experience"}
+                  </h3>
+                  {homePage?.ctaCard1?.subtitle && (
+                    <p className="text-sm text-white/80 mb-4">
+                      {homePage.ctaCard1.subtitle}
+                    </p>
+                  )}
+                  <span className="inline-flex items-center justify-center uppercase tracking-wider font-semibold border-2 border-white text-white h-12 px-8 text-sm transition-all duration-200 group-hover:bg-white group-hover:text-black">
+                    {homePage?.ctaCard1?.buttonText ?? "Get Started"}
+                  </span>
+                </div>
               </div>
             </a>
 
             {/* Card 2: Buying */}
             <a
               href={homePage?.ctaCard2?.buttonHref ?? "#contact"}
-              className="group flex flex-col overflow-hidden rounded-lg md:relative md:block md:aspect-[4/3] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+              className="group flex flex-col overflow-hidden dimensional-card focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
             >
-              <div className="relative aspect-[3/2] shrink-0 overflow-hidden md:absolute md:inset-0 md:aspect-auto">
+              <div className="relative aspect-[16/10] overflow-hidden">
                 <Image
                   src={
                     homePage?.ctaCard2?.image &&
@@ -181,24 +183,24 @@ export default async function HomePage() {
                     homePage?.ctaCard2?.image?.alt ?? "Luxury home interior"
                   }
                   fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
                 />
-              </div>
-              <div className="hidden md:block absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
-              <div className="bg-footer-bg p-5 text-white md:absolute md:bottom-0 md:left-0 md:right-0 md:bg-transparent md:p-6 lg:p-8">
-                <h3 className="font-display text-2xl lg:text-3xl font-bold tracking-tight mb-3 md:mb-4">
-                  {homePage?.ctaCard2?.title ??
-                    "An unparalleled buying experience"}
-                </h3>
-                {homePage?.ctaCard2?.subtitle && (
-                  <p className="text-sm text-white/80 mb-4">
-                    {homePage.ctaCard2.subtitle}
-                  </p>
-                )}
-                <span className="inline-flex items-center justify-center uppercase tracking-wider font-semibold border border-white text-white h-12 px-8 text-sm transition-colors duration-200 group-hover:bg-white group-hover:text-black">
-                  {homePage?.ctaCard2?.buttonText ?? "Get Started"}
-                </span>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-8 text-white">
+                  <h3 className="font-display text-2xl lg:text-3xl font-bold tracking-tight mb-2">
+                    {homePage?.ctaCard2?.title ??
+                      "An unparalleled buying experience"}
+                  </h3>
+                  {homePage?.ctaCard2?.subtitle && (
+                    <p className="text-sm text-white/80 mb-4">
+                      {homePage.ctaCard2.subtitle}
+                    </p>
+                  )}
+                  <span className="inline-flex items-center justify-center uppercase tracking-wider font-semibold border-2 border-white text-white h-12 px-8 text-sm transition-all duration-200 group-hover:bg-white group-hover:text-black">
+                    {homePage?.ctaCard2?.buttonText ?? "Get Started"}
+                  </span>
+                </div>
               </div>
             </a>
           </StaggerChildren>

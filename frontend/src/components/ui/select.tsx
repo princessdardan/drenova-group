@@ -18,8 +18,11 @@ export function Select({
   ...props
 }: SelectProps) {
   return (
-    <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-sm font-medium">
+    <div className="flex flex-col gap-2">
+      <label 
+        htmlFor={id} 
+        className="text-sm font-medium text-foreground tracking-wide"
+      >
         {label}
       </label>
       <div className="relative">
@@ -28,8 +31,13 @@ export function Select({
           aria-invalid={!!error}
           aria-describedby={error ? `${id}-error` : undefined}
           className={cn(
-            "w-full h-12 px-4 pr-10 bg-surface-alt border border-border rounded-lg text-base transition-colors focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none appearance-none",
-            error && "border-red-600 dark:border-red-400",
+            "w-full h-14 px-4 pr-12 bg-surface-alt border-2 border-border rounded-lg text-base",
+            "transition-all duration-200 ease-out",
+            "appearance-none cursor-pointer",
+            "hover:border-muted-foreground/50",
+            "focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none",
+            "focus-visible:bg-surface",
+            error && "border-red-600 dark:border-red-400 focus-visible:ring-red-500/50",
             className
           )}
           {...props}
@@ -46,9 +54,9 @@ export function Select({
           ))}
         </select>
         <svg
-          className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted"
-          width="16"
-          height="16"
+          className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-muted"
+          width="20"
+          height="20"
           viewBox="0 0 16 16"
           fill="none"
           aria-hidden="true"
@@ -57,7 +65,9 @@ export function Select({
         </svg>
       </div>
       {error && (
-        <p id={`${id}-error`} className="text-sm text-red-600 dark:text-red-400">{error}</p>
+        <p id={`${id}-error`} className="text-sm text-red-600 dark:text-red-400">
+          {error}
+        </p>
       )}
     </div>
   );

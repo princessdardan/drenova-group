@@ -1,5 +1,37 @@
 @import "tailwindcss";
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   REFINED ARCHITECTURAL LUXURY DESIGN SYSTEM
+   Swiss Modernism 2.0 + Strategic Glassmorphism + Exaggerated Minimalism
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* ─── Swiss Modernism: Mathematical Spacing Scale (8px base) ─── */
+:root {
+  /* Base unit: 8px (0.5rem) */
+  --space-0: 0;
+  --space-1: 0.5rem;    /* 8px */
+  --space-2: 1rem;      /* 16px */
+  --space-3: 1.5rem;    /* 24px */
+  --space-4: 2rem;      /* 32px */
+  --space-5: 3rem;      /* 48px */
+  --space-6: 4rem;      /* 64px */
+  --space-7: 6rem;      /* 96px */
+  --space-8: 8rem;      /* 128px */
+  --space-9: 12rem;     /* 192px */
+  
+  /* Swiss Grid */
+  --grid-columns: 12;
+  --grid-gap: 1.5rem;   /* 24px */
+  --grid-max-width: 1280px;
+  
+  /* Section Padding Scale */
+  --section-py-sm: 4rem;    /* 64px */
+  --section-py-md: 6rem;    /* 96px */
+  --section-py-lg: 8rem;    /* 128px */
+  --section-py-xl: 12rem;   /* 192px */
+  --section-px: 1.5rem;     /* 24px */
+}
+
 /* ─── Light Mode Tokens ─── */
 :root {
   --background: #FAFAF7;
@@ -20,6 +52,44 @@
   --footer-link: #C5CCD3;
   --footer-border: #2A3440;
   --footer-dim: #6B6E72;
+  
+  /* ─── Strategic Glassmorphism - Light Mode ─── */
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-bg-strong: rgba(255, 255, 255, 0.88);
+  --glass-border: rgba(224, 217, 207, 0.6);
+  --glass-border-strong: rgba(224, 217, 207, 0.85);
+  --glass-shadow: 0 4px 24px rgba(26, 26, 26, 0.06);
+  --glass-shadow-lg: 0 8px 40px rgba(26, 26, 26, 0.1);
+  --blur-amount: 16px;
+  --blur-amount-strong: 24px;
+  
+  /* ─── Dimensional Depth Shadows - Light Mode ─── */
+  --elevation-1: 0 1px 3px rgba(26, 26, 26, 0.04);
+  --elevation-2: 0 4px 12px rgba(26, 26, 26, 0.06);
+  --elevation-3: 0 8px 24px rgba(26, 26, 26, 0.08);
+  --elevation-4: 0 16px 48px rgba(26, 26, 26, 0.12);
+  
+  /* ─── Exaggerated Minimalism Typography Scale ─── */
+  --text-display: clamp(2.5rem, 8vw, 6rem);      /* Hero headlines */
+  --text-display-sm: clamp(2rem, 5vw, 4rem);   /* Section headlines */
+  --text-title: clamp(1.5rem, 3vw, 2.5rem);    /* Card titles */
+  --text-body-lg: 1.25rem;                      /* Large body */
+  --text-body: 1rem;                            /* Body text */
+  --text-sm: 0.875rem;                          /* Small text */
+  --text-xs: 0.75rem;                           /* Extra small */
+  
+  /* Line heights for exaggerated minimalism */
+  --leading-tight: 1.1;
+  --leading-snug: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.75;
+  
+  /* Letter spacing */
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.05em;
+  --tracking-wider: 0.1em;
+  --tracking-widest: 0.15em;
 }
 
 /* ─── Dark Mode Tokens ─── */
@@ -43,11 +113,26 @@
     --footer-link: #C5CCD3;
     --footer-border: #2A3440;
     --footer-dim: #6B6E72;
+    
+    /* ─── Strategic Glassmorphism - Dark Mode ─── */
+    --glass-bg: rgba(14, 25, 33, 0.72);
+    --glass-bg-strong: rgba(14, 25, 33, 0.88);
+    --glass-border: rgba(42, 52, 64, 0.6);
+    --glass-border-strong: rgba(42, 52, 64, 0.85);
+    --glass-shadow: 0 4px 24px rgba(3, 9, 16, 0.4);
+    --glass-shadow-lg: 0 8px 40px rgba(3, 9, 16, 0.5);
+    
+    /* ─── Dimensional Depth Shadows - Dark Mode ─── */
+    --elevation-1: 0 1px 3px rgba(0, 0, 0, 0.3);
+    --elevation-2: 0 4px 12px rgba(0, 0, 0, 0.4);
+    --elevation-3: 0 8px 24px rgba(0, 0, 0, 0.5);
+    --elevation-4: 0 16px 48px rgba(0, 0, 0, 0.6);
   }
 }
 
 /* ─── Register Tokens with Tailwind CSS 4 ─── */
 @theme inline {
+  /* Colors */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-surface: var(--surface);
@@ -66,12 +151,264 @@
   --color-footer-link: var(--footer-link);
   --color-footer-border: var(--footer-border);
   --color-footer-dim: var(--footer-dim);
+  
+  /* Glassmorphism */
+  --color-glass-bg: var(--glass-bg);
+  --color-glass-bg-strong: var(--glass-bg-strong);
+  --color-glass-border: var(--glass-border);
+  --color-glass-border-strong: var(--glass-border-strong);
+  
+  /* Typography */
   --font-sans: var(--font-plus-jakarta-sans);
   --font-display: var(--font-playfair-display);
   --font-mono: var(--font-geist-mono);
+  
+  /* Spacing */
+  --spacing-section-sm: var(--section-py-sm);
+  --spacing-section-md: var(--section-py-md);
+  --spacing-section-lg: var(--section-py-lg);
+  --spacing-section-xl: var(--section-py-xl);
 }
 
-/* ─── Reduced Motion ─── */
+/* ─────────────────────────────────────────────────────────────────────────────
+   SWISS MODERNISM: Grid System & Layout Utilities
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Swiss Grid Container */
+.swiss-container {
+  width: 100%;
+  max-width: var(--grid-max-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--section-px);
+  padding-right: var(--section-px);
+}
+
+/* Swiss Grid */
+.swiss-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--grid-columns), 1fr);
+  gap: var(--grid-gap);
+}
+
+/* Asymmetric Grid Layouts */
+.swiss-grid-asymmetric {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: var(--grid-gap);
+}
+
+.swiss-grid-asymmetric-reverse {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--grid-gap);
+}
+
+@media (max-width: 1024px) {
+  .swiss-grid-asymmetric,
+  .swiss-grid-asymmetric-reverse {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   STRATEGIC GLASSMORPHISM: Purposeful, Limited Use
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Base Glass Effect */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--blur-amount));
+  -webkit-backdrop-filter: blur(var(--blur-amount));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+/* Strong Glass (for nav, modals) */
+.glass-strong {
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(var(--blur-amount-strong));
+  -webkit-backdrop-filter: blur(var(--blur-amount-strong));
+  border: 1px solid var(--glass-border-strong);
+  box-shadow: var(--glass-shadow-lg);
+}
+
+/* Glass Card - Interactive */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--blur-amount));
+  -webkit-backdrop-filter: blur(var(--blur-amount));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--elevation-2);
+  border-radius: 0.75rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  background: var(--glass-bg-strong);
+  border-color: var(--glass-border-strong);
+  box-shadow: var(--elevation-3);
+  transform: translateY(-2px);
+}
+
+/* Floating Navigation */
+.glass-nav {
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(var(--blur-amount-strong));
+  -webkit-backdrop-filter: blur(var(--blur-amount-strong));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow-lg);
+}
+
+/* Glass Overlay for Images */
+.glass-overlay {
+  background: linear-gradient(
+    to bottom,
+    rgba(3, 9, 16, 0.3),
+    rgba(3, 9, 16, 0.6)
+  );
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   DIMENSIONAL DEPTH: Elevation Shadow System
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.depth-1 {
+  box-shadow: var(--elevation-1);
+}
+
+.depth-2 {
+  box-shadow: var(--elevation-2);
+}
+
+.depth-3 {
+  box-shadow: var(--elevation-3);
+}
+
+.depth-4 {
+  box-shadow: var(--elevation-4);
+}
+
+/* Dimensional Card */
+.dimensional-card {
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  box-shadow: var(--elevation-2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dimensional-card:hover {
+  box-shadow: var(--elevation-3);
+  transform: translateY(-4px);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   EXAGGERATED MINIMALISM: Typography & Spacing
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Display Typography */
+.text-display {
+  font-size: var(--text-display);
+  font-weight: 700;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+}
+
+.text-display-sm {
+  font-size: var(--text-display-sm);
+  font-weight: 700;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+}
+
+/* Section Spacing - Exaggerated */
+.section-sm {
+  padding-top: var(--section-py-sm);
+  padding-bottom: var(--section-py-sm);
+  padding-left: var(--section-px);
+  padding-right: var(--section-px);
+}
+
+.section-md {
+  padding-top: var(--section-py-md);
+  padding-bottom: var(--section-py-md);
+  padding-left: var(--section-px);
+  padding-right: var(--section-px);
+}
+
+.section-lg {
+  padding-top: var(--section-py-lg);
+  padding-bottom: var(--section-py-lg);
+  padding-left: var(--section-px);
+  padding-right: var(--section-px);
+}
+
+.section-xl {
+  padding-top: var(--section-py-xl);
+  padding-bottom: var(--section-py-xl);
+  padding-left: var(--section-px);
+  padding-right: var(--section-px);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   TRUST & AUTHORITY: Stats, Badges, Credentials
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Stat Card */
+.stat-card {
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  box-shadow: var(--elevation-1);
+  padding: var(--space-4);
+  text-align: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stat-card:hover {
+  box-shadow: var(--elevation-2);
+  transform: translateY(-2px);
+}
+
+.stat-value {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 700;
+  line-height: var(--leading-tight);
+  color: var(--foreground);
+}
+
+.stat-label {
+  font-size: var(--text-xs);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-widest);
+  color: var(--muted);
+  margin-top: var(--space-2);
+}
+
+/* Trust Badge */
+.trust-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--muted);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   ACCESSIBILITY & MOTION
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -81,9 +418,42 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+  
+  .glass,
+  .glass-strong,
+  .glass-card,
+  .glass-nav {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  
+  .dimensional-card:hover,
+  .stat-card:hover,
+  .glass-card:hover {
+    transform: none;
+  }
 }
 
-/* ─── Base Styles ─── */
+/* Focus Visible */
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .glass,
+  .glass-strong,
+  .glass-card {
+    background: var(--surface-alt);
+    border: 2px solid var(--foreground);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   BASE STYLES
+   ───────────────────────────────────────────────────────────────────────────── */
+
 html {
   scroll-behavior: smooth;
 }
@@ -91,4 +461,13 @@ html {
 body {
   background: var(--background);
   color: var(--foreground);
+  font-feature-settings: "kern" 1, "liga" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Selection */
+::selection {
+  background: var(--accent);
+  color: var(--accent-foreground);
 }

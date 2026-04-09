@@ -2,7 +2,7 @@ import { type ComponentProps } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/cn";
 
-type Variant = "primary" | "accent" | "minimal";
+type Variant = "primary" | "accent" | "minimal" | "glass";
 type Size = "sm" | "md" | "lg";
 
 interface ButtonProps extends ComponentProps<"button"> {
@@ -11,21 +11,23 @@ interface ButtonProps extends ComponentProps<"button"> {
 }
 
 const base =
-  "inline-flex items-center justify-center uppercase tracking-wider font-semibold transition-colors duration-200 cursor-pointer";
+  "inline-flex items-center justify-center uppercase tracking-wider font-semibold transition-all duration-200 cursor-pointer";
 
 const variants: Record<Variant, string> = {
   primary:
-    "border border-foreground bg-transparent text-foreground hover:bg-foreground hover:text-background",
+    "border-2 border-foreground bg-transparent text-foreground hover:bg-foreground hover:text-background",
   accent:
-    "bg-accent text-accent-foreground hover:bg-accent-hover",
+    "bg-accent text-accent-foreground hover:bg-accent-hover shadow-md hover:shadow-lg hover:-translate-y-0.5",
   minimal:
     "underline underline-offset-4 font-medium normal-case tracking-normal hover:text-accent",
+  glass:
+    "glass border-white/30 text-white hover:bg-white/20 hover:border-white/50",
 };
 
 const sizes: Record<Size, string> = {
-  sm: "h-10 px-3 text-xs sm:h-11 sm:px-4",
-  md: "h-11 px-5 text-xs sm:h-12 sm:px-8 sm:text-sm",
-  lg: "h-12 px-6 text-xs sm:h-14 sm:px-10 sm:text-sm",
+  sm: "h-10 px-4 text-xs tracking-wider",
+  md: "h-12 px-6 text-xs tracking-wider sm:h-14 sm:px-8 sm:text-sm",
+  lg: "h-14 px-8 text-sm tracking-wider sm:h-16 sm:px-12",
 };
 
 export function Button({
