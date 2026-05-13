@@ -10,7 +10,7 @@ import { urlFor } from "@/lib/sanity/image";
 import { isSanityImage } from "@/types/sanity";
 
 export const metadata: Metadata = {
-  title: "Luxury Real Estate Across Illinois, Arizona & Wisconsin",
+  title: "Luxury Real Estate Across GTA and York Region",
   description:
     "Drenova Group — a modern real estate brokerage offering expert buying and selling services with a personal approach. Start your home journey today.",
 };
