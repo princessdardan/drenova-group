@@ -32,6 +32,37 @@ export const leadSubmission = defineType({
       type: "string",
     }),
     defineField({
+      name: "addressLine",
+      title: "Address Line",
+      type: "string",
+    }),
+    defineField({
+      name: "unit",
+      title: "Unit/Suite",
+      type: "string",
+    }),
+    defineField({
+      name: "city",
+      title: "City",
+      type: "string",
+    }),
+    defineField({
+      name: "province",
+      title: "Province/State",
+      type: "string",
+    }),
+    defineField({
+      name: "postalCode",
+      title: "Postal Code",
+      type: "string",
+    }),
+    defineField({
+      name: "notes",
+      title: "Additional Notes",
+      type: "text",
+      rows: 4,
+    }),
+    defineField({
       name: "source",
       title: "Source Page",
       type: "string",
@@ -40,6 +71,7 @@ export const leadSubmission = defineType({
           { title: "Buyers Guide", value: "buyers-guide" },
           { title: "Sellers Guide", value: "sellers-guide" },
           { title: "Homepage", value: "homepage" },
+          { title: "Home Evaluation", value: "home-evaluation" },
         ],
         layout: "radio",
       },
@@ -68,7 +100,7 @@ export const leadSubmission = defineType({
     },
     prepare: ({ firstName, lastName, source, date }) => ({
       title: `${firstName ?? ""} ${lastName ?? ""}`.trim() || "Unknown",
-      subtitle: `${source === "buyers-guide" ? "Buyers Guide" : source === "sellers-guide" ? "Sellers Guide" : source === "homepage" ? "Homepage" : "Unknown"} — ${date ? new Date(date).toLocaleDateString() : "No date"}`,
+      subtitle: `${source === "buyers-guide" ? "Buyers Guide" : source === "sellers-guide" ? "Sellers Guide" : source === "homepage" ? "Homepage" : source === "home-evaluation" ? "Home Evaluation" : "Unknown"} — ${date ? new Date(date).toLocaleDateString() : "No date"}`,
     }),
   },
 });
