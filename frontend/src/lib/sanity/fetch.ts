@@ -20,6 +20,7 @@ import {
   legalPageBySlugQuery,
   buyersGuidePageQuery,
   sellersGuidePageQuery,
+  homeEvaluationPageQuery,
 } from "./queries";
 import type { TeamMember } from "@/types/team";
 import type { Testimonial } from "@/types/testimonial";
@@ -40,6 +41,7 @@ import type {
   LegalPage,
   BuyersGuidePage,
   SellersGuidePage,
+  HomeEvaluationPage,
 } from "@/types/sanity";
 
 const DEFAULT_REVALIDATE = 3600;
@@ -169,5 +171,11 @@ export function getBuyersGuidePage(): Promise<BuyersGuidePage | null> {
 export function getSellersGuidePage(): Promise<SellersGuidePage | null> {
   return sanityFetch<SellersGuidePage | null>(sellersGuidePageQuery, [
     "sellersGuidePage",
+  ]);
+}
+
+export function getHomeEvaluationPage(): Promise<HomeEvaluationPage | null> {
+  return sanityFetch<HomeEvaluationPage | null>(homeEvaluationPageQuery, [
+    "homeEvaluationPage",
   ]);
 }

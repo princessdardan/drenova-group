@@ -270,7 +270,13 @@ export interface LeadSubmission {
   lastName: string;
   email: string;
   phone?: string;
-  source: "buyers-guide" | "sellers-guide" | "homepage";
+  addressLine?: string;
+  unit?: string;
+  city?: string;
+  province?: string;
+  postalCode?: string;
+  notes?: string;
+  source: "buyers-guide" | "sellers-guide" | "homepage" | "home-evaluation";
   submittedAt: string;
 }
 
@@ -292,4 +298,12 @@ export interface SellersGuidePage {
   guideDescription?: string;
   guideImage?: SanityImage;
   cta?: CtaSettings;
+}
+
+export interface HomeEvaluationPage {
+  _id: string;
+  _type: "homeEvaluationPage";
+  hero: HeroSettings;
+  formHeading?: string;
+  formDescription?: string;
 }

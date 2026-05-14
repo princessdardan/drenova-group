@@ -234,3 +234,11 @@ export const sellersGuidePageQuery = groq`*[_type == "sellersGuidePage"][0] {
   guideImage,
   cta
 }`;
+
+export const homeEvaluationPageQuery = groq`*[_type == "homeEvaluationPage"][0] {
+  _id,
+  _type,
+  hero,
+  formHeading,
+  formDescription
+}`;
