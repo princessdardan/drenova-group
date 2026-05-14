@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { submitLeadForm } from "@/app/actions/lead";
 
-type LeadSource = "buyers-guide" | "sellers-guide" | "homepage";
+type LeadSource = "buyers-guide" | "sellers-guide" | "homepage" | "home-evaluation";
 
 interface LeadFormProps {
   source: LeadSource;
@@ -20,8 +21,12 @@ export function LeadForm({ source, showPhone = false }: LeadFormProps) {
 
   function validate(form: FormData): Record<string, string> {
     const errs: Record<string, string> = {};
-    if (!form.get("firstName")) errs.firstName = "First name is required.";
-    if (!form.get("lastName")) errs.lastName = "Last name is required.";
+    if (source === "home-evaluation") {
+      if (!form.get("name")) errs.name = "Name is required.";
+    } else {
+      if (!form.get("firstName")) errs.firstName = "First name is required.";
+      if (!form.get("lastName")) errs.lastName = "Last name is required.";
+    }
     const email = form.get("email") as string;
     if (!email) errs.email = "Email is required.";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
@@ -29,7 +34,10 @@ export function LeadForm({ source, showPhone = false }: LeadFormProps) {
     return errs;
   }
 
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: {
+    preventDefault: () => void;
+    currentTarget: HTMLFormElement;
+  }) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     formData.set("source", source);
@@ -70,24 +78,35 @@ export function LeadForm({ source, showPhone = false }: LeadFormProps) {
       {serverError && (
         <p className="text-sm text-red-600 dark:text-red-400">{serverError}</p>
       )}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {source === "home-evaluation" ? (
         <Input
-          id="firstName"
-          name="firstName"
-          label="First Name"
-          placeholder="First Name"
+          id="name"
+          name="name"
+          label="Name"
+          placeholder="Your full name"
           required
-          error={errors.firstName}
+          error={errors.name}
         />
-        <Input
-          id="lastName"
-          name="lastName"
-          label="Last Name"
-          placeholder="Last Name"
-          required
-          error={errors.lastName}
-        />
-      </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Input
+            id="firstName"
+            name="firstName"
+            label="First Name"
+            placeholder="First Name"
+            required
+            error={errors.firstName}
+          />
+          <Input
+            id="lastName"
+            name="lastName"
+            label="Last Name"
+            placeholder="Last Name"
+            required
+            error={errors.lastName}
+          />
+        </div>
+      )}
       <Input
         id="email"
         name="email"
@@ -105,6 +124,51 @@ export function LeadForm({ source, showPhone = false }: LeadFormProps) {
           type="tel"
           placeholder="(555) 123-4567"
         />
+      )}
+      {source === "home-evaluation" && (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              id="addressLine"
+              name="addressLine"
+              label="Address Line"
+              placeholder="123 Main St"
+            />
+            <Input
+              id="unit"
+              name="unit"
+              label="Unit/Suite"
+              placeholder="Apt 4B"
+            />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <Input
+              id="city"
+              name="city"
+              label="City"
+              placeholder="Toronto"
+            />
+            <Input
+              id="province"
+              name="province"
+              label="Province/State"
+              placeholder="ON"
+            />
+            <Input
+              id="postalCode"
+              name="postalCode"
+              label="Postal Code"
+              placeholder="M1M 1M1"
+            />
+          </div>
+          <Textarea
+            id="notes"
+            name="notes"
+            label="Additional Notes"
+            placeholder="Tell us about any recent renovations, unique features, or specific questions you have."
+            rows={4}
+          />
+        </>
       )}
       <Button
         type="submit"
