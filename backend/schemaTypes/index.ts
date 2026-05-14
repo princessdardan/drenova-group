@@ -28,6 +28,7 @@ import { teamPage } from "./singletons/team-page";
 import { listingsPage } from "./singletons/listings-page";
 import { buyersGuidePage } from "./singletons/buyers-guide-page";
 import { sellersGuidePage } from "./singletons/sellers-guide-page";
+import { homeEvaluationPage } from "./singletons/home-evaluation-page";
 
 export const schemaTypes = [
   // Objects (must be registered before types that reference them)
@@ -60,4 +61,5 @@ export const schemaTypes = [
   listingsPage,
   buyersGuidePage,
   sellersGuidePage,
+  homeEvaluationPage,
 ];

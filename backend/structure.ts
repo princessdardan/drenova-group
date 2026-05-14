@@ -15,7 +15,7 @@ import {
   EnvelopeIcon,
 } from "@sanity/icons";
 
-const SINGLETON_TYPES = [
+export const SINGLETON_TYPES = [
   "siteSettings",
   "homePage",
   "aboutPage",
@@ -26,6 +26,7 @@ const SINGLETON_TYPES = [
   "listingsPage",
   "buyersGuidePage",
   "sellersGuidePage",
+  "homeEvaluationPage",
 ];
 
 export const structure: StructureResolver = (S) =>
@@ -106,6 +107,15 @@ export const structure: StructureResolver = (S) =>
                     .schemaType("sellersGuidePage")
                     .documentId("sellersGuidePage")
                     .title("Sellers Guide Page"),
+                ),
+              S.listItem()
+                .title("Home Evaluation Page")
+                .icon(HomeIcon)
+                .child(
+                  S.document()
+                    .schemaType("homeEvaluationPage")
+                    .documentId("homeEvaluationPage")
+                    .title("Home Evaluation Page"),
                 ),
               S.listItem()
                 .title("Contact Page")

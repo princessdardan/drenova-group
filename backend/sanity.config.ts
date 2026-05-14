@@ -11,6 +11,12 @@ const SINGLETON_TYPES = [
   "aboutPage",
   "buyPage",
   "sellPage",
+  "contactPage",
+  "teamPage",
+  "listingsPage",
+  "buyersGuidePage",
+  "sellersGuidePage",
+  "homeEvaluationPage",
 ];
 
 export default defineConfig({
