@@ -169,7 +169,7 @@ export function LeadForm({ source, showPhone = false }: LeadFormProps) {
       <Button
         type="submit"
         variant="primary"
-        className="uppercase tracking-widest mt-2"
+        className="uppercase tracking-widest mt-2 w-full sm:w-auto"
         disabled={submitting}
       >
         {submitting ? "Submitting\u2026" : "Submit"}
