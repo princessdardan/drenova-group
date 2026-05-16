@@ -7,7 +7,7 @@
  * Images are uploaded to Sanity's asset pipeline from Unsplash URLs.
  */
 
-import { createClient } from "@sanity/client";
+import { createClient, type IdentifiedSanityDocumentStub } from "@sanity/client";
 
 const client = createClient({
   projectId: "apggi8zn",
@@ -38,6 +38,20 @@ async function uploadImageFromUrl(
     _type: "image",
     asset: { _type: "reference", _ref: asset._id },
   };
+}
+
+async function imageWithAlt(url: string, filename: string, alt: string) {
+  const image = await uploadImageFromUrl(url, filename);
+  image.alt = alt;
+  return image;
+}
+
+async function createOrReplaceMany(
+  documents: IdentifiedSanityDocumentStub<Record<string, unknown>>[]
+) {
+  for (const document of documents) {
+    await client.createOrReplace(document);
+  }
 }
 
 function textToPortableText(text: string) {
@@ -156,8 +170,11 @@ const companyValues = [
 async function seedListings() {
   console.log("Seeding listings...");
   for (const listing of listings) {
-    const imageAsset = await uploadImageFromUrl(listing.image, `listing-${listing.id}.jpg`);
-    imageAsset.alt = `${listing.address}, ${listing.city}, ${listing.state}`;
+    const imageAsset = await imageWithAlt(
+      listing.image,
+      `listing-${listing.id}.jpg`,
+      `${listing.address}, ${listing.city}, ${listing.state}`
+    );
 
     await client.createOrReplace({
       _id: `listing-${listing.id}`,
@@ -183,8 +200,11 @@ async function seedListings() {
 async function seedTeamMembers() {
   console.log("Seeding team members...");
   for (const member of teamMembers) {
-    const imageAsset = await uploadImageFromUrl(member.image, `team-${member.slug}.jpg`);
-    imageAsset.alt = member.name;
+    const imageAsset = await imageWithAlt(
+      member.image,
+      `team-${member.slug}.jpg`,
+      member.name
+    );
 
     await client.createOrReplace({
       _id: `team-${member.slug}`,
@@ -203,15 +223,17 @@ async function seedTeamMembers() {
 
 async function seedTestimonials() {
   console.log("Seeding testimonials...");
-  for (let i = 0; i < testimonials.length; i++) {
-    const t = testimonials[i];
-    await client.createOrReplace({
+  await createOrReplaceMany(
+    testimonials.map((t, i) => ({
       _id: `testimonial-${i + 1}`,
       _type: "testimonial",
       quote: t.quote,
       name: t.name,
       detail: t.detail,
-    });
+    }))
+  );
+  for (let i = 0; i < testimonials.length; i++) {
+    const t = testimonials[i];
     console.log(`  testimonial-${i + 1}: ${t.name}`);
   }
 }
@@ -246,60 +268,68 @@ async function seedFaqs() {
 
 async function seedCoverageAreas() {
   console.log("Seeding coverage areas...");
-  for (let i = 0; i < coverageAreas.length; i++) {
-    const area = coverageAreas[i];
-    await client.createOrReplace({
+  await createOrReplaceMany(
+    coverageAreas.map((area, i) => ({
       _id: `coverage-area-${i + 1}`,
       _type: "coverageArea",
       state: area.state,
       cities: area.cities,
       order: i + 1,
-    });
+    }))
+  );
+  for (let i = 0; i < coverageAreas.length; i++) {
+    const area = coverageAreas[i];
     console.log(`  coverage-area-${i + 1}: ${area.state}`);
   }
 }
 
 async function seedCompanyStats() {
   console.log("Seeding company stats...");
-  for (let i = 0; i < companyStats.length; i++) {
-    const stat = companyStats[i];
-    await client.createOrReplace({
+  await createOrReplaceMany(
+    companyStats.map((stat, i) => ({
       _id: `company-stat-${i + 1}`,
       _type: "companyStat",
       label: stat.label,
       value: stat.value,
       order: i + 1,
-    });
+    }))
+  );
+  for (let i = 0; i < companyStats.length; i++) {
+    const stat = companyStats[i];
     console.log(`  company-stat-${i + 1}: ${stat.label}`);
   }
 }
 
 async function seedCompanyValues() {
   console.log("Seeding company values...");
-  for (let i = 0; i < companyValues.length; i++) {
-    const val = companyValues[i];
-    await client.createOrReplace({
+  await createOrReplaceMany(
+    companyValues.map((val, i) => ({
       _id: `company-value-${i + 1}`,
       _type: "companyValue",
       title: val.title,
       description: val.description,
       order: i + 1,
-    });
+    }))
+  );
+  for (let i = 0; i < companyValues.length; i++) {
+    const val = companyValues[i];
     console.log(`  company-value-${i + 1}: ${val.title}`);
   }
 }
 
 async function seedValuePropositions() {
   console.log("Seeding value propositions...");
-  for (let i = 0; i < valuePropositions.length; i++) {
-    const vp = valuePropositions[i];
-    await client.createOrReplace({
+  await createOrReplaceMany(
+    valuePropositions.map((vp, i) => ({
       _id: `value-proposition-${i + 1}`,
       _type: "valueProposition",
       title: vp.title,
       description: vp.description,
       order: i + 1,
-    });
+    }))
+  );
+  for (let i = 0; i < valuePropositions.length; i++) {
+    const vp = valuePropositions[i];
     console.log(`  value-proposition-${i + 1}: ${vp.title}`);
   }
 }
@@ -573,17 +603,17 @@ async function seedSiteSettings() {
 
 async function seedHomePage() {
   console.log("Seeding homePage...");
-  const heroImage = await uploadImageFromUrl(
+  const heroImage = await imageWithAlt(
     homePageData.hero.imageUrl,
-    "home-hero.jpg"
+    "home-hero.jpg",
+    homePageData.hero.imageAlt
   );
-  heroImage.alt = homePageData.hero.imageAlt;
 
-  const aboutImage = await uploadImageFromUrl(
+  const aboutImage = await imageWithAlt(
     homePageData.aboutSectionImageUrl,
-    "home-about.jpg"
+    "home-about.jpg",
+    homePageData.aboutSectionImageAlt
   );
-  aboutImage.alt = homePageData.aboutSectionImageAlt;
 
   await client.createOrReplace({
     _id: "homePage",
@@ -616,17 +646,17 @@ async function seedHomePage() {
 
 async function seedAboutPage() {
   console.log("Seeding aboutPage...");
-  const heroImage = await uploadImageFromUrl(
+  const heroImage = await imageWithAlt(
     aboutPageData.hero.imageUrl,
-    "about-hero.jpg"
+    "about-hero.jpg",
+    aboutPageData.hero.imageAlt
   );
-  heroImage.alt = aboutPageData.hero.imageAlt;
 
-  const storyImage = await uploadImageFromUrl(
+  const storyImage = await imageWithAlt(
     aboutPageData.storyImageUrl,
-    "about-story.jpg"
+    "about-story.jpg",
+    aboutPageData.storyImageAlt
   );
-  storyImage.alt = aboutPageData.storyImageAlt;
 
   await client.createOrReplace({
     _id: "aboutPage",
@@ -651,11 +681,11 @@ async function seedAboutPage() {
 
 async function seedBuyPage() {
   console.log("Seeding buyPage...");
-  const heroImage = await uploadImageFromUrl(
+  const heroImage = await imageWithAlt(
     buyPageData.hero.imageUrl,
-    "buy-hero.jpg"
+    "buy-hero.jpg",
+    buyPageData.hero.imageAlt
   );
-  heroImage.alt = buyPageData.hero.imageAlt;
 
   await client.createOrReplace({
     _id: "buyPage",
@@ -680,17 +710,17 @@ async function seedBuyPage() {
 
 async function seedSellPage() {
   console.log("Seeding sellPage...");
-  const heroImage = await uploadImageFromUrl(
+  const heroImage = await imageWithAlt(
     sellPageData.hero.imageUrl,
-    "sell-hero.jpg"
+    "sell-hero.jpg",
+    sellPageData.hero.imageAlt
   );
-  heroImage.alt = sellPageData.hero.imageAlt;
 
-  const valuationImage = await uploadImageFromUrl(
+  const valuationImage = await imageWithAlt(
     sellPageData.valuation.imageUrl,
-    "sell-valuation.jpg"
+    "sell-valuation.jpg",
+    sellPageData.valuation.imageAlt
   );
-  valuationImage.alt = sellPageData.valuation.imageAlt;
 
   await client.createOrReplace({
     _id: "sellPage",
@@ -723,11 +753,11 @@ async function seedSellPage() {
 
 async function seedContactPage() {
   console.log("Seeding contactPage...");
-  const heroImage = await uploadImageFromUrl(
+  const heroImage = await imageWithAlt(
     "https://images.unsplash.com/photo-1600563438938-a9a27216b4f5?w=1600&q=80",
-    "contact-hero.jpg"
+    "contact-hero.jpg",
+    "Modern office interior"
   );
-  heroImage.alt = "Modern office interior";
 
   await client.createOrReplace({
     _id: "contactPage",
@@ -760,11 +790,11 @@ async function seedContactPage() {
 
 async function seedTeamPage() {
   console.log("Seeding teamPage...");
-  const heroImage = await uploadImageFromUrl(
+  const heroImage = await imageWithAlt(
     "https://images.unsplash.com/photo-1600573472550-8090b5e0745e?w=1600&q=80",
-    "team-hero.jpg"
+    "team-hero.jpg",
+    "Drenova Group team"
   );
-  heroImage.alt = "Drenova Group team";
 
   await client.createOrReplace({
     _id: "teamPage",

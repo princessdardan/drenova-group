@@ -1,16 +1,14 @@
 import { groq } from "next-sanity";
 
-// ─── Team Member queries ──────────────────────────────────────────────
-const teamMemberProjection = groq`{
-  "slug": slug.current,
-  name,
-  role,
-  image,
-  bio,
-  phone,
-  email
-}`;
+import {
+  benefitsProjection,
+  documentProjection,
+  guidePageProjection,
+  processStepsProjection,
+  teamMemberProjection,
+} from "./query-fragments";
 
+// ─── Team Member queries ──────────────────────────────────────────────
 export const allTeamMembersQuery = groq`*[_type == "teamMember"] | order(name asc) ${teamMemberProjection}`;
 
 export const teamMemberBySlugQuery = groq`*[_type == "teamMember" && slug.current == $slug][0] ${teamMemberProjection}`;
@@ -66,8 +64,7 @@ export const allValuePropositionsQuery = groq`*[_type == "valueProposition"] | o
 // ─── Singleton queries ───────────────────────────────────────────────
 
 export const siteSettingsQuery = groq`*[_type == "siteSettings"][0] {
-  _id,
-  _type,
+  ${documentProjection},
   companyName,
   tagline,
   phone,
@@ -85,8 +82,7 @@ export const siteSettingsQuery = groq`*[_type == "siteSettings"][0] {
 }`;
 
 export const homePageQuery = groq`*[_type == "homePage"][0] {
-  _id,
-  _type,
+  ${documentProjection},
   hero,
   aboutSection {
     title,
@@ -117,8 +113,7 @@ export const homePageQuery = groq`*[_type == "homePage"][0] {
 }`;
 
 export const aboutPageQuery = groq`*[_type == "aboutPage"][0] {
-  _id,
-  _type,
+  ${documentProjection},
   hero,
   storyContent,
   storyOverline,
@@ -130,22 +125,11 @@ export const aboutPageQuery = groq`*[_type == "aboutPage"][0] {
 }`;
 
 export const buyPageQuery = groq`*[_type == "buyPage"][0] {
-  _id,
-  _type,
+  ${documentProjection},
   hero,
-  benefits[] {
-    _key,
-    title,
-    description
-  },
+  ${benefitsProjection},
   benefitsHeading,
-  processSteps[] {
-    _key,
-    _type,
-    stepNumber,
-    title,
-    description
-  },
+  ${processStepsProjection},
   processHeading,
   coverageHeading,
   faqHeading,
@@ -153,22 +137,11 @@ export const buyPageQuery = groq`*[_type == "buyPage"][0] {
 }`;
 
 export const sellPageQuery = groq`*[_type == "sellPage"][0] {
-  _id,
-  _type,
+  ${documentProjection},
   hero,
-  benefits[] {
-    _key,
-    title,
-    description
-  },
+  ${benefitsProjection},
   benefitsHeading,
-  processSteps[] {
-    _key,
-    _type,
-    stepNumber,
-    title,
-    description
-  },
+  ${processStepsProjection},
   processHeading,
   valuation,
   storiesHeading,
@@ -177,8 +150,7 @@ export const sellPageQuery = groq`*[_type == "sellPage"][0] {
 }`;
 
 export const contactPageQuery = groq`*[_type == "contactPage"][0] {
-  _id,
-  _type,
+  ${documentProjection},
   hero,
   quickLinks[] {
     _key,
@@ -190,23 +162,20 @@ export const contactPageQuery = groq`*[_type == "contactPage"][0] {
 }`;
 
 export const teamPageQuery = groq`*[_type == "teamPage"][0] {
-  _id,
-  _type,
+  ${documentProjection},
   hero,
   cta
 }`;
 
 export const listingsPageQuery = groq`*[_type == "listingsPage"][0] {
-  _id,
-  _type,
+  ${documentProjection},
   overline,
   title,
   featuredListingKeys
 }`;
 
 export const legalPageBySlugQuery = groq`*[_type == "legalPage" && slug.current == $slug][0] {
-  _id,
-  _type,
+  ${documentProjection},
   title,
   "slug": slug.current,
   lastUpdated,
@@ -215,29 +184,12 @@ export const legalPageBySlugQuery = groq`*[_type == "legalPage" && slug.current 
 
 // ─── Guide page queries ─────────────────────────────────────────────
 
-export const buyersGuidePageQuery = groq`*[_type == "buyersGuidePage"][0] {
-  _id,
-  _type,
-  hero,
-  guideTitle,
-  guideDescription,
-  guideImage,
-  cta
-}`;
+export const buyersGuidePageQuery = groq`*[_type == "buyersGuidePage"][0] ${guidePageProjection}`;
 
-export const sellersGuidePageQuery = groq`*[_type == "sellersGuidePage"][0] {
-  _id,
-  _type,
-  hero,
-  guideTitle,
-  guideDescription,
-  guideImage,
-  cta
-}`;
+export const sellersGuidePageQuery = groq`*[_type == "sellersGuidePage"][0] ${guidePageProjection}`;
 
 export const homeEvaluationPageQuery = groq`*[_type == "homeEvaluationPage"][0] {
-  _id,
-  _type,
+  ${documentProjection},
   hero,
   formHeading,
   formDescription
