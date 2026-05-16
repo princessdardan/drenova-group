@@ -1,5 +1,8 @@
 import { revalidateTag } from "next/cache";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+
+import { jsonError, jsonOk } from "../_lib/responses";
+import { hasValidHeaderSecret } from "../_lib/secrets";
 
 const TAG_MAP: Record<string, string[]> = {
   listing: ["listing"],
@@ -25,34 +28,32 @@ const TAG_MAP: Record<string, string[]> = {
 };
 
 export async function POST(request: NextRequest) {
-  const secret = request.headers.get("x-sanity-revalidate-secret");
-
-  if (!secret || secret !== process.env.SANITY_REVALIDATE_SECRET) {
-    return NextResponse.json({ message: "Invalid secret" }, { status: 401 });
+  if (
+    !hasValidHeaderSecret(
+      request,
+      "x-sanity-revalidate-secret",
+      "SANITY_REVALIDATE_SECRET"
+    )
+  ) {
+    return jsonError({ message: "Invalid secret" }, 401);
   }
 
   const body = await request.json();
   const type = body?._type as string | undefined;
 
   if (!type) {
-    return NextResponse.json(
-      { message: "Missing _type in payload" },
-      { status: 400 }
-    );
+    return jsonError({ message: "Missing _type in payload" }, 400);
   }
 
   const tags = TAG_MAP[type];
 
   if (!tags) {
-    return NextResponse.json(
-      { message: `Unknown type: ${type}`, revalidated: false },
-      { status: 200 }
-    );
+    return jsonError({ message: `Unknown type: ${type}`, revalidated: false }, 200);
   }
 
   for (const tag of tags) {
     revalidateTag(tag, { expire: 3600 });
   }
 
-  return NextResponse.json({ revalidated: true, tags });
+  return jsonOk({ revalidated: true, tags });
 }
