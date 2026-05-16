@@ -1,16 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useCallback } from "react";
-import Link from "next/link";
-
-const defaultNavLinks = [
-  { href: "/buy", label: "Buy" },
-  { href: "/sell", label: "Sell" },
-  { href: "/listings", label: "Listings" },
-  { href: "/about", label: "About" },
-  { href: "/team", label: "Team" },
-  { href: "/contact", label: "Contact" },
-];
+import { DEFAULT_NAV_LINKS, NavLinkItem, NavLinkList } from "@/components/sections/nav-link-list";
 
 const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -18,7 +9,7 @@ const FOCUSABLE_SELECTOR =
 interface MobileMenuProps {
   isOpen: boolean;
   onClose: () => void;
-  navigationLinks?: { label: string; href: string }[];
+  navigationLinks?: NavLinkItem[];
   phone?: string;
   email?: string;
 }
@@ -32,7 +23,7 @@ export function MobileMenu({
 }: MobileMenuProps) {
   const navLinks = navigationLinks && navigationLinks.length > 0
     ? navigationLinks
-    : defaultNavLinks;
+    : DEFAULT_NAV_LINKS;
 
   const containerRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -112,16 +103,7 @@ export function MobileMenu({
         </div>
         
         <nav className="flex flex-col items-center justify-center flex-1 gap-8">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              onClick={onClose}
-              className="font-display text-3xl lg:text-4xl font-bold tracking-tight hover:text-accent transition-colors duration-200"
-            >
-              {link.label}
-            </Link>
-          ))}
+          <NavLinkList links={navLinks} variant="mobile" onNavigate={onClose} />
         </nav>
         
         <div className="text-center pb-8">

@@ -4,18 +4,10 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { MobileMenu } from "@/components/sections/mobile-menu";
-
-const defaultLinks = [
-  { href: "/buy", label: "Buy" },
-  { href: "/sell", label: "Sell" },
-  { href: "/listings", label: "Listings" },
-  { href: "/about", label: "About" },
-  { href: "/team", label: "Team" },
-  { href: "/contact", label: "Contact" },
-];
+import { DEFAULT_NAV_LINKS, NavLinkItem, NavLinkList } from "@/components/sections/nav-link-list";
 
 interface HeaderProps {
-  navigationLinks?: { label: string; href: string }[];
+  navigationLinks?: NavLinkItem[];
   phone?: string;
   email?: string;
 }
@@ -27,7 +19,7 @@ export function Header({ navigationLinks, phone, email }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(!isHomepage);
 
-  const allLinks = navigationLinks ?? defaultLinks;
+  const allLinks = navigationLinks ?? DEFAULT_NAV_LINKS;
 
   useEffect(() => {
     // Only track scroll on homepage; other pages always show scrolled state
@@ -59,15 +51,7 @@ export function Header({ navigationLinks, phone, email }: HeaderProps) {
 
           <div className="flex items-center gap-8">
             <nav className="hidden lg:flex items-center gap-8" aria-label="Main">
-              {allLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="text-sm uppercase tracking-wider font-medium hover:text-accent transition-colors duration-200"
-                >
-                  {link.label}
-                </Link>
-              ))}
+              <NavLinkList links={allLinks} variant="header" />
             </nav>
 
             <button

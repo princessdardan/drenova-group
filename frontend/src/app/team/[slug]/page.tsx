@@ -3,7 +3,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ContactForm } from "@/components/sections/contact-form";
 import { isSanityImage } from "@/types/sanity";
-import { urlFor } from "@/lib/sanity/image";
+import { resolveSanityImageUrl } from "@/lib/sanity/image";
 import { getTeamMembers, getTeamMemberBySlug } from "@/lib/sanity/fetch";
 import { PortableTextRenderer } from "@/components/ui/portable-text";
 
@@ -20,9 +20,13 @@ export async function generateMetadata({
   const { slug } = await params;
   const member = await getTeamMemberBySlug(slug);
   if (!member) return {};
-  const ogImage = isSanityImage(member.image)
-    ? urlFor(member.image).width(1200).height(630).fit("crop").url()
-    : typeof member.image === "string" ? member.image : undefined;
+  const imageFallback = typeof member.image === "string" ? member.image : "";
+  const ogImage = resolveSanityImageUrl(member.image, {
+    width: 1200,
+    height: 630,
+    fallback: imageFallback,
+    fit: "crop",
+  });
 
   return {
     title: member.name,
@@ -43,6 +47,13 @@ export default async function TeamMemberPage({
 
   if (!member) notFound();
 
+  const profileImage = resolveSanityImageUrl(member.image, {
+    width: 800,
+    height: 1000,
+    fallback: typeof member.image === "string" ? member.image : "",
+    fit: "crop",
+  });
+
   return (
     <>
       {/* ─── Agent Profile ─── */}
@@ -50,11 +61,7 @@ export default async function TeamMemberPage({
         <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[600px]">
           <div className="relative min-h-[400px] lg:min-h-0">
             <Image
-              src={
-                isSanityImage(member.image)
-                  ? urlFor(member.image).width(800).height(1000).fit("crop").url()
-                  : member.image
-              }
+              src={profileImage}
               alt={
                 isSanityImage(member.image) && member.image.alt
                   ? member.image.alt

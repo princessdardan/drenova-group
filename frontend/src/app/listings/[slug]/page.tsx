@@ -39,6 +39,20 @@ function DetailRow({ label, value }: { label: string; value: React.ReactNode }) 
   );
 }
 
+function formatListingLocation(listing: {
+  city: string;
+  province: string;
+  postalCode?: string;
+  addressSuppressed?: boolean;
+}): string {
+  return [
+    `${listing.city}, ${listing.province}`,
+    listing.addressSuppressed ? null : listing.postalCode,
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
 /**
  * Generate metadata for listing detail pages.
  * When `addressSuppressed` is true, address is excluded from
@@ -152,6 +166,8 @@ export default async function ListingDetailPage(props: ListingDetailProps) {
     listing.closeDate ||
     listing.closePrice != null;
 
+  const displayLocation = formatListingLocation(listing);
+
   return (
     <div className="pt-20 lg:pt-24 pb-20 lg:pb-0">
       <ImageCarousel
@@ -190,9 +206,7 @@ export default async function ListingDetailPage(props: ListingDetailProps) {
                       ? formatPrice(listing.price)
                       : `${listing.address} — ${formatPrice(listing.price)}`}
                   </h1>
-                  <p className="text-muted mt-1">
-                    {listing.city}, {listing.province} {listing.postalCode}
-                  </p>
+                  <p className="text-muted mt-1">{displayLocation}</p>
                 </div>
                 {listing.status !== "Active" && (
                   <span className="bg-foreground text-background text-xs uppercase tracking-wider font-semibold px-3 py-1 rounded shrink-0">
