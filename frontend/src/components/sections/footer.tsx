@@ -65,7 +65,7 @@ export async function Footer({ navigationLinks, officeHours }: FooterProps) {
           </div>
 
           {/* Navigation Column - Spans 2 columns */}
-          <nav className="col-span-6 lg:col-span-2" aria-label="Footer navigation">
+          <nav className="col-span-12 sm:col-span-6 lg:col-span-2" aria-label="Footer navigation">
             <p className="text-xs uppercase tracking-widest font-medium text-footer-muted mb-4">
               Navigate
             </p>
@@ -75,7 +75,7 @@ export async function Footer({ navigationLinks, officeHours }: FooterProps) {
           </nav>
 
           {/* Contact Column - Spans 3 columns */}
-          <div className="col-span-6 lg:col-span-3">
+          <div className="col-span-12 sm:col-span-6 lg:col-span-3">
             <p className="text-xs uppercase tracking-widest font-medium text-footer-muted mb-4">
               Contact
             </p>
@@ -115,7 +115,7 @@ export async function Footer({ navigationLinks, officeHours }: FooterProps) {
 
           {/* Social Column - Spans 3 columns */}
           {socialLinks.length > 0 && (
-            <div className="col-span-12 lg:col-span-3">
+            <div className="col-span-12 sm:col-span-6 lg:col-span-3">
               <p className="text-xs uppercase tracking-widest font-medium text-footer-muted mb-4">
                 Follow
               </p>
