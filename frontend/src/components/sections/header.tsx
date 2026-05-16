@@ -57,7 +57,7 @@ export function Header({ navigationLinks, phone, email }: HeaderProps) {
             <button
               type="button"
               onClick={() => setMenuOpen(true)}
-              className="p-2 cursor-pointer lg:hidden hover:text-accent transition-colors duration-200"
+              className="p-3 -mr-3 cursor-pointer lg:hidden hover:text-accent transition-colors duration-200"
               aria-label="Open menu"
               aria-expanded={menuOpen}
               aria-controls="mobile-menu"

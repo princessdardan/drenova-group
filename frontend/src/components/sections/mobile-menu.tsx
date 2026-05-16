@@ -87,13 +87,13 @@ export function MobileMenu({
       {/* Glass background */}
       <div className="absolute inset-0 glass-strong" />
       
-      <div className="relative flex flex-col h-full px-8 py-6">
-        <div className="flex justify-end">
+      <div className="relative flex flex-col h-full px-8 py-6 overflow-y-auto">
+        <div className="flex justify-end shrink-0">
           <button
             ref={closeButtonRef}
             type="button"
             onClick={onClose}
-            className="p-2 text-foreground cursor-pointer hover:text-accent transition-colors duration-200"
+            className="p-3 -mr-3 -mt-3 text-foreground cursor-pointer hover:text-accent transition-colors duration-200"
             aria-label="Close menu"
           >
             <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
