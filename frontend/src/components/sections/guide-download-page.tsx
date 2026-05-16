@@ -42,10 +42,10 @@ export function GuideDownloadPage({ page, source, defaults }: GuideDownloadPageP
               alt={page?.guideImage?.alt ?? defaults.guideAlt}
               width={400}
               height={533}
-              className="rounded-lg shadow-lg"
+              className="rounded-lg shadow-lg max-w-full h-auto"
             />
           ) : (
-            <div className="w-[300px] h-[400px] bg-surface border border-border rounded-lg flex items-center justify-center p-8">
+            <div className="w-full max-w-[300px] aspect-[3/4] bg-surface border border-border rounded-lg flex items-center justify-center p-8">
               <div className="text-center">
                 <p className="text-xs uppercase tracking-widest text-muted mb-2">
                   Drenova Group
