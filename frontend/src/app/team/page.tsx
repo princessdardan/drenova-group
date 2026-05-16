@@ -2,15 +2,16 @@ import type { Metadata } from "next";
 import { Hero } from "@/components/sections/hero";
 import { TeamMemberCard } from "@/components/ui/team-member-card";
 import { CtaSection } from "@/components/sections/cta-section";
-import { ButtonLink } from "@/components/ui/button";
 import { StaggerChildren } from "@/components/ui/stagger-children";
 import { getTeamMembers, getTeamPage } from "@/lib/sanity/fetch";
+import { makeMetadata } from "@/lib/seo";
+import { SectionShell } from "@/components/sections/section-shell";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = makeMetadata({
   title: "Our Team",
   description:
     "Meet the experienced agents and advisors of Drenova Group. Our team brings local expertise and a client-first approach to every transaction.",
-};
+});
 
 export default async function TeamPage() {
   const [teamMembers, teamPage] = await Promise.all([
@@ -34,25 +35,25 @@ export default async function TeamPage() {
       />
 
       {/* ─── Team Grid ─── */}
-      <section className="bg-background py-16 px-6 lg:py-24 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <StaggerChildren className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            {teamMembers.map((member) => (
-              <TeamMemberCard key={member.slug} member={member} />
-            ))}
-          </StaggerChildren>
-        </div>
-      </section>
+      <SectionShell bg="background" container="lg">
+        <StaggerChildren className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          {teamMembers.map((member) => (
+            <TeamMemberCard key={member.slug} member={member} />
+          ))}
+        </StaggerChildren>
+      </SectionShell>
 
       {/* ─── CTA ─── */}
       <CtaSection
         title={cta?.title ?? "Get in Touch"}
         subtitle={cta?.subtitle ?? "Have a question or ready to start? We'd love to hear from you."}
-      >
-        <ButtonLink href={cta?.primaryButtonHref ?? "/contact"}>
-          {cta?.primaryButtonText ?? "Contact Us"}
-        </ButtonLink>
-      </CtaSection>
+        actions={[
+          {
+            href: cta?.primaryButtonHref ?? "/contact",
+            label: cta?.primaryButtonText ?? "Contact Us",
+          }
+        ]}
+      />
     </>
   );
 }
