@@ -1,20 +1,16 @@
 import { type ComponentProps } from "react";
 import { cn } from "@/lib/cn";
+import { FormFieldShell } from "./form-field-shell";
 
-interface InputProps extends ComponentProps<"input"> {
+type InputProps = Omit<ComponentProps<"input">, "id"> & {
+  id: string;
   label: string;
   error?: string;
-}
+};
 
-export function Input({ label, error, id, className, ...props }: InputProps) {
+export function Input({ label, error, id, className, required, ...props }: InputProps) {
   return (
-    <div className="flex flex-col gap-2">
-      <label 
-        htmlFor={id} 
-        className="text-sm font-medium text-foreground tracking-wide"
-      >
-        {label}
-      </label>
+    <FormFieldShell id={id} label={label} error={error} required={required}>
       <input
         id={id}
         aria-invalid={!!error}
@@ -29,13 +25,9 @@ export function Input({ label, error, id, className, ...props }: InputProps) {
           error && "border-red-600 dark:border-red-400 focus-visible:ring-red-500/50",
           className
         )}
+        required={required}
         {...props}
       />
-      {error && (
-        <p id={`${id}-error`} className="text-sm text-red-600 dark:text-red-400">
-          {error}
-        </p>
-      )}
-    </div>
+    </FormFieldShell>
   );
 }

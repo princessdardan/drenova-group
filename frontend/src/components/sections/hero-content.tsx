@@ -2,6 +2,7 @@
 
 import { type ReactNode } from "react";
 import { motion, useReducedMotion } from "motion/react";
+import { ActionGroup, type ActionGroupAction } from "./action-group";
 
 interface HeroContentProps {
   overline?: string;
@@ -9,6 +10,7 @@ interface HeroContentProps {
   subtitle?: string;
   headingLevel?: "h1" | "h2";
   children?: ReactNode;
+  actions?: ActionGroupAction[];
 }
 
 export function HeroContent({
@@ -17,6 +19,7 @@ export function HeroContent({
   subtitle,
   headingLevel = "h1",
   children,
+  actions,
 }: HeroContentProps) {
   const Heading = headingLevel;
   const shouldReduceMotion = useReducedMotion();
@@ -34,11 +37,13 @@ export function HeroContent({
       {subtitle && (
         <p className="text-lg leading-8 mt-4 text-white/80">{subtitle}</p>
       )}
-      {children && (
+      {actions && actions.length > 0 ? (
+        <ActionGroup actions={actions} tone="hero" align="center" />
+      ) : children ? (
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mt-8">
           {children}
         </div>
-      )}
+      ) : null}
     </>
   );
 

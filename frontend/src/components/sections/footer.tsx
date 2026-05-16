@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getSiteSettings } from "@/lib/sanity/fetch";
+import { DEFAULT_NAV_LINKS, NavLinkItem, NavLinkList } from "@/components/sections/nav-link-list";
 
 const socialIcons: Record<string, React.ReactNode> = {
   Facebook: (
@@ -24,17 +25,8 @@ const socialIcons: Record<string, React.ReactNode> = {
   ),
 };
 
-const defaultNavLinks = [
-  { href: "/buy", label: "Buy" },
-  { href: "/sell", label: "Sell" },
-  { href: "/listings", label: "Listings" },
-  { href: "/about", label: "About" },
-  { href: "/team", label: "Team" },
-  { href: "/contact", label: "Contact" },
-];
-
 interface FooterProps {
-  navigationLinks?: { label: string; href: string }[];
+  navigationLinks?: NavLinkItem[];
   officeHours?: string;
 }
 
@@ -48,7 +40,7 @@ export async function Footer({ navigationLinks, officeHours }: FooterProps) {
   const social = settings?.socialLinks;
   const navLinks = navigationLinks && navigationLinks.length > 0
     ? navigationLinks
-    : defaultNavLinks;
+    : DEFAULT_NAV_LINKS;
 
   const socialLinks = [
     social?.facebook ? { href: social.facebook, label: "Facebook" } : null,
@@ -78,16 +70,7 @@ export async function Footer({ navigationLinks, officeHours }: FooterProps) {
               Navigate
             </p>
             <ul className="space-y-3">
-              {navLinks.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-footer-link hover:text-white transition-colors duration-200"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
+              <NavLinkList links={navLinks} variant="footer" />
             </ul>
           </nav>
 

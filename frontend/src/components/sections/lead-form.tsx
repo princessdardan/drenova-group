@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { FormStatus } from "@/components/ui/form-status";
 import { submitLeadForm } from "@/app/actions/lead";
 
 type LeadSource = "buyers-guide" | "sellers-guide" | "homepage" | "home-evaluation";
@@ -61,22 +62,17 @@ export function LeadForm({ source, showPhone = false }: LeadFormProps) {
 
   if (submitted) {
     return (
-      <div className="text-center py-12">
-        <h3 className="font-display text-2xl font-bold tracking-tight mb-2">
-          Thank You
-        </h3>
-        <p className="text-muted leading-7">
-          We&apos;ve received your request. Check your email for a confirmation,
-          and a member of our team will reach out shortly.
-        </p>
-      </div>
+      <FormStatus
+        title="Thank You"
+        message="We've received your request. Check your email for a confirmation, and a member of our team will reach out shortly."
+      />
     );
   }
 
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-4">
       {serverError && (
-        <p className="text-sm text-red-600 dark:text-red-400">{serverError}</p>
+        <FormStatus error message={serverError} />
       )}
       {source === "home-evaluation" ? (
         <Input

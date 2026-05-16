@@ -2,8 +2,9 @@ import Image from "next/image";
 import { cn } from "@/lib/cn";
 import type { SanityImage } from "@/types/sanity";
 import { isSanityImage } from "@/types/sanity";
-import { urlFor } from "@/lib/sanity/image";
+import { resolveSanityImageUrl } from "@/lib/sanity/image";
 import { HeroContent } from "./hero-content";
+import { type ActionGroupAction } from "./action-group";
 
 interface HeroProps {
   image: string | SanityImage;
@@ -16,6 +17,7 @@ interface HeroProps {
   children?: React.ReactNode;
   size?: "full" | "short";
   headingLevel?: "h1" | "h2";
+  actions?: ActionGroupAction[];
 }
 
 export function Hero({
@@ -29,6 +31,7 @@ export function Hero({
   children,
   size = "full",
   headingLevel = "h1",
+  actions,
 }: HeroProps) {
   return (
     <section
@@ -39,11 +42,7 @@ export function Hero({
     >
       {/* Image — always rendered as poster/fallback */}
       <Image
-        src={
-          isSanityImage(image)
-            ? urlFor(image).width(1920).height(1080).fit("crop").url()
-            : image
-        }
+        src={resolveSanityImageUrl(image, { width: 1920, height: 1080, fallback: typeof image === "string" ? image : "", fit: "crop" })}
         alt={
           isSanityImage(image) && image.alt ? image.alt : imageAlt
         }
@@ -73,6 +72,7 @@ export function Hero({
         title={title}
         subtitle={subtitle}
         headingLevel={headingLevel}
+        actions={actions}
       >
         {children}
       </HeroContent>

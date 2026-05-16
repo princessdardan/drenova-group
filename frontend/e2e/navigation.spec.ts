@@ -12,6 +12,13 @@ const pages = [
   { path: "/terms", name: "Terms" },
 ];
 
+const headerLinks = [
+  { href: "/buy", name: "Buy" },
+  { href: "/sell", name: "Sell" },
+  { href: "/listings", name: "Listings" },
+  { href: "/contact", name: "Contact" },
+];
+
 test.describe("Page smoke tests", () => {
   for (const { path, name } of pages) {
     test(`${name} page (${path}) loads successfully`, async ({ page }) => {
@@ -36,6 +43,10 @@ test.describe("Header navigation (desktop)", () => {
     await expect(nav).toBeVisible();
 
     const links = nav.locator("a");
-    expect(await links.count()).toBeGreaterThanOrEqual(1);
+    await expect(links).toHaveCount(headerLinks.length);
+
+    for (const { href, name } of headerLinks) {
+      await expect(nav.getByRole("link", { name })).toHaveAttribute("href", href);
+    }
   });
 });

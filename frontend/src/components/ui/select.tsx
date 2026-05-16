@@ -1,12 +1,14 @@
 import { type ComponentProps } from "react";
 import { cn } from "@/lib/cn";
+import { FormFieldShell } from "./form-field-shell";
 
-interface SelectProps extends ComponentProps<"select"> {
+type SelectProps = Omit<ComponentProps<"select">, "id"> & {
+  id: string;
   label: string;
   error?: string;
   options: { value: string; label: string }[];
   placeholder?: string;
-}
+};
 
 export function Select({
   label,
@@ -15,16 +17,11 @@ export function Select({
   options,
   placeholder,
   className,
+  required,
   ...props
 }: SelectProps) {
   return (
-    <div className="flex flex-col gap-2">
-      <label 
-        htmlFor={id} 
-        className="text-sm font-medium text-foreground tracking-wide"
-      >
-        {label}
-      </label>
+    <FormFieldShell id={id} label={label} error={error} required={required}>
       <div className="relative">
         <select
           id={id}
@@ -40,6 +37,7 @@ export function Select({
             error && "border-red-600 dark:border-red-400 focus-visible:ring-red-500/50",
             className
           )}
+          required={required}
           {...props}
         >
           {placeholder && (
@@ -64,11 +62,6 @@ export function Select({
           <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </div>
-      {error && (
-        <p id={`${id}-error`} className="text-sm text-red-600 dark:text-red-400">
-          {error}
-        </p>
-      )}
-    </div>
+    </FormFieldShell>
   );
 }

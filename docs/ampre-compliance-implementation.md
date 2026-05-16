@@ -34,10 +34,11 @@ The original AMPRE integration PRD proposed direct API calls with 5-minute ISR c
 ```
 Daily cron (6 AM UTC)
   └─ POST /api/ampre/sync
+       ├─ acquireRetrievalLock()          ← hard 24h AMPRE retrieval guard
        ├─ fetchAmpreProperties()          ← ONLY code path that calls AMPRE
        ├─ filterPermittedProperties()     ← perm_adv=N removed
-       ├─ mapAmpreToListing()             ← disp_addr=N suppressed
-       ├─ kv.set("listings:all", ...)     ← stored in Vercel KV
+       ├─ mapAmpreToListing()             ← disp_addr=N address/postal/lat/lng suppressed
+       ├─ kv.set("listings:all", ..., TTL)← stored with 60-day retention fallback
        ├─ kv.set("sync:log:...", ...)     ← audit log
        └─ revalidateTag("ampre-listings") ← bust ISR cache
 
@@ -59,8 +60,10 @@ User request
 | `frontend/src/lib/ampre/queries.ts` | OData query builder — always includes `perm_adv`, `disp_addr`, `ModificationTimestamp` |
 | `frontend/src/lib/ampre/compliance.ts` | License constants: 24h retrieval limit, 60-day retention, AI prohibition, KV keys |
 | `frontend/src/lib/ampre/mapper.ts` | `mapAmpreToListing()` with `disp_addr` suppression, `filterPermittedProperties()` |
+| `frontend/src/lib/ampre/sanitize.ts` | Public-read sanitizer for safe slugs and legacy suppressed Redis records |
 | `frontend/src/lib/ampre/fetch.ts` | KV-backed fetch layer: `getAmpreListings()`, `getAmpreListingBySlug()`, filter helpers |
 | `frontend/src/app/api/ampre/sync/route.ts` | Daily sync endpoint — the only code that calls AMPRE |
+| `frontend/src/app/api/ampre/sync/sync-helpers.ts` | Testable sync guard and retention helpers |
 | `frontend/src/components/ui/listing-filters.tsx` | Client component with URL-based filter/sort state |
 | `frontend/src/app/listings/[slug]/page.tsx` | Listing detail page with address suppression in `generateMetadata()` |
 
@@ -68,7 +71,7 @@ User request
 
 | File | Change |
 |------|--------|
-| `frontend/src/types/listing.ts` | Canadian field renames (`province`, `postalCode`), added `addressSuppressed`, `lastSeen`, `listingKey`, removed `SanityImage` union |
+| `frontend/src/types/listing.ts` | Canadian field renames (`province`, optional `postalCode`), added `addressSuppressed`, `lastSeen`, `listingKey`, removed `SanityImage` union |
 | `frontend/src/components/ui/property-card.tsx` | Address suppression display, Canadian fields, removed `isSanityImage` guard |
 | `frontend/src/app/listings/page.tsx` | Switched from Sanity to AMPRE fetch, integrated filters + pagination |
 | `frontend/src/app/page.tsx` | Home page switched to `getAmpreListings()` |
@@ -87,7 +90,7 @@ User request
 
 | Package | Purpose |
 |---------|---------|
-| `@vercel/kv` | Redis-backed KV store for listing data (Vercel ecosystem) |
+| `@upstash/redis` | Redis-backed KV store for listing data |
 
 ## New Environment Variables
 
@@ -96,19 +99,19 @@ User request
 | `AMPRE_API_BASE_URL` | AMPRE OData endpoint | Manual |
 | `AMPRE_API_TOKEN` | Bearer token for AMPRE API | Manual |
 | `CRON_SECRET` | Protects sync endpoint | Vercel Cron (auto) |
-| `KV_REST_API_URL` | KV connection URL | Vercel KV integration (auto) |
-| `KV_REST_API_TOKEN` | KV auth token | Vercel KV integration (auto) |
+| `UPSTASH_REDIS_REST_URL` | Redis connection URL | Upstash Redis integration |
+| `UPSTASH_REDIS_REST_TOKEN` | Redis auth token | Upstash Redis integration |
 
 ---
 
 ## Verification Checklist
 
-1. **Retrieval compliance:** `fetchAmpreProperties` is only imported by `sync/route.ts`. Grep for `from.*ampre/client` confirms single import site.
-2. **Display field enforcement:** `perm_adv=N` filtered in `filterPermittedProperties()`. `disp_addr=N` suppressed in `mapAmpreToListing()`. Detail page `generateMetadata()` suppresses address in title/description.
-3. **Data retention:** Sync replaces entire KV dataset — stale listings purged automatically.
+1. **Retrieval compliance:** `fetchAmpreProperties` is only imported by `sync/route.ts`, and `acquireRetrievalLock()` prevents another AMPRE retrieval inside the 24-hour window.
+2. **Display field enforcement:** `perm_adv=N` filtered in `filterPermittedProperties()`. `disp_addr=N` suppresses address, postal code, latitude, longitude, and address-derived URLs at the mapper/read layer. Detail page `generateMetadata()` suppresses address in title/description.
+3. **Data retention:** Sync writes `listings:all` with a 60-day TTL and deletes the key when there are zero fresh listings.
 4. **Audit logging:** `SyncLogEntry` written to `sync:log:*` KV keys after every sync.
 5. **AI isolation:** `compliance.ts` documents the prohibition. Architecture prevents casual access to raw MLS data.
-6. **Build:** `npm run build` passes with no type errors.
+6. **Tests/build:** `npm -w frontend run test:unit`, `npm -w frontend run lint`, and `npm -w frontend run build` pass with no type errors.
 
 ---
 

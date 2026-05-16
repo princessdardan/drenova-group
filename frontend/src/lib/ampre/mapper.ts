@@ -1,5 +1,6 @@
 import type { AmpreProperty, AmpreMedia } from "./types";
 import type { Listing } from "@/types/listing";
+import { buildSafeListingSlug } from "./sanitize";
 
 /**
  * Maps raw AMPRE properties to our internal Listing type.
@@ -47,18 +48,6 @@ function buildAddress(property: AmpreProperty): string {
   ].filter(Boolean);
 
   return parts.join(" ");
-}
-
-function buildSlug(property: AmpreProperty): string {
-  const address = buildAddress(property);
-  const parts = [address, property.City, property.StateOrProvince].filter(
-    Boolean
-  );
-  return parts
-    .join("-")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
 }
 
 /**
@@ -113,13 +102,13 @@ export function mapAmpreToListing(
   return {
     id: property.ListingKey,
     listingKey: property.ListingKey,
-    slug: buildSlug(property),
+    slug: buildSafeListingSlug(property.ListingKey),
     price: property.ListPrice,
     originalListPrice: property.OriginalListPrice,
     address: suppressAddress ? "" : buildAddress(property),
     city: property.City,
     province: property.StateOrProvince,
-    postalCode: property.PostalCode,
+    postalCode: suppressAddress ? undefined : property.PostalCode,
     beds: property.BedroomsTotal ?? 0,
     baths: property.BathroomsTotalInteger ?? 0,
     sqft: parseSqft(property),

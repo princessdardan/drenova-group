@@ -1,19 +1,17 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+
+import { jsonError, jsonOk } from "../_lib/responses";
+import { hasValidHeaderSecret } from "../_lib/secrets";
 
 export async function POST(request: NextRequest) {
-  const secret = request.headers.get("x-deploy-secret");
-
-  if (!secret || secret !== process.env.DEPLOY_HOOK_SECRET) {
-    return NextResponse.json({ message: "Invalid secret" }, { status: 401 });
+  if (!hasValidHeaderSecret(request, "x-deploy-secret", "DEPLOY_HOOK_SECRET")) {
+    return jsonError({ message: "Invalid secret" }, 401);
   }
 
   const deployHookUrl = process.env.VERCEL_DEPLOY_HOOK_URL;
 
   if (!deployHookUrl) {
-    return NextResponse.json(
-      { message: "Deploy hook not configured" },
-      { status: 500 }
-    );
+    return jsonError({ message: "Deploy hook not configured" }, 500);
   }
 
   try {
@@ -23,11 +21,8 @@ export async function POST(request: NextRequest) {
       throw new Error(`Deploy hook failed: ${response.status}`);
     }
 
-    return NextResponse.json({ deployed: true });
+    return jsonOk({ deployed: true });
   } catch (error) {
-    return NextResponse.json(
-      { message: "Deploy failed", error: String(error) },
-      { status: 500 }
-    );
+    return jsonError({ message: "Deploy failed", error: String(error) }, 500);
   }
 }

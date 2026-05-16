@@ -68,114 +68,136 @@ async function sanityFetch<T>(
   });
 }
 
+function collectionFetcher<T>(query: string, tag: string): () => Promise<T[]> {
+  return () => sanityFetch<T[]>(query, [tag]);
+}
+
+function singletonFetcher<T>(query: string, tag: string): () => Promise<T | null> {
+  return () => sanityFetch<T | null>(query, [tag]);
+}
+
+function paramFetcher<T>(
+  query: string,
+  tag: string,
+  paramName: string
+): (value: string) => Promise<T> {
+  return (value: string) => sanityFetch<T>(query, [tag], { [paramName]: value });
+}
+
 // ─── Team Member fetchers ────────────────────────────────────────────
 
-export function getTeamMembers(): Promise<TeamMember[]> {
-  return sanityFetch<TeamMember[]>(allTeamMembersQuery, ["teamMember"]);
-}
+export const getTeamMembers = collectionFetcher<TeamMember>(
+  allTeamMembersQuery,
+  "teamMember"
+);
 
-export function getTeamMemberBySlug(
-  slug: string
-): Promise<TeamMember | null> {
-  return sanityFetch<TeamMember | null>(teamMemberBySlugQuery, ["teamMember"], {
-    slug,
-  });
-}
+export const getTeamMemberBySlug = paramFetcher<TeamMember | null>(
+  teamMemberBySlugQuery,
+  "teamMember",
+  "slug"
+);
 
 // ─── Testimonial fetchers ────────────────────────────────────────────
 
-export function getTestimonials(): Promise<Testimonial[]> {
-  return sanityFetch<Testimonial[]>(allTestimonialsQuery, ["testimonial"]);
-}
+export const getTestimonials = collectionFetcher<Testimonial>(
+  allTestimonialsQuery,
+  "testimonial"
+);
 
 // ─── FAQ fetchers ────────────────────────────────────────────────────
 
-export function getFaqsByCategory(category: string): Promise<FAQ[]> {
-  return sanityFetch<FAQ[]>(faqsByCategoryQuery, ["faq"], { category });
-}
+export const getFaqsByCategory = paramFetcher<FAQ[]>(
+  faqsByCategoryQuery,
+  "faq",
+  "category"
+);
 
 // ─── Coverage Area fetchers ──────────────────────────────────────────
 
-export function getCoverageAreas(): Promise<CoverageArea[]> {
-  return sanityFetch<CoverageArea[]>(allCoverageAreasQuery, ["coverageArea"]);
-}
+export const getCoverageAreas = collectionFetcher<CoverageArea>(
+  allCoverageAreasQuery,
+  "coverageArea"
+);
 
 // ─── Company Stat fetchers ───────────────────────────────────────────
 
-export function getCompanyStats(): Promise<CompanyStat[]> {
-  return sanityFetch<CompanyStat[]>(allCompanyStatsQuery, ["companyStat"]);
-}
+export const getCompanyStats = collectionFetcher<CompanyStat>(
+  allCompanyStatsQuery,
+  "companyStat"
+);
 
 // ─── Company Value fetchers ──────────────────────────────────────────
 
-export function getCompanyValues(): Promise<CompanyValue[]> {
-  return sanityFetch<CompanyValue[]>(allCompanyValuesQuery, ["companyValue"]);
-}
+export const getCompanyValues = collectionFetcher<CompanyValue>(
+  allCompanyValuesQuery,
+  "companyValue"
+);
 
 // ─── Value Proposition fetchers ──────────────────────────────────────
 
-export function getValuePropositions(): Promise<ValueProposition[]> {
-  return sanityFetch<ValueProposition[]>(allValuePropositionsQuery, [
-    "valueProposition",
-  ]);
-}
+export const getValuePropositions = collectionFetcher<ValueProposition>(
+  allValuePropositionsQuery,
+  "valueProposition"
+);
 
 // ─── Singleton fetchers ──────────────────────────────────────────────
 
-export function getSiteSettings(): Promise<SiteSettings | null> {
-  return sanityFetch<SiteSettings | null>(siteSettingsQuery, ["siteSettings"]);
-}
+export const getSiteSettings = singletonFetcher<SiteSettings>(
+  siteSettingsQuery,
+  "siteSettings"
+);
 
-export function getHomePage(): Promise<HomePage | null> {
-  return sanityFetch<HomePage | null>(homePageQuery, ["homePage"]);
-}
+export const getHomePage = singletonFetcher<HomePage>(
+  homePageQuery,
+  "homePage"
+);
 
-export function getAboutPage(): Promise<AboutPage | null> {
-  return sanityFetch<AboutPage | null>(aboutPageQuery, ["aboutPage"]);
-}
+export const getAboutPage = singletonFetcher<AboutPage>(
+  aboutPageQuery,
+  "aboutPage"
+);
 
-export function getBuyPage(): Promise<BuyPage | null> {
-  return sanityFetch<BuyPage | null>(buyPageQuery, ["buyPage"]);
-}
+export const getBuyPage = singletonFetcher<BuyPage>(buyPageQuery, "buyPage");
 
-export function getSellPage(): Promise<SellPage | null> {
-  return sanityFetch<SellPage | null>(sellPageQuery, ["sellPage"]);
-}
+export const getSellPage = singletonFetcher<SellPage>(
+  sellPageQuery,
+  "sellPage"
+);
 
-export function getContactPage(): Promise<ContactPage | null> {
-  return sanityFetch<ContactPage | null>(contactPageQuery, ["contactPage"]);
-}
+export const getContactPage = singletonFetcher<ContactPage>(
+  contactPageQuery,
+  "contactPage"
+);
 
-export function getTeamPage(): Promise<TeamPage | null> {
-  return sanityFetch<TeamPage | null>(teamPageQuery, ["teamPage"]);
-}
+export const getTeamPage = singletonFetcher<TeamPage>(
+  teamPageQuery,
+  "teamPage"
+);
 
-export function getListingsPage(): Promise<ListingsPage | null> {
-  return sanityFetch<ListingsPage | null>(listingsPageQuery, ["listingsPage"]);
-}
+export const getListingsPage = singletonFetcher<ListingsPage>(
+  listingsPageQuery,
+  "listingsPage"
+);
 
-export function getLegalPageBySlug(slug: string): Promise<LegalPage | null> {
-  return sanityFetch<LegalPage | null>(legalPageBySlugQuery, ["legalPage"], {
-    slug,
-  });
-}
+export const getLegalPageBySlug = paramFetcher<LegalPage | null>(
+  legalPageBySlugQuery,
+  "legalPage",
+  "slug"
+);
 
 // ─── Guide page fetchers ────────────────────────────────────────────
 
-export function getBuyersGuidePage(): Promise<BuyersGuidePage | null> {
-  return sanityFetch<BuyersGuidePage | null>(buyersGuidePageQuery, [
-    "buyersGuidePage",
-  ]);
-}
+export const getBuyersGuidePage = singletonFetcher<BuyersGuidePage>(
+  buyersGuidePageQuery,
+  "buyersGuidePage"
+);
 
-export function getSellersGuidePage(): Promise<SellersGuidePage | null> {
-  return sanityFetch<SellersGuidePage | null>(sellersGuidePageQuery, [
-    "sellersGuidePage",
-  ]);
-}
+export const getSellersGuidePage = singletonFetcher<SellersGuidePage>(
+  sellersGuidePageQuery,
+  "sellersGuidePage"
+);
 
-export function getHomeEvaluationPage(): Promise<HomeEvaluationPage | null> {
-  return sanityFetch<HomeEvaluationPage | null>(homeEvaluationPageQuery, [
-    "homeEvaluationPage",
-  ]);
-}
+export const getHomeEvaluationPage = singletonFetcher<HomeEvaluationPage>(
+  homeEvaluationPageQuery,
+  "homeEvaluationPage"
+);

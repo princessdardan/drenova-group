@@ -6,14 +6,16 @@ import { LeadForm } from "@/components/sections/lead-form";
 import { Reveal } from "@/components/ui/reveal";
 import { StaggerChildren } from "@/components/ui/stagger-children";
 import { getHomePage } from "@/lib/sanity/fetch";
-import { urlFor } from "@/lib/sanity/image";
-import { isSanityImage } from "@/types/sanity";
+import { resolveSanityImageUrl } from "@/lib/sanity/image";
+import { makeMetadata } from "@/lib/seo";
+import { SectionShell } from "@/components/sections/section-shell";
+import { MediaCard } from "@/components/ui/media-card";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = makeMetadata({
   title: "Luxury Real Estate Across GTA and York Region",
   description:
     "Drenova Group — a modern real estate brokerage offering expert buying and selling services with a personal approach. Start your home journey today.",
-};
+});
 
 export default async function HomePage() {
   const homePage = await getHomePage();
@@ -37,25 +39,22 @@ export default async function HomePage() {
           homePage?.hero?.subtitle ??
           "Proud to be your trusted real estate expert, guiding you every step of the way."
         }
-      >
-        <ButtonLink
-          href={homePage?.hero?.buttonHref ?? "#contact"}
-          className="border-white text-white hover:bg-white hover:text-black w-full sm:w-auto"
-        >
-          {homePage?.hero?.buttonText ?? "Get Started"}
-        </ButtonLink>
-        {homePage?.hero?.secondaryButtonText && (
-          <ButtonLink
-            href={homePage?.hero?.secondaryButtonHref ?? "/listings"}
-            className="border-white text-white hover:bg-white hover:text-black w-full sm:w-auto"
-          >
-            {homePage.hero.secondaryButtonText}
-          </ButtonLink>
-        )}
-      </Hero>
+        actions={[
+          {
+            href: homePage?.hero?.buttonHref ?? "#contact",
+            label: homePage?.hero?.buttonText ?? "Get Started",
+            className: "border-white text-white hover:bg-white hover:text-black w-full sm:w-auto",
+          },
+          ...(homePage?.hero?.secondaryButtonText ? [{
+            href: homePage?.hero?.secondaryButtonHref ?? "/listings",
+            label: homePage.hero.secondaryButtonText,
+            className: "border-white text-white hover:bg-white hover:text-black w-full sm:w-auto",
+          }] : []),
+        ]}
+      />
 
       {/* ─── About Us CTA ─── */}
-      <section className="bg-background py-16 px-6 lg:py-24 lg:px-8 relative overflow-hidden">
+      <SectionShell bg="background" container="none" className="relative overflow-hidden">
         {/* Background watermark */}
         <p
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-display text-[10rem] lg:text-[18rem] font-bold uppercase text-foreground/[0.03] select-none pointer-events-none leading-none whitespace-nowrap"
@@ -88,16 +87,13 @@ export default async function HomePage() {
             <Reveal direction="right" delay={0.1}>
             <div className="relative aspect-[3/4] max-w-md mx-auto lg:mx-0 lg:ml-auto overflow-hidden rounded-lg">
               <Image
-                src={
-                  homePage?.aboutSection?.image &&
-                  isSanityImage(homePage.aboutSection.image)
-                    ? urlFor(homePage.aboutSection.image)
-                        .width(800)
-                        .height(1067)
-                        .fit("crop")
-                        .url()
-                    : "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=800&q=80"
-                }
+                src={resolveSanityImageUrl(homePage?.aboutSection?.image, {
+                  width: 800,
+                  height: 1067,
+                  fallback:
+                    "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=800&q=80",
+                  fit: "crop",
+                })}
                 alt={
                   homePage?.aboutSection?.image?.alt ??
                   "Real estate agent portrait"
@@ -110,10 +106,10 @@ export default async function HomePage() {
             </Reveal>
           </div>
         </div>
-      </section>
+      </SectionShell>
 
       {/* ─── Work With Us ─── */}
-      <section className="bg-surface py-16 px-6 lg:py-24 lg:px-8 relative overflow-hidden">
+      <SectionShell bg="surface" container="none" className="relative overflow-hidden">
         {/* Background watermark */}
         <p
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-display text-[10rem] lg:text-[18rem] font-bold uppercase text-foreground/[0.03] select-none pointer-events-none leading-none whitespace-nowrap"
@@ -129,22 +125,19 @@ export default async function HomePage() {
 
           <StaggerChildren className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 max-w-6xl mx-auto">
             {/* Card 1: Selling */}
-            <a
+            <MediaCard
+              variant="overlay"
               href={homePage?.ctaCard1?.buttonHref ?? "#contact"}
-              className="group flex flex-col overflow-hidden dimensional-card focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-            >
-              <div className="relative aspect-[16/10] overflow-hidden">
+              mediaClassName="aspect-[16/10] overflow-hidden"
+              image={
                 <Image
-                  src={
-                    homePage?.ctaCard1?.image &&
-                    isSanityImage(homePage.ctaCard1.image)
-                      ? urlFor(homePage.ctaCard1.image)
-                          .width(900)
-                          .height(675)
-                          .fit("crop")
-                          .url()
-                      : "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=900&q=80"
-                  }
+                  src={resolveSanityImageUrl(homePage?.ctaCard1?.image, {
+                    width: 900,
+                    height: 675,
+                    fallback:
+                      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=900&q=80",
+                    fit: "crop",
+                  })}
                   alt={
                     homePage?.ctaCard1?.image?.alt ?? "Luxury home exterior"
                   }
@@ -152,41 +145,30 @@ export default async function HomePage() {
                   className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
                   sizes="(max-width: 1024px) 100vw, 50vw"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-8 text-white">
-                  <h3 className="font-display text-2xl lg:text-3xl font-bold tracking-tight mb-2">
-                    {homePage?.ctaCard1?.title ??
-                      "The best selling experience"}
-                  </h3>
-                  {homePage?.ctaCard1?.subtitle && (
-                    <p className="text-sm text-white/80 mb-4">
-                      {homePage.ctaCard1.subtitle}
-                    </p>
-                  )}
-                  <span className="inline-flex items-center justify-center uppercase tracking-wider font-semibold border-2 border-white text-white h-12 px-8 text-sm transition-all duration-200 group-hover:bg-white group-hover:text-black">
-                    {homePage?.ctaCard1?.buttonText ?? "Get Started"}
-                  </span>
-                </div>
-              </div>
-            </a>
+              }
+              title={homePage?.ctaCard1?.title ?? "The best selling experience"}
+              subtitle={homePage?.ctaCard1?.subtitle}
+              footer={
+                <span className="inline-flex items-center justify-center uppercase tracking-wider font-semibold border-2 border-white text-white h-12 px-8 text-sm transition-all duration-200 group-hover:bg-white group-hover:text-black">
+                  {homePage?.ctaCard1?.buttonText ?? "Get Started"}
+                </span>
+              }
+            />
 
             {/* Card 2: Buying */}
-            <a
+            <MediaCard
+              variant="overlay"
               href={homePage?.ctaCard2?.buttonHref ?? "#contact"}
-              className="group flex flex-col overflow-hidden dimensional-card focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-            >
-              <div className="relative aspect-[16/10] overflow-hidden">
+              mediaClassName="aspect-[16/10] overflow-hidden"
+              image={
                 <Image
-                  src={
-                    homePage?.ctaCard2?.image &&
-                    isSanityImage(homePage.ctaCard2.image)
-                      ? urlFor(homePage.ctaCard2.image)
-                          .width(900)
-                          .height(675)
-                          .fit("crop")
-                          .url()
-                      : "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=900&q=80"
-                  }
+                  src={resolveSanityImageUrl(homePage?.ctaCard2?.image, {
+                    width: 900,
+                    height: 675,
+                    fallback:
+                      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=900&q=80",
+                    fit: "crop",
+                  })}
                   alt={
                     homePage?.ctaCard2?.image?.alt ?? "Luxury home interior"
                   }
@@ -194,26 +176,18 @@ export default async function HomePage() {
                   className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
                   sizes="(max-width: 1024px) 100vw, 50vw"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-8 text-white">
-                  <h3 className="font-display text-2xl lg:text-3xl font-bold tracking-tight mb-2">
-                    {homePage?.ctaCard2?.title ??
-                      "An unparalleled buying experience"}
-                  </h3>
-                  {homePage?.ctaCard2?.subtitle && (
-                    <p className="text-sm text-white/80 mb-4">
-                      {homePage.ctaCard2.subtitle}
-                    </p>
-                  )}
-                  <span className="inline-flex items-center justify-center uppercase tracking-wider font-semibold border-2 border-white text-white h-12 px-8 text-sm transition-all duration-200 group-hover:bg-white group-hover:text-black">
-                    {homePage?.ctaCard2?.buttonText ?? "Get Started"}
-                  </span>
-                </div>
-              </div>
-            </a>
+              }
+              title={homePage?.ctaCard2?.title ?? "An unparalleled buying experience"}
+              subtitle={homePage?.ctaCard2?.subtitle}
+              footer={
+                <span className="inline-flex items-center justify-center uppercase tracking-wider font-semibold border-2 border-white text-white h-12 px-8 text-sm transition-all duration-200 group-hover:bg-white group-hover:text-black">
+                  {homePage?.ctaCard2?.buttonText ?? "Get Started"}
+                </span>
+              }
+            />
           </StaggerChildren>
         </div>
-      </section>
+      </SectionShell>
 
       {/* ─── Contact Form ─── */}
       <section

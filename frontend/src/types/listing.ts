@@ -5,7 +5,7 @@ export interface Listing {
   address: string;
   city: string;
   province: string;
-  postalCode: string;
+  postalCode?: string;
   beds: number;
   baths: number;
   sqft: number;

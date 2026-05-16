@@ -10,12 +10,13 @@ import {
   type ListingFilters as Filters,
 } from "@/lib/ampre/fetch";
 import { getListingsPage } from "@/lib/sanity/fetch";
+import { makeMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = makeMetadata({
   title: "Listings",
   description:
     "Browse all available property listings from Drenova Group. Filter by location, price, bedrooms, and more.",
-};
+});
 
 interface ListingsPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;

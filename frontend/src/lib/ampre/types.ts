@@ -146,6 +146,8 @@ export interface SyncLogEntry {
   /** Number of listings that received at least one image */
   listingsWithImages: number;
   success: boolean;
+  skipped?: boolean;
+  skippedReason?: string;
   error?: string;
   batchErrors?: BatchError[];
 }

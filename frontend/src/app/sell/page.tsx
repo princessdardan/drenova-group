@@ -1,21 +1,23 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { Hero } from "@/components/sections/hero";
-import { SectionHeader } from "@/components/ui/section-header";
 import { Accordion } from "@/components/ui/accordion";
 import { ButtonLink } from "@/components/ui/button";
 import { CtaSection } from "@/components/sections/cta-section";
+import { SectionShell } from "@/components/sections/section-shell";
+import { SectionHeader } from "@/components/ui/section-header";
 import { Reveal } from "@/components/ui/reveal";
-import { StaggerChildren } from "@/components/ui/stagger-children";
 import { getSellPage, getFaqsByCategory, getTestimonials } from "@/lib/sanity/fetch";
-import { urlFor } from "@/lib/sanity/image";
-import { isSanityImage } from "@/types/sanity";
+import { resolveSanityImageUrl } from "@/lib/sanity/image";
+import { makeMetadata } from "@/lib/seo";
+import { BenefitsSection } from "@/components/sections/benefits-section";
+import { ProcessTimeline } from "@/components/sections/process-timeline";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = makeMetadata({
   title: "Sell",
   description:
     "Sell your home with confidence. Drenova Group delivers expert pricing, professional marketing, and skilled negotiation to maximize your return.",
-};
+});
 
 export default async function SellPage() {
   const [sellPage, sellerFaqs, allTestimonials] = await Promise.all([
@@ -24,9 +26,13 @@ export default async function SellPage() {
     getTestimonials(),
   ]);
 
-  const heroImage = sellPage?.hero?.image && isSanityImage(sellPage.hero.image)
-    ? urlFor(sellPage.hero.image).width(1920).height(1080).fit("crop").url()
-    : "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1600&q=80";
+  const heroImage = resolveSanityImageUrl(sellPage?.hero?.image, {
+    width: 1920,
+    height: 1080,
+    fallback:
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1600&q=80",
+    fit: "crop",
+  });
 
   const benefits = sellPage?.benefits ?? [];
   const processSteps = sellPage?.processSteps ?? [];
@@ -47,73 +53,51 @@ export default async function SellPage() {
         overline={sellPage?.hero?.overline ?? "For Sellers"}
         title={sellPage?.hero?.title ?? "Sell with Confidence"}
         subtitle={sellPage?.hero?.subtitle ?? "Expert pricing, professional marketing, and skilled negotiation — we handle every detail."}
-      >
-        <ButtonLink
-          href={sellPage?.hero?.buttonHref ?? "/contact"}
-          className="border-white text-white hover:bg-white hover:text-black"
-        >
-          {sellPage?.hero?.buttonText ?? "Get a Valuation"}
-        </ButtonLink>
-      </Hero>
+        actions={[
+          {
+            href: sellPage?.hero?.buttonHref ?? "/contact",
+            label: sellPage?.hero?.buttonText ?? "Get a Valuation",
+            className: "border-white text-white hover:bg-white hover:text-black",
+          }
+        ]}
+      />
 
       {/* ─── Why Sell With Us ─── */}
-      {benefits.length > 0 && (
-        <section className="bg-surface py-16 px-6 lg:py-24 lg:px-8">
-          <div className="max-w-7xl mx-auto">
-            <SectionHeader
-              overline={bh?.overline ?? "Why Choose Us"}
-              title={bh?.title ?? "The Drenova Difference"}
-              description={bh?.description}
-              className="mb-12"
-            />
-            <StaggerChildren className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {benefits.map((benefit) => (
-                <div key={benefit._key} className="bg-surface-alt p-6 lg:p-8 rounded-lg border border-border">
-                  <h3 className="text-lg font-semibold mb-3">{benefit.title}</h3>
-                  <p className="text-muted leading-7">{benefit.description}</p>
-                </div>
-              ))}
-            </StaggerChildren>
-          </div>
-        </section>
-      )}
+      <BenefitsSection
+        heading={bh}
+        fallback={{
+          overline: "Why Choose Us",
+          title: "The Drenova Difference",
+        }}
+        benefits={benefits}
+        bg="surface"
+      />
 
       {/* ─── Selling Process ─── */}
-      {processSteps.length > 0 && (
-        <section className="bg-background py-16 px-6 lg:py-24 lg:px-8">
-          <div className="max-w-7xl mx-auto">
-            <SectionHeader
-              overline={ph?.overline ?? "The Process"}
-              title={ph?.title ?? "How Selling Works"}
-              description={ph?.description ?? "A proven, step-by-step approach to getting top dollar for your home."}
-              className="mb-12"
-            />
-            <StaggerChildren className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-12">
-              {processSteps.map((step) => (
-                <div key={step._key}>
-                  <span className="font-display text-6xl lg:text-8xl font-bold text-accent/20">
-                    {step.stepNumber}
-                  </span>
-                  <div className="w-12 h-px bg-border mt-4 mb-6" />
-                  <h3 className="text-lg font-semibold mb-2">{step.title}</h3>
-                  <p className="text-base text-muted leading-7">{step.description}</p>
-                </div>
-              ))}
-            </StaggerChildren>
-          </div>
-        </section>
-      )}
+      <ProcessTimeline
+        heading={ph}
+        fallback={{
+          overline: "The Process",
+          title: "How Selling Works",
+          description: "A proven, step-by-step approach to getting top dollar for your home.",
+        }}
+        steps={processSteps}
+        columns="five"
+        bg="background"
+      />
 
       {/* ─── Valuation CTA Split Panel ─── */}
       <section className="bg-surface">
         <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[500px]">
           <div className="relative min-h-[400px] lg:min-h-0">
             <Image
-              src={
-                val?.image && isSanityImage(val.image)
-                  ? urlFor(val.image).width(1200).height(800).fit("crop").url()
-                  : "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=1200&q=80"
-              }
+              src={resolveSanityImageUrl(val?.image, {
+                width: 1200,
+                height: 800,
+                fallback:
+                  "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=1200&q=80",
+                fit: "crop",
+              })}
               alt={val?.image?.alt ?? "Beautiful home exterior"}
               fill
               className="object-cover"
@@ -141,43 +125,39 @@ export default async function SellPage() {
 
       {/* ─── Success Stories ─── */}
       {successStories.length > 0 && (
-        <section className="bg-background py-16 px-6 lg:py-24 lg:px-8">
-          <div className="max-w-3xl mx-auto">
-            <SectionHeader
-              overline={sh?.overline ?? "Success Stories"}
-              title={sh?.title ?? "Results That Speak"}
-              description={sh?.description}
-              className="mb-12"
-            />
-            <div className="space-y-8">
-              {successStories.map((story, i) => (
-                <blockquote key={i} className="border-l-2 border-accent pl-6">
-                  <p className="font-display text-lg italic leading-8">&ldquo;{story.quote}&rdquo;</p>
-                  <footer className="mt-3 text-sm text-muted">
-                    {story.name} — {story.detail}
-                  </footer>
-                </blockquote>
-              ))}
-            </div>
+        <SectionShell bg="background" container="sm">
+          <SectionHeader
+            overline={sh?.overline ?? "Success Stories"}
+            title={sh?.title ?? "Results That Speak"}
+            description={sh?.description}
+            className="mb-12"
+          />
+          <div className="space-y-8">
+            {successStories.map((story, i) => (
+              <blockquote key={i} className="border-l-2 border-accent pl-6">
+                <p className="font-display text-lg italic leading-8">&ldquo;{story.quote}&rdquo;</p>
+                <footer className="mt-3 text-sm text-muted">
+                  {story.name} — {story.detail}
+                </footer>
+              </blockquote>
+            ))}
           </div>
-        </section>
+        </SectionShell>
       )}
 
       {/* ─── FAQ ─── */}
       {sellerFaqs.length > 0 && (
-        <section className="bg-surface py-16 px-6 lg:py-24 lg:px-8">
-          <div className="max-w-3xl mx-auto">
-            <SectionHeader
-              overline={fh?.overline ?? "FAQs"}
-              title={fh?.title ?? "Common Seller Questions"}
-              description={fh?.description}
-              className="mb-12"
-            />
-            <Reveal>
-              <Accordion items={sellerFaqs} />
-            </Reveal>
-          </div>
-        </section>
+        <SectionShell bg="surface" container="sm">
+          <SectionHeader
+            overline={fh?.overline ?? "FAQs"}
+            title={fh?.title ?? "Common Seller Questions"}
+            description={fh?.description}
+            className="mb-12"
+          />
+          <Reveal>
+            <Accordion items={sellerFaqs} />
+          </Reveal>
+        </SectionShell>
       )}
 
       {/* ─── CTA ─── */}
@@ -185,14 +165,19 @@ export default async function SellPage() {
         title={cta?.title ?? "Ready to Sell?"}
         subtitle={cta?.subtitle ?? "Connect with an agent today and take the first step toward a successful sale."}
         bg="background"
-      >
-        <ButtonLink href={cta?.primaryButtonHref ?? "/contact"} variant="accent">
-          {cta?.primaryButtonText ?? "Get Your Home's Value"}
-        </ButtonLink>
-        <ButtonLink href={cta?.secondaryButtonHref ?? "/contact"} variant="minimal">
-          {cta?.secondaryButtonText ?? "Connect with an Agent"}
-        </ButtonLink>
-      </CtaSection>
+        actions={[
+          {
+            href: cta?.primaryButtonHref ?? "/contact",
+            label: cta?.primaryButtonText ?? "Get Your Home's Value",
+            variant: "accent",
+          },
+          {
+            href: cta?.secondaryButtonHref ?? "/contact",
+            label: cta?.secondaryButtonText ?? "Connect with an Agent",
+            variant: "minimal",
+          }
+        ]}
+      />
     </>
   );
 }

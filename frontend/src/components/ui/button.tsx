@@ -5,6 +5,9 @@ import { cn } from "@/lib/cn";
 type Variant = "primary" | "accent" | "minimal" | "glass";
 type Size = "sm" | "md" | "lg";
 
+export type ButtonLinkVariant = Variant;
+export type ButtonLinkSize = Size;
+
 interface ButtonProps extends ComponentProps<"button"> {
   variant?: Variant;
   size?: Size;

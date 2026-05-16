@@ -1,20 +1,16 @@
 import { type ComponentProps } from "react";
 import { cn } from "@/lib/cn";
+import { FormFieldShell } from "./form-field-shell";
 
-interface TextareaProps extends ComponentProps<"textarea"> {
+type TextareaProps = Omit<ComponentProps<"textarea">, "id"> & {
+  id: string;
   label: string;
   error?: string;
-}
+};
 
-export function Textarea({ label, error, id, className, ...props }: TextareaProps) {
+export function Textarea({ label, error, id, className, required, ...props }: TextareaProps) {
   return (
-    <div className="flex flex-col gap-2">
-      <label 
-        htmlFor={id} 
-        className="text-sm font-medium text-foreground tracking-wide"
-      >
-        {label}
-      </label>
+    <FormFieldShell id={id} label={label} error={error} required={required}>
       <textarea
         id={id}
         aria-invalid={!!error}
@@ -30,13 +26,9 @@ export function Textarea({ label, error, id, className, ...props }: TextareaProp
           error && "border-red-600 dark:border-red-400 focus-visible:ring-red-500/50",
           className
         )}
+        required={required}
         {...props}
       />
-      {error && (
-        <p id={`${id}-error`} className="text-sm text-red-600 dark:text-red-400">
-          {error}
-        </p>
-      )}
-    </div>
+    </FormFieldShell>
   );
 }

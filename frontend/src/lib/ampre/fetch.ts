@@ -1,5 +1,6 @@
 import { Redis } from "@upstash/redis";
 import { KV_LISTINGS_KEY } from "./compliance";
+import { sanitizeListingsForPublicRead } from "./sanitize";
 import type { Listing } from "@/types/listing";
 
 /**
@@ -40,11 +41,20 @@ export interface PaginatedListings {
 
 const DEFAULT_PAGE_SIZE = 12;
 
+export function findPublicListingBySlug(
+  listings: Listing[],
+  slug: string
+): Listing | null {
+  const sanitized = sanitizeListingsForPublicRead(listings);
+  return sanitized.find((l) => l.slug === slug) ?? null;
+}
+
 async function getAllListingsFromKV(): Promise<Listing[]> {
   if (!isKvConfigured()) return [];
 
   const redis = Redis.fromEnv();
-  return (await redis.get<Listing[]>(KV_LISTINGS_KEY)) ?? [];
+  const listings = (await redis.get<Listing[]>(KV_LISTINGS_KEY)) ?? [];
+  return sanitizeListingsForPublicRead(listings);
 }
 
 function applyFilters(listings: Listing[], filters: ListingFilters): Listing[] {
@@ -148,7 +158,7 @@ export async function getAmpreListingBySlug(
   slug: string
 ): Promise<Listing | null> {
   const all = await getAllListingsFromKV();
-  return all.find((l) => l.slug === slug) ?? null;
+  return findPublicListingBySlug(all, slug);
 }
 
 /**

@@ -1,24 +1,21 @@
 import { defineType, defineField } from "sanity";
+import {
+  imageWithAltField,
+  requiredStringField,
+  stringField,
+  textField,
+} from "../helpers/fields";
 
 export const heroSettings = defineType({
   name: "heroSettings",
   title: "Hero Settings",
   type: "object",
   fields: [
-    defineField({
+    imageWithAltField({
       name: "image",
       title: "Background Image",
-      type: "image",
-      options: { hotspot: true },
-      fields: [
-        {
-          name: "alt",
-          type: "string",
-          title: "Alt Text",
-          validation: (rule) => rule.required(),
-        },
-      ],
-      validation: (rule) => rule.required(),
+      required: true,
+      altRequired: true,
     }),
     defineField({
       name: "backgroundType",
@@ -41,46 +38,38 @@ export const heroSettings = defineType({
         "Direct URL to an MP4 video file. The image above serves as the poster/fallback frame.",
       hidden: ({ parent }) => parent?.backgroundType !== "video",
     }),
-    defineField({
+    stringField({
       name: "overline",
       title: "Overline",
-      type: "string",
       description: "Small text above the title (e.g. 'Welcome to Drenova Group')",
     }),
-    defineField({
+    requiredStringField({
       name: "title",
       title: "Title",
-      type: "string",
-      validation: (rule) => rule.required(),
     }),
-    defineField({
+    textField({
       name: "subtitle",
       title: "Subtitle",
-      type: "text",
       rows: 3,
     }),
-    defineField({
+    stringField({
       name: "buttonText",
       title: "Primary Button Text",
-      type: "string",
       description: "Label for the primary call-to-action button",
     }),
-    defineField({
+    stringField({
       name: "buttonHref",
       title: "Primary Button Link",
-      type: "string",
       description: "URL or path the primary button links to (e.g. /contact)",
     }),
-    defineField({
+    stringField({
       name: "secondaryButtonText",
       title: "Secondary Button Text",
-      type: "string",
       description: "Optional label for a secondary CTA button (e.g. 'View Listings')",
     }),
-    defineField({
+    stringField({
       name: "secondaryButtonHref",
       title: "Secondary Button Link",
-      type: "string",
       description: "URL or path the secondary button links to (e.g. /listings)",
     }),
   ],

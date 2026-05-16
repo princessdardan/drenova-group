@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { Hero } from "@/components/sections/hero";
 import { SectionHeader } from "@/components/ui/section-header";
-import { ButtonLink } from "@/components/ui/button";
 import { CtaSection } from "@/components/sections/cta-section";
 import { PortableTextRenderer } from "@/components/ui/portable-text";
 import { Reveal } from "@/components/ui/reveal";
@@ -13,14 +12,16 @@ import {
   getCompanyValues,
   getCoverageAreas,
 } from "@/lib/sanity/fetch";
-import { urlFor } from "@/lib/sanity/image";
-import { isSanityImage } from "@/types/sanity";
+import { resolveSanityImageUrl } from "@/lib/sanity/image";
+import { makeMetadata } from "@/lib/seo";
+import { SectionShell } from "@/components/sections/section-shell";
+import { CoverageAreaGrid } from "@/components/sections/coverage-area-grid";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = makeMetadata({
   title: "About",
   description:
     "Learn about Drenova Group — our story, mission, values, and the team behind our multi-state real estate brokerage.",
-};
+});
 
 export default async function AboutPage() {
   const [aboutPage, companyStats, companyValues, coverageAreas] =
@@ -48,7 +49,7 @@ export default async function AboutPage() {
       />
 
       {/* ─── Company Story ─── */}
-      <section className="bg-background relative overflow-hidden">
+      <SectionShell bg="background" container="none" className="relative overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-display text-[8rem] lg:text-[14rem] font-bold text-foreground/[0.03] uppercase whitespace-nowrap pointer-events-none select-none">
           About
         </div>
@@ -85,11 +86,7 @@ export default async function AboutPage() {
           </Reveal>
           <div className="relative min-h-[400px] lg:min-h-0">
             <Image
-              src={
-                aboutPage?.storyImage && isSanityImage(aboutPage.storyImage)
-                  ? urlFor(aboutPage.storyImage).width(1200).height(800).fit("crop").url()
-                  : "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=1200&q=80"
-              }
+              src={resolveSanityImageUrl(aboutPage?.storyImage, { width: 1200, height: 800, fallback: "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=1200&q=80", fit: "crop" })}
               alt={aboutPage?.storyImage?.alt ?? "Modern home interior"}
               fill
               className="object-cover"
@@ -97,76 +94,69 @@ export default async function AboutPage() {
             />
           </div>
         </div>
-      </section>
+      </SectionShell>
 
       {/* ─── Mission & Values ─── */}
-      <section className="bg-surface py-16 px-6 lg:py-24 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <SectionHeader
-            overline={vh?.overline ?? "Our Values"}
-            title={vh?.title ?? "What We Stand For"}
-            description={vh?.description ?? "The principles that guide every interaction, negotiation, and decision we make."}
-            className="mb-12"
-          />
-          <StaggerChildren className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {companyValues.map((value) => (
-              <div key={value._id} className="bg-surface-alt p-6 rounded-lg border border-border">
-                <h3 className="text-lg font-semibold mb-2">{value.title}</h3>
-                <p className="text-sm text-muted leading-6">{value.description}</p>
-              </div>
-            ))}
-          </StaggerChildren>
-        </div>
-      </section>
-
-      {/* ─── Coverage Areas ─── */}
-      <section className="bg-background py-16 px-6 lg:py-24 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <SectionHeader
-            overline={ch?.overline ?? "Where We Serve"}
-            title={ch?.title ?? "Multi-State Coverage"}
-            description={ch?.description ?? "Local expertise across five states and growing."}
-            className="mb-12"
-          />
-          <StaggerChildren className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-            {coverageAreas.map((area) => (
-              <div key={area._id} className="bg-surface-alt p-6 rounded-lg border border-border text-center">
-                <h3 className="font-semibold text-lg mb-1">{area.state}</h3>
-                <p className="text-sm text-muted">{area.cities.join(", ")}</p>
-              </div>
-            ))}
-          </StaggerChildren>
-        </div>
-      </section>
-
-      {/* ─── Stats ─── */}
-      <section className="bg-surface py-16 px-6 lg:py-24 lg:px-8">
-        <StaggerChildren className="max-w-5xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
-          {companyStats.map((stat) => (
-            <div key={stat._id}>
-              <p className="font-display text-4xl lg:text-6xl font-bold tracking-tight">
-                {stat.value}
-              </p>
-              <p className="text-sm text-muted mt-2 uppercase tracking-wider">
-                {stat.label}
-              </p>
+      <SectionShell bg="surface" container="lg">
+        <SectionHeader
+          overline={vh?.overline ?? "Our Values"}
+          title={vh?.title ?? "What We Stand For"}
+          description={vh?.description ?? "The principles that guide every interaction, negotiation, and decision we make."}
+          className="mb-12"
+        />
+        <StaggerChildren className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {companyValues.map((value) => (
+            <div key={value._id} className="bg-surface-alt p-6 rounded-lg border border-border">
+              <h3 className="text-lg font-semibold mb-2">{value.title}</h3>
+              <p className="text-sm text-muted leading-6">{value.description}</p>
             </div>
           ))}
         </StaggerChildren>
-      </section>
+      </SectionShell>
+
+      {/* ─── Coverage Areas ─── */}
+      <CoverageAreaGrid
+        heading={ch}
+        fallback={{
+          overline: "Where We Serve",
+          title: "Multi-State Coverage",
+          description: "Local expertise across five states and growing.",
+        }}
+        areas={coverageAreas}
+        bg="background"
+        interactive={false}
+      />
+
+      {/* ─── Stats ─── */}
+      <SectionShell bg="surface" container="md" containerClassName="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+        {companyStats.map((stat) => (
+          <div key={stat._id}>
+            <p className="font-display text-4xl lg:text-6xl font-bold tracking-tight">
+              {stat.value}
+            </p>
+            <p className="text-sm text-muted mt-2 uppercase tracking-wider">
+              {stat.label}
+            </p>
+          </div>
+        ))}
+      </SectionShell>
 
       {/* ─── CTA ─── */}
       <CtaSection
         title={cta?.title ?? "Meet Our Team"}
         subtitle={cta?.subtitle ?? "The people behind Drenova Group are what make us different."}
-      >
-        <ButtonLink href={cta?.primaryButtonHref ?? "/team"}>
-          {cta?.primaryButtonText ?? "View Team"}
-        </ButtonLink>
-        <ButtonLink href={cta?.secondaryButtonHref ?? "/contact"} variant="minimal">
-          {cta?.secondaryButtonText ?? "Get in Touch"}
-        </ButtonLink>
-      </CtaSection>
+        actions={[
+          {
+            href: cta?.primaryButtonHref ?? "/team",
+            label: cta?.primaryButtonText ?? "View Team",
+          },
+          {
+            href: cta?.secondaryButtonHref ?? "/contact",
+            label: cta?.secondaryButtonText ?? "Get in Touch",
+            variant: "minimal",
+          }
+        ]}
+      />
     </>
   );
 }

@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { FormStatus } from "@/components/ui/form-status";
 import { submitContactForm } from "@/app/actions/contact";
 
 const subjectOptions = [
@@ -57,14 +58,10 @@ export function ContactForm({ prefilledSubject }: ContactFormProps) {
 
   if (submitted) {
     return (
-      <div className="text-center py-12">
-        <h3 className="font-display text-2xl font-bold tracking-tight mb-2">
-          Thank You
-        </h3>
-        <p className="text-muted leading-7">
-          Your message has been sent. A member of our team will be in touch shortly.
-        </p>
-      </div>
+      <FormStatus
+        title="Thank You"
+        message="Your message has been sent. A member of our team will be in touch shortly."
+      />
     );
   }
 
@@ -109,7 +106,7 @@ export function ContactForm({ prefilledSubject }: ContactFormProps) {
         error={errors.message}
       />
       {serverError && (
-        <p className="text-sm text-red-600">{serverError}</p>
+        <FormStatus error message={serverError} />
       )}
       <Button
         type="submit"

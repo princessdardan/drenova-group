@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Hero } from "@/components/sections/hero";
 import { ContactForm } from "@/components/sections/contact-form";
 import { Reveal } from "@/components/ui/reveal";
 import { StaggerChildren } from "@/components/ui/stagger-children";
 import { getContactPage, getSiteSettings } from "@/lib/sanity/fetch";
+import { SectionShell } from "@/components/sections/section-shell";
+import { makeMetadata } from "@/lib/seo";
+import { MediaCard } from "@/components/ui/media-card";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = makeMetadata({
   title: "Contact",
   description:
     "Get in touch with Drenova Group. Reach out for buying, selling, or general real estate inquiries.",
-};
+});
 
 export default async function ContactPage() {
   const [contactPage, siteSettings] = await Promise.all([
@@ -38,81 +40,77 @@ export default async function ContactPage() {
       />
 
       {/* ─── Form + Office Info ─── */}
-      <section className="bg-background py-16 px-6 lg:py-24 lg:px-8">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
-          <Reveal>
-            <h2 className="font-display text-2xl lg:text-4xl font-bold tracking-tight mb-6">
-              Send Us a Message
-            </h2>
-            <ContactForm />
-          </Reveal>
+      <SectionShell bg="background" container="lg" containerClassName="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
+        <Reveal>
+          <h2 className="font-display text-2xl lg:text-4xl font-bold tracking-tight mb-6">
+            Send Us a Message
+          </h2>
+          <ContactForm />
+        </Reveal>
 
-          <Reveal delay={0.1}>
-            <h2 className="font-display text-2xl lg:text-4xl font-bold tracking-tight mb-6">
-              Office Information
-            </h2>
-            <div className="space-y-6">
-              <div>
-                <p className="text-xs uppercase tracking-widest font-medium text-muted mb-2">
-                  Address
-                </p>
-                <p className="leading-7 whitespace-pre-line">{address}</p>
-              </div>
-              <div>
-                <p className="text-xs uppercase tracking-widest font-medium text-muted mb-2">
-                  Phone
-                </p>
-                <p>
-                  <a href={`tel:${phone.replace(/[^\d+]/g, "")}`} className="hover:text-accent transition-colors">
-                    {phone}
-                  </a>
-                </p>
-              </div>
-              <div>
-                <p className="text-xs uppercase tracking-widest font-medium text-muted mb-2">
-                  Email
-                </p>
-                <p>
-                  <a href={`mailto:${email}`} className="hover:text-accent transition-colors">
-                    {email}
-                  </a>
-                </p>
-              </div>
-              <div>
-                <p className="text-xs uppercase tracking-widest font-medium text-muted mb-2">
-                  Office Hours
-                </p>
-                <p className="leading-7 whitespace-pre-line">{officeHours}</p>
-              </div>
+        <Reveal delay={0.1}>
+          <h2 className="font-display text-2xl lg:text-4xl font-bold tracking-tight mb-6">
+            Office Information
+          </h2>
+          <div className="space-y-6">
+            <div>
+              <p className="text-xs uppercase tracking-widest font-medium text-muted mb-2">
+                Address
+              </p>
+              <p className="leading-7 whitespace-pre-line">{address}</p>
             </div>
-          </Reveal>
-        </div>
-      </section>
+            <div>
+              <p className="text-xs uppercase tracking-widest font-medium text-muted mb-2">
+                Phone
+              </p>
+              <p>
+                <a href={`tel:${phone.replace(/[^\d+]/g, "")}`} className="hover:text-accent transition-colors">
+                  {phone}
+                </a>
+              </p>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-widest font-medium text-muted mb-2">
+                Email
+              </p>
+              <p>
+                <a href={`mailto:${email}`} className="hover:text-accent transition-colors">
+                  {email}
+                </a>
+              </p>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-widest font-medium text-muted mb-2">
+                Office Hours
+              </p>
+              <p className="leading-7 whitespace-pre-line">{officeHours}</p>
+            </div>
+          </div>
+        </Reveal>
+      </SectionShell>
 
       {/* ─── Quick Links ─── */}
-      <section className="bg-surface py-16 px-6 lg:py-24 lg:px-8">
-        <StaggerChildren className="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <SectionShell bg="surface" container="md">
+        <StaggerChildren className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {(quickLinks && quickLinks.length > 0 ? quickLinks : defaultQuickLinks).map((link) => (
-            <Link
+            <MediaCard
               key={link.href}
               href={link.href}
-              className="group block bg-surface-alt p-8 rounded-lg border border-border hover:shadow-lg transition-shadow"
-            >
-              {link.overline && (
+              className="group rounded-lg border border-border hover:shadow-lg transition-shadow"
+              contentClassName="p-8 lg:p-8"
+              badge={link.overline && (
                 <p className="text-xs uppercase tracking-widest font-medium text-accent mb-2">
                   {link.overline}
                 </p>
               )}
-              <h3 className="font-display text-xl font-bold tracking-tight mb-2">
-                {link.title}
-              </h3>
-              {link.description && (
-                <p className="text-sm text-muted">{link.description}</p>
-              )}
-            </Link>
+              title={link.title}
+              titleClassName="font-display text-xl font-bold tracking-tight mb-2"
+              subtitle={link.description}
+              subtitleClassName="text-sm text-muted mt-0"
+            />
           ))}
         </StaggerChildren>
-      </section>
+      </SectionShell>
     </>
   );
 }

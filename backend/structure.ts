@@ -14,20 +14,9 @@ import {
   TagIcon,
   EnvelopeIcon,
 } from "@sanity/icons";
+import { SINGLETON_TYPES } from "./schemaTypes/constants";
 
-export const SINGLETON_TYPES = [
-  "siteSettings",
-  "homePage",
-  "aboutPage",
-  "buyPage",
-  "sellPage",
-  "contactPage",
-  "teamPage",
-  "listingsPage",
-  "buyersGuidePage",
-  "sellersGuidePage",
-  "homeEvaluationPage",
-];
+export { SINGLETON_TYPES };
 
 export const structure: StructureResolver = (S) =>
   S.list()

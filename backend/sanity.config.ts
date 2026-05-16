@@ -2,22 +2,10 @@ import { defineConfig } from "sanity";
 import { structureTool } from "sanity/structure";
 import { visionTool } from "@sanity/vision";
 import { schemaTypes } from "./schemaTypes";
+import { SINGLETON_TYPES } from "./schemaTypes/constants";
 import { structure } from "./structure";
 
-// Singleton types are excluded from the "create new" menu in the Studio
-const SINGLETON_TYPES = [
-  "siteSettings",
-  "homePage",
-  "aboutPage",
-  "buyPage",
-  "sellPage",
-  "contactPage",
-  "teamPage",
-  "listingsPage",
-  "buyersGuidePage",
-  "sellersGuidePage",
-  "homeEvaluationPage",
-];
+const singletonTypes: readonly string[] = SINGLETON_TYPES;
 
 export default defineConfig({
   name: "drenova-group",
@@ -32,7 +20,7 @@ export default defineConfig({
     types: schemaTypes,
     templates: (templates) =>
       templates.filter(
-        ({ schemaType }) => !SINGLETON_TYPES.includes(schemaType),
+        ({ schemaType }) => !singletonTypes.includes(schemaType),
       ),
   },
 });

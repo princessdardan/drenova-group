@@ -1,5 +1,10 @@
 import { defineType, defineField, defineArrayMember } from "sanity";
 import { PinIcon } from "@sanity/icons";
+import {
+  orderAscOrdering,
+  orderField,
+  requiredStringField,
+} from "../helpers/fields";
 
 export const coverageArea = defineType({
   name: "coverageArea",
@@ -7,11 +12,9 @@ export const coverageArea = defineType({
   type: "document",
   icon: PinIcon,
   fields: [
-    defineField({
+    requiredStringField({
       name: "state",
       title: "State",
-      type: "string",
-      validation: (rule) => rule.required(),
     }),
     defineField({
       name: "cities",
@@ -20,20 +23,9 @@ export const coverageArea = defineType({
       of: [defineArrayMember({ type: "string" })],
       validation: (rule) => rule.required().min(1),
     }),
-    defineField({
-      name: "order",
-      title: "Sort Order",
-      type: "number",
-      initialValue: 0,
-    }),
+    orderField(),
   ],
-  orderings: [
-    {
-      title: "Sort Order",
-      name: "orderAsc",
-      by: [{ field: "order", direction: "asc" }],
-    },
-  ],
+  orderings: [orderAscOrdering()],
   preview: {
     select: { title: "state", cities: "cities" },
     prepare: ({ title, cities }) => ({
