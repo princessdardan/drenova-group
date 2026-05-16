@@ -149,7 +149,7 @@ export default async function HomePage() {
               title={homePage?.ctaCard1?.title ?? "The best selling experience"}
               subtitle={homePage?.ctaCard1?.subtitle}
               footer={
-                <span className="inline-flex items-center justify-center uppercase tracking-wider font-semibold border-2 border-white text-white h-12 px-8 text-sm transition-all duration-200 group-hover:bg-white group-hover:text-black">
+                <span className="flex lg:inline-flex items-center justify-center uppercase tracking-wider font-semibold border-2 border-accent text-accent lg:border-white lg:text-white h-12 px-8 text-sm transition-all duration-200 group-hover:bg-accent group-hover:text-white lg:group-hover:bg-white lg:group-hover:text-black w-full lg:w-auto">
                   {homePage?.ctaCard1?.buttonText ?? "Get Started"}
                 </span>
               }
@@ -180,7 +180,7 @@ export default async function HomePage() {
               title={homePage?.ctaCard2?.title ?? "An unparalleled buying experience"}
               subtitle={homePage?.ctaCard2?.subtitle}
               footer={
-                <span className="inline-flex items-center justify-center uppercase tracking-wider font-semibold border-2 border-white text-white h-12 px-8 text-sm transition-all duration-200 group-hover:bg-white group-hover:text-black">
+                <span className="flex lg:inline-flex items-center justify-center uppercase tracking-wider font-semibold border-2 border-accent text-accent lg:border-white lg:text-white h-12 px-8 text-sm transition-all duration-200 group-hover:bg-accent group-hover:text-white lg:group-hover:bg-white lg:group-hover:text-black w-full lg:w-auto">
                   {homePage?.ctaCard2?.buttonText ?? "Get Started"}
                 </span>
               }
