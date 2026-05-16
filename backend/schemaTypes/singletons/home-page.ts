@@ -1,5 +1,7 @@
 import { defineType, defineField } from "sanity";
 import { HomeIcon } from "@sanity/icons";
+import { heroField, imageWithAltField } from "../helpers/fields";
+import { fixedTitlePreview } from "../helpers/previews";
 
 export const homePage = defineType({
   name: "homePage",
@@ -7,12 +9,7 @@ export const homePage = defineType({
   type: "document",
   icon: HomeIcon,
   fields: [
-    defineField({
-      name: "hero",
-      title: "Hero Section",
-      type: "heroSettings",
-      validation: (rule) => rule.required(),
-    }),
+    heroField(),
     defineField({
       name: "aboutSection",
       title: "About Section",
@@ -42,16 +39,11 @@ export const homePage = defineType({
           type: "string",
           initialValue: "/about",
         }),
-        defineField({
+        imageWithAltField({
           name: "image",
           title: "Portrait Photo",
-          type: "image",
-          options: { hotspot: true },
           description:
             "Portrait photo of the agent/team for the about section.",
-          fields: [
-            { name: "alt", type: "string", title: "Alt Text" },
-          ],
         }),
       ],
     }),
@@ -66,14 +58,9 @@ export const homePage = defineType({
       title: "CTA Card 1 (Selling)",
       type: "object",
       fields: [
-        defineField({
+        imageWithAltField({
           name: "image",
           title: "Card Image",
-          type: "image",
-          options: { hotspot: true },
-          fields: [
-            { name: "alt", type: "string", title: "Alt Text" },
-          ],
         }),
         defineField({
           name: "title",
@@ -105,14 +92,9 @@ export const homePage = defineType({
       title: "CTA Card 2 (Buying)",
       type: "object",
       fields: [
-        defineField({
+        imageWithAltField({
           name: "image",
           title: "Card Image",
-          type: "image",
-          options: { hotspot: true },
-          fields: [
-            { name: "alt", type: "string", title: "Alt Text" },
-          ],
         }),
         defineField({
           name: "title",
@@ -159,7 +141,5 @@ export const homePage = defineType({
       ],
     }),
   ],
-  preview: {
-    prepare: () => ({ title: "Home Page" }),
-  },
+  preview: fixedTitlePreview("Home Page"),
 });

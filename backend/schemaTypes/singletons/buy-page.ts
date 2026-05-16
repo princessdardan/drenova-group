@@ -1,5 +1,13 @@
 import { defineType, defineField, defineArrayMember } from "sanity";
 import { BasketIcon } from "@sanity/icons";
+import {
+  ctaField,
+  heroField,
+  requiredStringField,
+  requiredTextField,
+  sectionHeadingField,
+} from "../helpers/fields";
+import { fixedTitlePreview, titlePreview } from "../helpers/previews";
 
 export const buyPage = defineType({
   name: "buyPage",
@@ -7,12 +15,7 @@ export const buyPage = defineType({
   type: "document",
   icon: BasketIcon,
   fields: [
-    defineField({
-      name: "hero",
-      title: "Hero Section",
-      type: "heroSettings",
-      validation: (rule) => rule.required(),
-    }),
+    heroField(),
     defineField({
       name: "benefits",
       title: "Benefits",
@@ -21,59 +24,31 @@ export const buyPage = defineType({
         defineArrayMember({
           type: "object",
           fields: [
-            defineField({
+            requiredStringField({
               name: "title",
               title: "Title",
-              type: "string",
-              validation: (rule) => rule.required(),
             }),
-            defineField({
+            requiredTextField({
               name: "description",
               title: "Description",
-              type: "text",
               rows: 3,
-              validation: (rule) => rule.required(),
             }),
           ],
-          preview: {
-            select: { title: "title" },
-          },
+          preview: titlePreview(),
         }),
       ],
     }),
-    defineField({
-      name: "benefitsHeading",
-      title: "Benefits Section Heading",
-      type: "sectionHeading",
-    }),
+    sectionHeadingField("benefitsHeading", "Benefits Section Heading"),
     defineField({
       name: "processSteps",
       title: "Buying Process Steps",
       type: "array",
       of: [defineArrayMember({ type: "processStep" })],
     }),
-    defineField({
-      name: "processHeading",
-      title: "Process Section Heading",
-      type: "sectionHeading",
-    }),
-    defineField({
-      name: "coverageHeading",
-      title: "Coverage Section Heading",
-      type: "sectionHeading",
-    }),
-    defineField({
-      name: "faqHeading",
-      title: "FAQ Section Heading",
-      type: "sectionHeading",
-    }),
-    defineField({
-      name: "cta",
-      title: "CTA Section",
-      type: "ctaSettings",
-    }),
+    sectionHeadingField("processHeading", "Process Section Heading"),
+    sectionHeadingField("coverageHeading", "Coverage Section Heading"),
+    sectionHeadingField("faqHeading", "FAQ Section Heading"),
+    ctaField(),
   ],
-  preview: {
-    prepare: () => ({ title: "Buy Page" }),
-  },
+  preview: fixedTitlePreview("Buy Page"),
 });

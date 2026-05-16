@@ -1,5 +1,12 @@
-import { defineType, defineField } from "sanity";
+import { defineType } from "sanity";
 import { StarIcon } from "@sanity/icons";
+import {
+  orderAscOrdering,
+  orderField,
+  requiredStringField,
+  requiredTextField,
+} from "../helpers/fields";
+import { titlePreview } from "../helpers/previews";
 
 export const companyValue = defineType({
   name: "companyValue",
@@ -7,34 +14,17 @@ export const companyValue = defineType({
   type: "document",
   icon: StarIcon,
   fields: [
-    defineField({
+    requiredStringField({
       name: "title",
       title: "Title",
-      type: "string",
-      validation: (rule) => rule.required(),
     }),
-    defineField({
+    requiredTextField({
       name: "description",
       title: "Description",
-      type: "text",
       rows: 3,
-      validation: (rule) => rule.required(),
     }),
-    defineField({
-      name: "order",
-      title: "Sort Order",
-      type: "number",
-      initialValue: 0,
-    }),
+    orderField(),
   ],
-  orderings: [
-    {
-      title: "Sort Order",
-      name: "orderAsc",
-      by: [{ field: "order", direction: "asc" }],
-    },
-  ],
-  preview: {
-    select: { title: "title" },
-  },
+  orderings: [orderAscOrdering()],
+  preview: titlePreview(),
 });

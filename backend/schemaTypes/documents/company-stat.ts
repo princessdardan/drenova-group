@@ -1,5 +1,11 @@
-import { defineType, defineField } from "sanity";
+import { defineType } from "sanity";
 import { BarChartIcon } from "@sanity/icons";
+import {
+  orderAscOrdering,
+  orderField,
+  requiredStringField,
+} from "../helpers/fields";
+import { titleSubtitlePreview } from "../helpers/previews";
 
 export const companyStat = defineType({
   name: "companyStat",
@@ -7,35 +13,18 @@ export const companyStat = defineType({
   type: "document",
   icon: BarChartIcon,
   fields: [
-    defineField({
+    requiredStringField({
       name: "label",
       title: "Label",
-      type: "string",
       description: "E.g. 'Years of Experience'",
-      validation: (rule) => rule.required(),
     }),
-    defineField({
+    requiredStringField({
       name: "value",
       title: "Value",
-      type: "string",
       description: "E.g. '15+', '500+'",
-      validation: (rule) => rule.required(),
     }),
-    defineField({
-      name: "order",
-      title: "Sort Order",
-      type: "number",
-      initialValue: 0,
-    }),
+    orderField(),
   ],
-  orderings: [
-    {
-      title: "Sort Order",
-      name: "orderAsc",
-      by: [{ field: "order", direction: "asc" }],
-    },
-  ],
-  preview: {
-    select: { title: "label", subtitle: "value" },
-  },
+  orderings: [orderAscOrdering()],
+  preview: titleSubtitlePreview("label", "value"),
 });

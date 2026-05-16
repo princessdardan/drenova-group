@@ -1,5 +1,13 @@
-import { defineType, defineField } from "sanity";
+import { defineType } from "sanity";
 import { DocumentTextIcon } from "@sanity/icons";
+import {
+  ctaField,
+  heroField,
+  imageWithAltField,
+  stringField,
+  textField,
+} from "../helpers/fields";
+import { fixedTitlePreview } from "../helpers/previews";
 
 export const sellersGuidePage = defineType({
   name: "sellersGuidePage",
@@ -7,46 +15,24 @@ export const sellersGuidePage = defineType({
   type: "document",
   icon: DocumentTextIcon,
   fields: [
-    defineField({
-      name: "hero",
-      title: "Hero Section",
-      type: "heroSettings",
-      validation: (rule) => rule.required(),
-    }),
-    defineField({
+    heroField(),
+    stringField({
       name: "guideTitle",
       title: "Guide Section Title",
-      type: "string",
       description: "Heading shown above the form (e.g. \"Your Guide to Sold\")",
     }),
-    defineField({
+    textField({
       name: "guideDescription",
       title: "Guide Description",
-      type: "text",
       rows: 4,
       description: "Paragraph(s) describing what the guide covers",
     }),
-    defineField({
+    imageWithAltField({
       name: "guideImage",
       title: "Guide Book Image",
-      type: "image",
-      options: { hotspot: true },
-      fields: [
-        defineField({
-          name: "alt",
-          title: "Alt Text",
-          type: "string",
-        }),
-      ],
       description: "Book mockup image shown beside the form",
     }),
-    defineField({
-      name: "cta",
-      title: "CTA Section",
-      type: "ctaSettings",
-    }),
+    ctaField(),
   ],
-  preview: {
-    prepare: () => ({ title: "Sellers Guide Page" }),
-  },
+  preview: fixedTitlePreview("Sellers Guide Page"),
 });
