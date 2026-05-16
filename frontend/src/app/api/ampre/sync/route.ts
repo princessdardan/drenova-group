@@ -1,6 +1,5 @@
 export const maxDuration = 120; // seconds — requires Vercel Pro plan
 
-import { NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import { Redis } from "@upstash/redis";
 import { fetchAmpreProperties, fetchAmpreMedia } from "@/lib/ampre/client";
@@ -9,8 +8,14 @@ import { mapAmpreToListing, filterPermittedProperties } from "@/lib/ampre/mapper
 import {
   KV_LISTINGS_KEY,
   KV_SYNC_LOG_PREFIX,
-  MAX_RETENTION_DAYS,
 } from "@/lib/ampre/compliance";
+import { jsonError, jsonOk } from "../../_lib/responses";
+import { hasValidSecret } from "../../_lib/secrets";
+import {
+  acquireRetrievalLock,
+  getFreshListings,
+  writeListingsWithRetention,
+} from "./sync-helpers";
 import type { Listing } from "@/types/listing";
 import type { AmpreMedia, SyncLogEntry, BatchError } from "@/lib/ampre/types";
 
@@ -49,15 +54,47 @@ async function handleSync(request: Request) {
 
   // Verify caller — Vercel Cron sends CRON_SECRET automatically
   const authHeader = request.headers.get("authorization");
-  const cronSecret = process.env.CRON_SECRET;
+  const bearerToken = authHeader?.startsWith("Bearer ")
+    ? authHeader.slice("Bearer ".length)
+    : null;
 
-  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!hasValidSecret(bearerToken, "CRON_SECRET")) {
+    return jsonError({ error: "Unauthorized" }, 401);
   }
 
   let logEntry: SyncLogEntry;
 
   try {
+    const redis = getRedis();
+    const lockAcquired = await acquireRetrievalLock(redis);
+
+    if (!lockAcquired) {
+      const durationMs = Date.now() - startTime;
+      logEntry = {
+        timestamp: new Date().toISOString(),
+        durationMs,
+        fetched: 0,
+        stored: 0,
+        purged: 0,
+        filteredDdf: 0,
+        mediaFetched: 0,
+        mediaErrors: 0,
+        listingsWithImages: 0,
+        success: true,
+        skipped: true,
+        skippedReason: "retrieval_recently_attempted",
+      };
+      const skippedLogKey = `${KV_SYNC_LOG_PREFIX}${Date.now()}`;
+      await redis.set(skippedLogKey, logEntry, { ex: 90 * 24 * 60 * 60 });
+
+      return jsonOk({
+        success: true,
+        skipped: true,
+        reason: "retrieval_recently_attempted",
+        durationMs,
+      });
+    }
+
     // Step 1: Fetch all brokerage listings from AMPRE
     const query = buildSyncQuery();
     const rawProperties = await fetchAmpreProperties(query);
@@ -115,10 +152,7 @@ async function handleSync(request: Request) {
 
     // Step 5: Load existing listings from Redis for stale-data comparison
     const existingListings =
-      (await getRedis().get<Listing[]>(KV_LISTINGS_KEY)) ?? [];
-
-    // Step 6: Store mapped listings in Redis
-    await getRedis().set(KV_LISTINGS_KEY, listings);
+      (await redis.get<Listing[]>(KV_LISTINGS_KEY)) ?? [];
 
     // Step 7: Count purged entries (listings in Redis but not in response)
     const newKeys = new Set(listings.map((l) => l.listingKey));
@@ -126,16 +160,9 @@ async function handleSync(request: Request) {
       (l) => !newKeys.has(l.listingKey)
     ).length;
 
-    // Step 8: Secondary safety net — flag any listings with lastSeen > 60 days
-    // (shouldn't happen since we replace the entire array, but defense-in-depth)
-    const retentionCutoff = new Date();
-    retentionCutoff.setDate(retentionCutoff.getDate() - MAX_RETENTION_DAYS);
-    const freshListings = listings.filter(
-      (l) => new Date(l.lastSeen) > retentionCutoff
-    );
-    if (freshListings.length < listings.length) {
-      await getRedis().set(KV_LISTINGS_KEY, freshListings);
-    }
+    // Step 8: Secondary safety net with storage-level retention fallback
+    const freshListings = getFreshListings(listings);
+    await writeListingsWithRetention(redis, freshListings);
 
     // Step 9: Log sync event to Redis (M1 fix)
     const durationMs = Date.now() - startTime;
@@ -153,12 +180,12 @@ async function handleSync(request: Request) {
       ...(batchErrors.length > 0 && { batchErrors }),
     };
     const logKey = `${KV_SYNC_LOG_PREFIX}${Date.now()}`;
-    await getRedis().set(logKey, logEntry, { ex: 90 * 24 * 60 * 60 }); // Retain logs 90 days
+    await redis.set(logKey, logEntry, { ex: 90 * 24 * 60 * 60 }); // Retain logs 90 days
 
     // Step 10: Bust ISR cache
     revalidateTag("ampre-listings", { expire: 3600 });
 
-    return NextResponse.json({
+    return jsonOk({
       success: true,
       fetched: rawProperties.length,
       stored: freshListings.length,
@@ -197,9 +224,6 @@ async function handleSync(request: Request) {
       // If Redis itself is down, we can't log — fail gracefully
     }
 
-    return NextResponse.json(
-      { error: "Sync failed", message: errorMessage },
-      { status: 500 }
-    );
+    return jsonError({ error: "Sync failed", message: errorMessage }, 500);
   }
 }

@@ -44,7 +44,7 @@ AMPRE API  →  Cron Sync Job  →  Upstash Redis  →  Fetch Layer  →  Next.j
 
 **Key architectural decisions:**
 
-- **Write path** — A Vercel Cron job (`POST /api/ampre/sync`) runs once daily at 06:00 UTC. It fetches all active listings from AMPRE, filters and maps them, and stores the result in Redis as a single JSON array.
+- **Write path** — A Vercel Cron job (`POST /api/ampre/sync`) runs once daily at 06:00 UTC. The route must acquire a Redis 24-hour retrieval lock before any AMPRE call, then fetches all active listings, filters and maps them, and stores the result in Redis as a single JSON array with a retention TTL.
 - **Read path** — Page requests read from Redis only. Filtering, sorting, and pagination happen in-memory on the server.
 - **Compliance** — The PropTx Data License governs data retrieval frequency, display rules, retention limits, and AI/ML prohibitions. Compliance is enforced at multiple layers.
 - **Sanity CMS** — Provides editorial metadata only (page titles, overlines, featured listing keys). Listing data itself lives exclusively in Redis.
@@ -253,33 +253,38 @@ The sync job is a `POST` route triggered by Vercel Cron. It is the **only code p
 
 Schedule: Daily at 06:00 UTC.
 
-### Authentication
+### Authentication And Retrieval Guard
 
 Vercel Cron sends the `CRON_SECRET` automatically as a Bearer token:
 
 ```typescript
 const authHeader = request.headers.get("authorization");
-const cronSecret = process.env.CRON_SECRET;
+const bearerToken = authHeader?.startsWith("Bearer ")
+  ? authHeader.slice("Bearer ".length)
+  : null;
 
-if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
-  return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+if (!hasValidSecret(bearerToken, "CRON_SECRET")) {
+  return jsonError({ error: "Unauthorized" }, 401);
 }
 ```
+
+After authentication, the route acquires `sync:ampre-retrieval-lock` in Redis with `NX` and a 24-hour expiry before calling AMPRE. If the lock already exists, the route returns a skipped response and does not call `fetchAmpreProperties()` or `fetchAmpreMedia()`.
 
 ### Pipeline Steps
 
 | Step | Action | Compliance Rule |
 |------|--------|----------------|
-| 1 | Build OData query via `buildSyncQuery()` | — |
-| 2 | Fetch all pages from AMPRE via `fetchAmpreProperties()` | C1 (single daily retrieval) |
-| 3 | Filter out `perm_adv === "N"` via `filterPermittedProperties()` | C2 (display control) |
-| 4 | Map to `Listing[]` via `mapAmpreToListing()` (handles `disp_addr` suppression) | C2 (address suppression) |
-| 5 | Load existing listings from Redis for stale-data comparison | — |
-| 6 | Store mapped listings in Redis (`listings:all`) | — |
-| 7 | Count purged entries (in Redis but not in AMPRE response) | C3 (retention) |
-| 8 | Secondary retention safety net — filter out listings with `lastSeen` > 60 days | C3 (retention) |
-| 9 | Log sync event to Redis (`sync:log:{timestamp}`, 90-day TTL) | M1 (audit) |
-| 10 | Bust ISR cache via `revalidateTag("ampre-listings")` | — |
+| 1 | Acquire 24-hour retrieval lock in Redis | C1 (single daily retrieval) |
+| 2 | Build OData query via `buildSyncQuery()` | — |
+| 3 | Fetch all pages from AMPRE via `fetchAmpreProperties()` | C1 (single daily retrieval) |
+| 4 | Filter out `perm_adv === "N"` via `filterPermittedProperties()` | C2 (display control) |
+| 5 | Fetch media for permitted listings | C1 (same guarded sync run) |
+| 6 | Map to `Listing[]` via `mapAmpreToListing()` (handles `disp_addr` suppression) | C2 (address suppression) |
+| 7 | Load existing listings from Redis for stale-data comparison | — |
+| 8 | Store fresh mapped listings in Redis (`listings:all`) with 60-day TTL, or delete when empty | C3 (retention) |
+| 9 | Count purged entries (in Redis but not in AMPRE response) | C3 (retention) |
+| 10 | Log sync event to Redis (`sync:log:{timestamp}`, 90-day TTL) | M1 (audit) |
+| 11 | Bust ISR cache via `revalidateTag("ampre-listings")` | — |
 
 ### Success Response
 
@@ -317,7 +322,7 @@ catch (error) {
 
 ### Redis Client Note
 
-The sync route instantiates `Redis.fromEnv()` at **module scope** (top of file), unlike the fetch layer which checks `isKvConfigured()` first. This means the sync route will throw at import time if Redis env vars are missing.
+The sync route lazily instantiates `Redis.fromEnv()` when handling an authorized request. If Redis is unavailable, sync fails closed before AMPRE retrieval so the 24-hour guard and retention writes cannot be bypassed.
 
 ---
 
@@ -340,7 +345,7 @@ Maps a raw AMPRE property to the internal `Listing` type. This function handles 
 | `UnparsedAddress` / `StreetNumber+Name+Suffix` | `address` | See [Address Building](#address-building) below; empty string if `disp_addr === "N"` |
 | `City` | `city` | Direct copy |
 | `StateOrProvince` | `province` | Direct copy |
-| `PostalCode` | `postalCode` | Direct copy |
+| `PostalCode` | `postalCode` | Omitted when `disp_addr === "N"` |
 | `BedroomsTotal` | `beds` | Default `0` |
 | `BathroomsTotalInteger` | `baths` | Default `0` |
 | `LivingArea` | `sqft` | Default `0` |
@@ -381,18 +386,13 @@ Prefers `UnparsedAddress` (the full address as a single string). Falls back to c
 ### Slug Generation
 
 ```typescript
-function buildSlug(property: AmpreProperty): string {
-  const address = buildAddress(property);
-  const parts = [address, property.City, property.StateOrProvince].filter(Boolean);
-  return parts
-    .join("-")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")   // Non-alphanumeric → hyphens
-    .replace(/^-|-$/g, "");          // Trim leading/trailing hyphens
+export function buildSafeListingSlug(listingKey: string): string {
+  const normalizedKey = slugify(listingKey);
+  return normalizedKey ? `listing-${normalizedKey}` : "listing";
 }
 ```
 
-Example: `"123 Maple Drive"` + `"Toronto"` + `"ON"` → `"123-maple-drive-toronto-on"`
+Example: `"W1234567"` → `"listing-w1234567"`. AMPRE slugs are intentionally opaque and `ListingKey`-derived for every listing so street addresses cannot leak into URLs if display permissions change later.
 
 ### Image Extraction
 
@@ -402,11 +402,13 @@ Images are sorted by the `Order` field (ascending, defaulting to `999` when unde
 
 When `disp_addr === "N"`:
 - `address` → empty string `""`
+- `postalCode` → `undefined`
 - `latitude` → `null`
 - `longitude` → `null`
+- `slug` → safe `ListingKey`-derived slug, never street-address-derived
 - `addressSuppressed` → `true`
 
-This happens at the mapping layer (server-side), so suppressed addresses never reach the client, page source, or meta tags.
+This happens at the mapping layer (server-side), and the Redis fetch layer also sanitizes legacy records before public reads. Suppressed addresses, postal codes, coordinates, and address-derived slugs must never reach the client, page source, sitemap, or meta tags.
 
 ### `filterPermittedProperties(properties: AmpreProperty[])`
 
@@ -435,15 +437,17 @@ All compliance rules derive from the PropTx Data License Agreement. See [`ampre-
 | `AI_PROHIBITION_NOTICE` | String | Warning that MLS data must not be used for AI/ML (§1.e) |
 | `REQUIRED_SELECT_FIELDS` | `["perm_adv", "disp_addr", "ModificationTimestamp"]` | Must be in every `$select` |
 | `KV_LISTINGS_KEY` | `"listings:all"` | Redis key for the listings array |
+| `KV_LISTINGS_TTL_SECONDS` | `MAX_RETENTION_DAYS * 24 * 60 * 60` | Storage-level retention fallback for listing data |
 | `KV_SYNC_LOG_PREFIX` | `"sync:log:"` | Redis key prefix for audit log entries |
+| `KV_SYNC_RETRIEVAL_LOCK_KEY` | `"sync:ampre-retrieval-lock"` | Redis lock preventing duplicate retrievals inside 24 hours |
 
 ### Rule Summary
 
 | Rule | Description | Where Enforced | How to Verify |
 |------|------------|----------------|---------------|
-| **C1** — Retrieval limit | Max 1 AMPRE API call per 24 hours | Cron schedule in `vercel.json` (daily at 06:00 UTC); `fetchAmpreProperties()` is only called from sync route | Check cron schedule; grep for imports of `client.ts` |
-| **C2** — Display fields | `perm_adv=N` → exclude entirely; `disp_addr=N` → suppress address/coords | `filterPermittedProperties()` in `mapper.ts`; `mapAmpreToListing()` address suppression; `PropertyCard` and detail page UI | Run sync, check that perm_adv=N listings are absent from Redis; check that disp_addr=N listings have empty addresses |
-| **C3** — Retention | Data must be refreshed or purged within 60 days of last retrieval | Sync route step 8: filters listings with `lastSeen` > `MAX_RETENTION_DAYS` | Check `lastSeen` timestamps in Redis data |
+| **C1** — Retrieval limit | Max 1 AMPRE retrieval per 24 hours | Cron schedule plus Redis `sync:ampre-retrieval-lock`; AMPRE client imports remain sync-route-only | Unit test lock helper; grep for imports of `client.ts`; verify duplicate sync skips before AMPRE calls |
+| **C2** — Display fields | `perm_adv=N` → exclude entirely; `disp_addr=N` → suppress address/postal/coords/URL precision | `filterPermittedProperties()` in `mapper.ts`; `mapAmpreToListing()` and public-read sanitizer; `PropertyCard` and detail page UI | Unit test mapper/sanitizer; page-source check for suppressed listing data |
+| **C3** — Retention | Data must be refreshed or purged within 60 days of last retrieval | Sync writes `listings:all` with 60-day TTL and deletes the key when no fresh listings remain | Unit test retention helper; check Redis TTL in deployed environment |
 | **M1** — Audit | All sync events must be logged with timestamps and counts | Sync route writes `SyncLogEntry` to Redis with 90-day TTL | Query Redis for `sync:log:*` keys |
 | **M2** — AI isolation | MLS data must not be used for AI/ML training or inference | `AI_PROHIBITION_NOTICE` constant; documented in `compliance.ts` | Code review — ensure no ML pipelines consume Redis listing data |
 | **M3** — Error logging | Errors must be logged even when sync fails | Sync route try/catch always attempts to write log entry | Trigger a sync failure, verify log entry exists |
@@ -472,8 +476,9 @@ Required environment variables:
 
 | Key Pattern | Type | TTL | Purpose | Producer | Consumer |
 |------------|------|-----|---------|----------|----------|
-| `listings:all` | `Listing[]` (JSON) | None | Full listing dataset | Sync route | Fetch layer |
+| `listings:all` | `Listing[]` (JSON) | 60 days | Full listing dataset with retention fallback | Sync route | Fetch layer |
 | `sync:log:{timestamp}` | `SyncLogEntry` (JSON) | 90 days | Audit log entry | Sync route | Monitoring |
+| `sync:ampre-retrieval-lock` | ISO timestamp | 24 hours | Prevent duplicate AMPRE retrievals | Sync route | Sync route |
 
 ### Graceful Degradation
 
@@ -487,9 +492,12 @@ function isKvConfigured(): boolean {
 async function getAllListingsFromKV(): Promise<Listing[]> {
   if (!isKvConfigured()) return [];
   const redis = Redis.fromEnv();
-  return (await redis.get<Listing[]>(KV_LISTINGS_KEY)) ?? [];
+  const listings = (await redis.get<Listing[]>(KV_LISTINGS_KEY)) ?? [];
+  return sanitizeListingsForPublicRead(listings);
 }
 ```
+
+The sanitizer rewrites legacy address-derived slugs to safe `ListingKey` slugs and removes address/postal/coordinate precision from suppressed records before any page, metadata, or sitemap can consume the data.
 
 ### Performance Characteristics
 
@@ -619,12 +627,12 @@ const listings = sorted.slice(start, start + pageSize);
 | Field | Type | Source | Notes |
 |-------|------|--------|-------|
 | `id` | `string` | `ListingKey` | Same as `listingKey` |
-| `slug` | `string` | Computed | Address + city + province, slugified |
+| `slug` | `string` | Computed | Safe `ListingKey`-derived slug, e.g. `listing-w1234567` |
 | `price` | `number` | `ListPrice` | |
 | `address` | `string` | `UnparsedAddress` or parts | Empty string when address suppressed |
 | `city` | `string` | `City` | |
 | `province` | `string` | `StateOrProvince` | |
-| `postalCode` | `string` | `PostalCode` | |
+| `postalCode` | `string` (optional) | `PostalCode` | Omitted when address is suppressed |
 | `beds` | `number` | `BedroomsTotal` | Default `0` |
 | `baths` | `number` | `BathroomsTotalInteger` | Default `0` |
 | `sqft` | `number` | `LivingArea` | Default `0` |
@@ -799,7 +807,7 @@ Generates title and description based on listing data. **Respects address suppre
 When `addressSuppressed === true`:
 - Hero image alt: `"Property in {city}, {province}"` (no street address)
 - Title: Shows price only (`formatPrice(listing.price)`)
-- Location line: `"{city}, {province} {postalCode}"` (no street address)
+- Location line: `"{city}, {province}"` (no street address or postal code)
 - Normal display: `"{address} — {price}"` for title, full address for location
 
 ---

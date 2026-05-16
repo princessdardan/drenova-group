@@ -44,5 +44,15 @@ export const REQUIRED_SELECT_FIELDS = [
 /** Redis key for the listings array */
 export const KV_LISTINGS_KEY = "listings:all";
 
+/** Storage-level expiry for the listings array; stale MLS data must self-purge. */
+export const KV_LISTINGS_TTL_SECONDS = MAX_RETENTION_DAYS * 24 * 60 * 60;
+
 /** Redis key prefix for sync log entries */
 export const KV_SYNC_LOG_PREFIX = "sync:log:";
+
+/** Redis key used to prevent more than one AMPRE retrieval per 24-hour window. */
+export const KV_SYNC_RETRIEVAL_LOCK_KEY = "sync:ampre-retrieval-lock";
+
+/** Lock TTL matching the PropTx 24-hour retrieval ceiling. */
+export const KV_SYNC_RETRIEVAL_LOCK_SECONDS =
+  MAX_RETRIEVAL_INTERVAL_HOURS * 60 * 60;
