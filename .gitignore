@@ -12,6 +12,7 @@ node_modules
 
 # testing
 coverage
+frontend/test-results
 
 # next.js
 .next/
@@ -48,3 +49,5 @@ backend/dist/
 scripts/data/
 .claude/projects/-Users-dardan-Documents-drenova-group/memory/feedback_ampre_single_fetch.md
 docs/sanity-deploy-hooks-guide.md
+
+flowchart/
