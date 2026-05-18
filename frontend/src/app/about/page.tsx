@@ -6,12 +6,7 @@ import { CtaSection } from "@/components/sections/cta-section";
 import { PortableTextRenderer } from "@/components/ui/portable-text";
 import { Reveal } from "@/components/ui/reveal";
 import { StaggerChildren } from "@/components/ui/stagger-children";
-import {
-  getAboutPage,
-  getCompanyStats,
-  getCompanyValues,
-  getCoverageAreas,
-} from "@/lib/sanity/fetch";
+import { getAboutPage } from "@/lib/sanity/fetch";
 import { resolveSanityImageUrl } from "@/lib/sanity/image";
 import { makeMetadata } from "@/lib/seo";
 import { SectionShell } from "@/components/sections/section-shell";
@@ -24,18 +19,15 @@ export const metadata: Metadata = makeMetadata({
 });
 
 export default async function AboutPage() {
-  const [aboutPage, companyStats, companyValues, coverageAreas] =
-    await Promise.all([
-      getAboutPage(),
-      getCompanyStats(),
-      getCompanyValues(),
-      getCoverageAreas(),
-    ]);
+  const aboutPage = await getAboutPage();
 
   const hero = aboutPage?.hero;
   const vh = aboutPage?.valuesHeading;
   const ch = aboutPage?.coverageHeading;
   const cta = aboutPage?.cta;
+  const companyValues = aboutPage?.values ?? [];
+  const coverageAreas = aboutPage?.coverageAreas ?? [];
+  const companyStats = aboutPage?.stats ?? [];
 
   return (
     <>
@@ -106,7 +98,7 @@ export default async function AboutPage() {
         />
         <StaggerChildren className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {companyValues.map((value) => (
-            <div key={value._id} className="bg-surface-alt p-6 rounded-lg border border-border">
+            <div key={value._key} className="bg-surface-alt p-6 rounded-lg border border-border">
               <h3 className="text-lg font-semibold mb-2">{value.title}</h3>
               <p className="text-sm text-muted leading-6">{value.description}</p>
             </div>
@@ -130,7 +122,7 @@ export default async function AboutPage() {
       {/* ─── Stats ─── */}
       <SectionShell bg="surface" container="md" containerClassName="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
         {companyStats.map((stat) => (
-          <div key={stat._id}>
+          <div key={stat._key}>
             <p className="font-display text-4xl lg:text-6xl font-bold tracking-tight">
               {stat.value}
             </p>

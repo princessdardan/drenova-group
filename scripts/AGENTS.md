@@ -8,7 +8,7 @@ Utility scripts for Sanity seeding, AMPRE diagnostics, and Ralph automation. Mos
 
 | Task | Location | Notes |
 |------|----------|-------|
-| Seed CMS content | `seed-sanity.ts` | 900+ line idempotent Sanity writer using deterministic IDs and image uploads |
+| Seed CMS content | `seed-sanity.ts` | Dry-run-first Sanity writer that clones current published content into deterministic IDs |
 | AMPRE media diagnostics | `diagnose-media.mjs` | Ad hoc MLS/media investigation helper |
 | AMPRE sample fetch | `fetch-ampre-sample.mjs` | Direct AMPRE request helper; compliance-sensitive |
 | Web API replication | `web-api-replicate.mjs` | Utility script for API replication work |
@@ -16,8 +16,10 @@ Utility scripts for Sanity seeding, AMPRE diagnostics, and Ralph automation. Mos
 
 ## CONVENTIONS
 
-- `npm run seed` executes `tsx scripts/seed-sanity.ts` from the repo root.
+- `npm run seed` executes `tsx scripts/seed-sanity.ts` from the repo root and dry-runs by default; add `-- --commit` only when ready to write generated payloads.
+- `npm run migrate:page-content` dry-runs the standalone-to-singleton Sanity content migration; add `-- --commit` only when ready to write and delete migrated standalone docs.
 - `seed-sanity.ts` uses `createOrReplace` with deterministic `_id` values; keep it idempotent.
+- `seed-sanity.ts` is a clone-current-published-content tool, not an empty-dataset bootstrap with hardcoded dummy content.
 - Sanity write scripts need `SANITY_API_WRITE_TOKEN` and target project `apggi8zn`, dataset `production`.
 - Seeded singleton IDs must match Studio singleton IDs and schema type names.
 - Portable Text helper output must include `_type`, `_key`, `children`, and `markDefs`.
@@ -35,6 +37,8 @@ Utility scripts for Sanity seeding, AMPRE diagnostics, and Ralph automation. Mos
 
 ```bash
 npm run seed
+npm run migrate:page-content
+npm run migrate:page-content -- --commit
 node scripts/diagnose-media.mjs
 node scripts/fetch-ampre-sample.mjs
 node scripts/web-api-replicate.mjs

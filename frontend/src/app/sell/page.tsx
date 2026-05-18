@@ -7,7 +7,7 @@ import { CtaSection } from "@/components/sections/cta-section";
 import { SectionShell } from "@/components/sections/section-shell";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Reveal } from "@/components/ui/reveal";
-import { getSellPage, getFaqsByCategory, getTestimonials } from "@/lib/sanity/fetch";
+import { getSellPage } from "@/lib/sanity/fetch";
 import { resolveSanityImageUrl } from "@/lib/sanity/image";
 import { makeMetadata } from "@/lib/seo";
 import { BenefitsSection } from "@/components/sections/benefits-section";
@@ -20,11 +20,7 @@ export const metadata: Metadata = makeMetadata({
 });
 
 export default async function SellPage() {
-  const [sellPage, sellerFaqs, allTestimonials] = await Promise.all([
-    getSellPage(),
-    getFaqsByCategory("seller"),
-    getTestimonials(),
-  ]);
+  const sellPage = await getSellPage();
 
   const heroImage = resolveSanityImageUrl(sellPage?.hero?.image, {
     width: 1920,
@@ -36,7 +32,8 @@ export default async function SellPage() {
 
   const benefits = sellPage?.benefits ?? [];
   const processSteps = sellPage?.processSteps ?? [];
-  const successStories = allTestimonials.filter((t) => t.detail.includes("Sold")).slice(0, 3);
+  const successStories = sellPage?.testimonials ?? [];
+  const sellerFaqs = sellPage?.faqs ?? [];
   const bh = sellPage?.benefitsHeading;
   const ph = sellPage?.processHeading;
   const val = sellPage?.valuation;
@@ -133,8 +130,8 @@ export default async function SellPage() {
             className="mb-12"
           />
           <div className="space-y-8">
-            {successStories.map((story, i) => (
-              <blockquote key={i} className="border-l-2 border-accent pl-6">
+            {successStories.map((story) => (
+              <blockquote key={story._key} className="border-l-2 border-accent pl-6">
                 <p className="font-display text-lg italic leading-8">&ldquo;{story.quote}&rdquo;</p>
                 <footer className="mt-3 text-sm text-muted">
                   {story.name} — {story.detail}

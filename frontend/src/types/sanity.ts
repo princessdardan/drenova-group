@@ -1,4 +1,6 @@
 import type { PortableTextBlock } from "@portabletext/types";
+import type { TeamMember } from "./team";
+import type { Testimonial } from "./testimonial";
 
 // Type guard to check if a value is a SanityImage object (vs a plain URL string)
 export function isSanityImage(
@@ -92,44 +94,38 @@ export interface NavigationLink {
 // --- Document types ---
 
 export interface FAQ {
-  _id: string;
+  _key: string;
   _type: "faq";
   question: string;
   answer: string;
-  category: "buyer" | "seller";
-  order: number;
 }
 
 export interface CoverageArea {
-  _id: string;
+  _key: string;
   _type: "coverageArea";
   state: string;
   cities: string[];
-  order: number;
 }
 
 export interface CompanyStat {
-  _id: string;
+  _key: string;
   _type: "companyStat";
   label: string;
   value: string;
-  order: number;
 }
 
 export interface CompanyValue {
-  _id: string;
+  _key: string;
   _type: "companyValue";
   title: string;
   description: string;
-  order: number;
 }
 
 export interface ValueProposition {
-  _id: string;
+  _key: string;
   _type: "valueProposition";
   title: string;
   description: string;
-  order: number;
 }
 
 export interface LegalPage {
@@ -174,6 +170,7 @@ export interface HomePage {
     buttonHref?: string;
     image?: SanityImage;
   };
+  valuePropositions?: ValueProposition[];
   workWithUsHeading?: string;
   ctaCard1?: {
     image?: SanityImage;
@@ -204,7 +201,10 @@ export interface AboutPage {
   storyTitle?: string;
   storyImage?: SanityImage;
   valuesHeading?: SectionHeading;
+  values?: CompanyValue[];
   coverageHeading?: SectionHeading;
+  coverageAreas?: CoverageArea[];
+  stats?: CompanyStat[];
   cta?: CtaSettings;
 }
 
@@ -217,7 +217,9 @@ export interface BuyPage {
   processSteps?: ProcessStep[];
   processHeading?: SectionHeading;
   coverageHeading?: SectionHeading;
+  coverageAreas?: CoverageArea[];
   faqHeading?: SectionHeading;
+  faqs?: FAQ[];
   cta?: CtaSettings;
 }
 
@@ -231,7 +233,9 @@ export interface SellPage {
   processHeading?: SectionHeading;
   valuation?: ValuationSection;
   storiesHeading?: SectionHeading;
+  testimonials?: Testimonial[];
   faqHeading?: SectionHeading;
+  faqs?: FAQ[];
   cta?: CtaSettings;
 }
 
@@ -252,6 +256,7 @@ export interface TeamPage {
   _id: string;
   _type: "teamPage";
   hero: HeroSettings;
+  members?: TeamMember[];
   cta?: CtaSettings;
 }
 

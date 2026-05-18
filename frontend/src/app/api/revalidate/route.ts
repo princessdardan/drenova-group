@@ -6,13 +6,6 @@ import { hasValidHeaderSecret } from "../_lib/secrets";
 
 const TAG_MAP: Record<string, string[]> = {
   listing: ["listing"],
-  teamMember: ["teamMember"],
-  testimonial: ["testimonial"],
-  faq: ["faq"],
-  coverageArea: ["coverageArea"],
-  companyStat: ["companyStat"],
-  companyValue: ["companyValue"],
-  valueProposition: ["valueProposition"],
   siteSettings: ["siteSettings"],
   homePage: ["homePage"],
   aboutPage: ["aboutPage"],

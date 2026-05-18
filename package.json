@@ -13,6 +13,7 @@
     "lint": "npm -w frontend run lint",
     "studio": "npm -w backend run dev",
     "seed": "tsx scripts/seed-sanity.ts",
+    "migrate:page-content": "tsx scripts/migrate-page-content.ts",
     "test:e2e": "npm -w frontend run test:e2e"
   },
   "devDependencies": {

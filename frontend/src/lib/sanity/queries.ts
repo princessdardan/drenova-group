@@ -8,59 +8,6 @@ import {
   teamMemberProjection,
 } from "./query-fragments";
 
-// ─── Team Member queries ──────────────────────────────────────────────
-export const allTeamMembersQuery = groq`*[_type == "teamMember"] | order(name asc) ${teamMemberProjection}`;
-
-export const teamMemberBySlugQuery = groq`*[_type == "teamMember" && slug.current == $slug][0] ${teamMemberProjection}`;
-
-// ─── Testimonial queries ──────────────────────────────────────────────
-export const allTestimonialsQuery = groq`*[_type == "testimonial"] {
-  quote,
-  name,
-  detail
-}`;
-
-// ─── FAQ queries ──────────────────────────────────────────────────────
-export const faqsByCategoryQuery = groq`*[_type == "faq" && category == $category] | order(order asc) {
-  _id,
-  question,
-  answer,
-  category,
-  order
-}`;
-
-// ─── Coverage Area queries ────────────────────────────────────────────
-export const allCoverageAreasQuery = groq`*[_type == "coverageArea"] | order(order asc) {
-  _id,
-  state,
-  cities,
-  order
-}`;
-
-// ─── Company Stat queries ─────────────────────────────────────────────
-export const allCompanyStatsQuery = groq`*[_type == "companyStat"] | order(order asc) {
-  _id,
-  label,
-  value,
-  order
-}`;
-
-// ─── Company Value queries ────────────────────────────────────────────
-export const allCompanyValuesQuery = groq`*[_type == "companyValue"] | order(order asc) {
-  _id,
-  title,
-  description,
-  order
-}`;
-
-// ─── Value Proposition queries ────────────────────────────────────────
-export const allValuePropositionsQuery = groq`*[_type == "valueProposition"] | order(order asc) {
-  _id,
-  title,
-  description,
-  order
-}`;
-
 // ─── Singleton queries ───────────────────────────────────────────────
 
 export const siteSettingsQuery = groq`*[_type == "siteSettings"][0] {
@@ -91,6 +38,12 @@ export const homePageQuery = groq`*[_type == "homePage"][0] {
     buttonHref,
     image
   },
+  valuePropositions[] {
+    _key,
+    _type,
+    title,
+    description
+  },
   workWithUsHeading,
   ctaCard1 {
     image,
@@ -120,7 +73,25 @@ export const aboutPageQuery = groq`*[_type == "aboutPage"][0] {
   storyTitle,
   storyImage,
   valuesHeading,
+  values[] {
+    _key,
+    _type,
+    title,
+    description
+  },
   coverageHeading,
+  coverageAreas[] {
+    _key,
+    _type,
+    state,
+    cities
+  },
+  stats[] {
+    _key,
+    _type,
+    label,
+    value
+  },
   cta
 }`;
 
@@ -132,7 +103,19 @@ export const buyPageQuery = groq`*[_type == "buyPage"][0] {
   ${processStepsProjection},
   processHeading,
   coverageHeading,
+  coverageAreas[] {
+    _key,
+    _type,
+    state,
+    cities
+  },
   faqHeading,
+  faqs[] {
+    _key,
+    _type,
+    question,
+    answer
+  },
   cta
 }`;
 
@@ -145,7 +128,20 @@ export const sellPageQuery = groq`*[_type == "sellPage"][0] {
   processHeading,
   valuation,
   storiesHeading,
+  testimonials[] {
+    _key,
+    _type,
+    quote,
+    name,
+    detail
+  },
   faqHeading,
+  faqs[] {
+    _key,
+    _type,
+    question,
+    answer
+  },
   cta
 }`;
 
@@ -164,6 +160,7 @@ export const contactPageQuery = groq`*[_type == "contactPage"][0] {
 export const teamPageQuery = groq`*[_type == "teamPage"][0] {
   ${documentProjection},
   hero,
+  members[] ${teamMemberProjection},
   cta
 }`;
 

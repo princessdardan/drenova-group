@@ -3,7 +3,7 @@ import { Hero } from "@/components/sections/hero";
 import { TeamMemberCard } from "@/components/ui/team-member-card";
 import { CtaSection } from "@/components/sections/cta-section";
 import { StaggerChildren } from "@/components/ui/stagger-children";
-import { getTeamMembers, getTeamPage } from "@/lib/sanity/fetch";
+import { getTeamPage } from "@/lib/sanity/fetch";
 import { makeMetadata } from "@/lib/seo";
 import { SectionShell } from "@/components/sections/section-shell";
 
@@ -14,13 +14,11 @@ export const metadata: Metadata = makeMetadata({
 });
 
 export default async function TeamPage() {
-  const [teamMembers, teamPage] = await Promise.all([
-    getTeamMembers(),
-    getTeamPage(),
-  ]);
+  const teamPage = await getTeamPage();
 
   const hero = teamPage?.hero;
   const cta = teamPage?.cta;
+  const teamMembers = teamPage?.members ?? [];
 
   return (
     <>
@@ -38,7 +36,7 @@ export default async function TeamPage() {
       <SectionShell bg="background" container="lg">
         <StaggerChildren className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
           {teamMembers.map((member) => (
-            <TeamMemberCard key={member.slug} member={member} />
+            <TeamMemberCard key={member._key} member={member} />
           ))}
         </StaggerChildren>
       </SectionShell>

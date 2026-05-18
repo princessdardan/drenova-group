@@ -1,16 +1,12 @@
 import { defineType } from "sanity";
 import { BarChartIcon } from "@sanity/icons";
-import {
-  orderAscOrdering,
-  orderField,
-  requiredStringField,
-} from "../helpers/fields";
+import { requiredStringField } from "../helpers/fields";
 import { titleSubtitlePreview } from "../helpers/previews";
 
 export const companyStat = defineType({
   name: "companyStat",
   title: "Company Stat",
-  type: "document",
+  type: "object",
   icon: BarChartIcon,
   fields: [
     requiredStringField({
@@ -23,8 +19,6 @@ export const companyStat = defineType({
       title: "Value",
       description: "E.g. '15+', '500+'",
     }),
-    orderField(),
   ],
-  orderings: [orderAscOrdering()],
   preview: titleSubtitlePreview("label", "value"),
 });

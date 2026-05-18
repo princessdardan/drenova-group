@@ -1,4 +1,4 @@
-import { defineType, defineField } from "sanity";
+import { defineType, defineField, defineArrayMember } from "sanity";
 import { UsersIcon } from "@sanity/icons";
 
 export const teamPage = defineType({
@@ -12,6 +12,12 @@ export const teamPage = defineType({
       title: "Hero Section",
       type: "heroSettings",
       validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: "members",
+      title: "Team Members",
+      type: "array",
+      of: [defineArrayMember({ type: "teamMember" })],
     }),
     defineField({
       name: "cta",

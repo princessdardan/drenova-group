@@ -25,7 +25,7 @@ export function CoverageAreaGrid({ heading, fallback, areas, bg = "surface", int
       <StaggerChildren className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
         {areas.map((area) => (
           <div
-            key={area._id}
+            key={area._key}
             className={`bg-surface-alt p-6 rounded-lg border border-border text-center ${
               interactive ? "hover:shadow-lg transition-shadow" : ""
             }`}

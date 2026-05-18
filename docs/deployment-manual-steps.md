@@ -97,6 +97,15 @@ The privacy and terms pages currently show fallback boilerplate.
 
 Deploy the Studio so content editors can access it from anywhere.
 
+If upgrading an existing dataset from the old standalone page-content documents (`teamMember`, `testimonial`, `faq`, `coverageArea`, `companyStat`, `companyValue`, `valueProposition`), migrate the published content into singleton page arrays before deploying this schema/frontend change:
+
+```bash
+npm run migrate:page-content
+SANITY_API_WRITE_TOKEN=<token> npm run migrate:page-content -- --commit
+```
+
+Run the dry-run first and confirm the queued counts. The commit step patches `homePage`, `aboutPage`, `buyPage`, `sellPage`, and `teamPage`, then deletes the migrated standalone documents. This ordering matters because the frontend routes, including `/team/[slug]`, read those items from embedded singleton fields after this refactor.
+
 ```bash
 npm -w backend run deploy
 ```

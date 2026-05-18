@@ -1,4 +1,4 @@
-import { defineType, defineField } from "sanity";
+import { defineType, defineField, defineArrayMember } from "sanity";
 import { HomeIcon } from "@sanity/icons";
 import { heroField, imageWithAltField } from "../helpers/fields";
 import { fixedTitlePreview } from "../helpers/previews";
@@ -46,6 +46,12 @@ export const homePage = defineType({
             "Portrait photo of the agent/team for the about section.",
         }),
       ],
+    }),
+    defineField({
+      name: "valuePropositions",
+      title: "Value Propositions",
+      type: "array",
+      of: [defineArrayMember({ type: "valueProposition" })],
     }),
     defineField({
       name: "workWithUsHeading",

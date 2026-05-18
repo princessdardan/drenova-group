@@ -4,6 +4,8 @@ export const documentProjection = groq`_id,
   _type`;
 
 export const teamMemberProjection = groq`{
+  _key,
+  _type,
   "slug": slug.current,
   name,
   role,

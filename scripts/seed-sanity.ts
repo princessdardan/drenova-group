@@ -1,13 +1,22 @@
 /**
- * Seed script for Sanity CMS — migrates dummy data from frontend into Sanity documents.
+ * Seed script for Sanity CMS.
  *
- * Usage: npm run seed
+ * Dry-run by default:
+ *   npm run seed
  *
- * Idempotent: uses createOrReplace with deterministic _id values.
- * Images are uploaded to Sanity's asset pipeline from Unsplash URLs.
+ * Write the generated payloads:
+ *   npm run seed -- --commit
+ *
+ * The generated payloads are built from currently published Sanity documents.
+ * Legacy standalone page-only documents are normalized into the embedded array
+ * fields used by the current singleton schemas. Listing documents are never
+ * seeded here because the frontend listings flow is AMPRE/Redis-backed.
  */
 
-import { createClient, type IdentifiedSanityDocumentStub } from "@sanity/client";
+import { createClient, type SanityClient } from "@sanity/client";
+
+const COMMIT_FLAG = "--commit";
+const isCommit = process.argv.includes(COMMIT_FLAG);
 
 const client = createClient({
   projectId: "apggi8zn",
@@ -17,915 +26,794 @@ const client = createClient({
   token: process.env.SANITY_API_WRITE_TOKEN,
 });
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
+type SanitySlug = {
+  _type?: "slug";
+  current?: string;
+};
 
-async function uploadImageFromUrl(
-  url: string,
-  filename: string
-): Promise<{ _type: "image"; asset: { _type: "reference"; _ref: string }; alt?: string }> {
-  const response = await fetch(url);
-  if (!response.ok) throw new Error(`Failed to fetch image: ${url}`);
-  const buffer = Buffer.from(await response.arrayBuffer());
+type SourceDocument = {
+  _id: string;
+  _type: string;
+  slug?: SanitySlug;
+  order?: number;
+  category?: string;
+} & Record<string, unknown>;
 
-  const asset = await client.assets.upload("image", buffer, {
-    filename,
-    contentType: "image/jpeg",
-  });
+type SeedDocument = {
+  _id: string;
+  _type: string;
+} & Record<string, unknown>;
 
+type SourcePayload = {
+  siteSettings?: SourceDocument;
+  homePage?: SourceDocument;
+  aboutPage?: SourceDocument;
+  buyPage?: SourceDocument;
+  sellPage?: SourceDocument;
+  contactPage?: SourceDocument;
+  teamPage?: SourceDocument;
+  listingsPage?: SourceDocument;
+  buyersGuidePage?: SourceDocument;
+  sellersGuidePage?: SourceDocument;
+  homeEvaluationPage?: SourceDocument;
+  teamMembers: SourceDocument[];
+  testimonials: SourceDocument[];
+  faqs: SourceDocument[];
+  coverageAreas: SourceDocument[];
+  companyValues: SourceDocument[];
+  companyStats: SourceDocument[];
+  valuePropositions: SourceDocument[];
+  legalPages: SourceDocument[];
+};
+
+type LiveHomeEvaluationContent = {
+  overline: string;
+  title: string;
+  subtitle: string;
+  formHeading: string;
+  formDescription: string;
+};
+
+type EmbeddedSummary = Record<string, number>;
+
+type BuildSummary = {
+  documents: SeedDocument[];
+  embeddedCounts: EmbeddedSummary;
+  sourceCounts: Record<string, number>;
+  excludedCounts: Record<string, number>;
+};
+
+const singletonTypes = [
+  "siteSettings",
+  "homePage",
+  "aboutPage",
+  "buyPage",
+  "sellPage",
+  "contactPage",
+  "teamPage",
+  "listingsPage",
+  "buyersGuidePage",
+  "sellersGuidePage",
+  "homeEvaluationPage",
+] as const;
+
+const legacySourceTypes = [
+  "teamMember",
+  "testimonial",
+  "faq",
+  "coverageArea",
+  "companyValue",
+  "companyStat",
+  "valueProposition",
+] as const;
+
+const publishedDocumentFilter =
+  '!(_id in path("drafts.**")) && !(_id in path("versions.**"))';
+
+const sourceQuery = `{
+  "siteSettings": *[_id == "siteSettings" && _type == "siteSettings" && ${publishedDocumentFilter}][0],
+  "homePage": *[_id == "homePage" && _type == "homePage" && ${publishedDocumentFilter}][0],
+  "aboutPage": *[_id == "aboutPage" && _type == "aboutPage" && ${publishedDocumentFilter}][0],
+  "buyPage": *[_id == "buyPage" && _type == "buyPage" && ${publishedDocumentFilter}][0],
+  "sellPage": *[_id == "sellPage" && _type == "sellPage" && ${publishedDocumentFilter}][0],
+  "contactPage": *[_id == "contactPage" && _type == "contactPage" && ${publishedDocumentFilter}][0],
+  "teamPage": *[_id == "teamPage" && _type == "teamPage" && ${publishedDocumentFilter}][0],
+  "listingsPage": *[_id == "listingsPage" && _type == "listingsPage" && ${publishedDocumentFilter}][0],
+  "buyersGuidePage": *[_id == "buyersGuidePage" && _type == "buyersGuidePage" && ${publishedDocumentFilter}][0],
+  "sellersGuidePage": *[_id == "sellersGuidePage" && _type == "sellersGuidePage" && ${publishedDocumentFilter}][0],
+  "homeEvaluationPage": *[_id == "homeEvaluationPage" && _type == "homeEvaluationPage" && ${publishedDocumentFilter}][0],
+  "teamMembers": *[_type == "teamMember" && ${publishedDocumentFilter}] | order(name asc),
+  "testimonials": *[_type == "testimonial" && ${publishedDocumentFilter}] | order(order asc, name asc),
+  "faqs": *[_type == "faq" && ${publishedDocumentFilter}] | order(order asc, question asc),
+  "coverageAreas": *[_type == "coverageArea" && ${publishedDocumentFilter}] | order(order asc, state asc),
+  "companyValues": *[_type == "companyValue" && ${publishedDocumentFilter}] | order(order asc, title asc),
+  "companyStats": *[_type == "companyStat" && ${publishedDocumentFilter}] | order(order asc, label asc),
+  "valuePropositions": *[_type == "valueProposition" && ${publishedDocumentFilter}] | order(order asc, title asc),
+  "legalPages": *[_type == "legalPage" && ${publishedDocumentFilter}] | order(slug.current asc, title asc)
+}`;
+
+const staleStringMarkers = [
+  "info@drenovagroup.com",
+  "123 Main Street",
+  "Chicago, IL 60601",
+  "Illinois, Arizona, Wisconsin, Indiana, and Michigan",
+  "Operating across Illinois, Arizona, Wisconsin, Indiana, and Michigan",
+  "Semir Drenova",
+  "Elena Vasquez",
+  "Marcus Chen",
+  "Sarah Mitchell",
+  "David Okafor",
+  "123 Maple Drive",
+  "456 Oak Avenue",
+  "789 Elm Street",
+  "321 Birch Lane",
+  "555 Cedar Court",
+  "102 Desert Ridge",
+  "88 Lakeshore Drive",
+  "240 Prairie Path",
+  "17 Summit Place",
+  "400 River Road",
+  "62 Harbor View",
+  "905 Michigan Avenue",
+  "Sold in Naperville, IL",
+  "Sold in Chicago, IL",
+  "Purchased in Scottsdale, AZ",
+  "Purchased in Evanston, IL",
+  "Investment Property, Phoenix, AZ",
+  "laws of the State of Illinois, without regard to its conflict of law provisions",
+  "Featured Properties",
+  "Explore Our Listings",
+] as const;
+
+const staleTestimonialDetails = new Set<string>([
+  "Sold in Naperville, IL",
+  "Sold in Chicago, IL",
+  "Purchased in Scottsdale, AZ",
+  "Purchased in Evanston, IL",
+  "Investment Property, Phoenix, AZ",
+]);
+
+const legacyIllinoisGoverningLaw =
+  "laws of the State of Illinois, without regard to its conflict of law provisions";
+
+const currentOntarioGoverningLaw =
+  "laws of Ontario and the federal laws of Canada applicable therein, without regard to conflict of law provisions";
+
+const liveHomeEvaluationUrl = "https://drenova.ca/home-evaluation";
+
+const staleRegexMarkers = [
+  /\(555\)\s?100-000\d/,
+  /\(555\)\s?123-4567/,
+  /https:\/\/images\.unsplash\.com\//,
+  /listing-(?:1|2|3|4|5|6|7|8|9|10|11|12)\b/,
+] as const;
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function stripSanityMetadata(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map((item) => stripSanityMetadata(item));
+  }
+
+  if (!isRecord(value)) {
+    return value;
+  }
+
+  const clean: Record<string, unknown> = {};
+
+  for (const [key, item] of Object.entries(value)) {
+    if (["_createdAt", "_updatedAt", "_rev", "_system"].includes(key)) {
+      continue;
+    }
+
+    const normalized = stripSanityMetadata(item);
+    if (normalized !== undefined) {
+      clean[key] = normalized;
+    }
+  }
+
+  return clean;
+}
+
+function stripUndefined(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map((item) => stripUndefined(item)).filter((item) => item !== undefined);
+  }
+
+  if (!isRecord(value)) {
+    return value;
+  }
+
+  const clean: Record<string, unknown> = {};
+  for (const [key, item] of Object.entries(value)) {
+    if (item === undefined) {
+      continue;
+    }
+
+    const normalized = stripUndefined(item);
+    if (normalized !== undefined) {
+      clean[key] = normalized;
+    }
+  }
+
+  return clean;
+}
+
+function normalizeKey(value: string, fallback: string): string {
+  const normalized = value
+    .toLowerCase()
+    .replace(/[^a-z0-9-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+
+  return normalized || fallback;
+}
+
+function hasCurrentSlug(value: unknown): value is { current: string } {
+  return isRecord(value) && typeof value.current === "string" && value.current.length > 0;
+}
+
+function documentKey(document: SourceDocument, fallbackPrefix: string): string {
+  const slug = hasCurrentSlug(document.slug) ? document.slug.current : undefined;
+  const base = slug ?? document._id.replace(/^drafts\./, "");
+  return normalizeKey(base, `${fallbackPrefix}-${normalizeKey(document._id, "source")}`);
+}
+
+function ensureSourceDocument(
+  payload: SourcePayload,
+  type: (typeof singletonTypes)[number]
+): SourceDocument {
+  const document = payload[type];
+  if (!document) {
+    throw new Error(`Published singleton ${type} was not found in Sanity.`);
+  }
+
+  return document;
+}
+
+function cloneAsSeedDocument(source: SourceDocument, id: string, type: string): SeedDocument {
+  const stripped = stripSanityMetadata(source);
+  if (!isRecord(stripped)) {
+    throw new Error(`Unable to normalize source document ${source._id}.`);
+  }
+
+  return stripUndefined({ ...stripped, _id: id, _type: type }) as SeedDocument;
+}
+
+function buildSeedDocument(
+  source: SourceDocument,
+  id: string,
+  type: string,
+  fields: readonly string[]
+): SeedDocument {
+  const document: SeedDocument = { _id: id, _type: type };
+
+  for (const field of fields) {
+    if (field in source) {
+      document[field] = stripSanityMetadata(source[field]);
+    }
+  }
+
+  return stripUndefined(document) as SeedDocument;
+}
+
+function buildHomeEvaluationFromLive(content: LiveHomeEvaluationContent): SeedDocument {
   return {
-    _type: "image",
-    asset: { _type: "reference", _ref: asset._id },
+    _id: "homeEvaluationPage",
+    _type: "homeEvaluationPage",
+    hero: {
+      _type: "heroSettings",
+      overline: content.overline,
+      title: content.title,
+      subtitle: content.subtitle,
+    },
+    formHeading: content.formHeading,
+    formDescription: content.formDescription,
   };
 }
 
-async function imageWithAlt(url: string, filename: string, alt: string) {
-  const image = await uploadImageFromUrl(url, filename);
-  image.alt = alt;
-  return image;
+function pickEmbeddedFields(
+  document: SourceDocument,
+  objectType: string,
+  fallbackPrefix: string,
+  fields: readonly string[]
+): Record<string, unknown> {
+  const item: Record<string, unknown> = {
+    _key: documentKey(document, fallbackPrefix),
+    _type: objectType,
+  };
+
+  for (const field of fields) {
+    if (field in document) {
+      item[field] = stripSanityMetadata(document[field]);
+    }
+  }
+
+  return stripUndefined(item) as Record<string, unknown>;
 }
 
-async function createOrReplaceMany(
-  documents: IdentifiedSanityDocumentStub<Record<string, unknown>>[]
-) {
+function cleanExistingArray(value: unknown, prefix: string): Record<string, unknown>[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.flatMap((item, index) => {
+    const stripped = stripSanityMetadata(item);
+    if (!isRecord(stripped)) {
+      return [];
+    }
+
+    const key = typeof stripped._key === "string" ? stripped._key : `${prefix}-${index + 1}`;
+    return [stripUndefined({ ...stripped, _key: key }) as Record<string, unknown>];
+  });
+}
+
+function legacyOrExisting(
+  legacyItems: Record<string, unknown>[],
+  singleton: SourceDocument,
+  field: string,
+  prefix: string
+): Record<string, unknown>[] {
+  return legacyItems.length > 0 ? legacyItems : cleanExistingArray(singleton[field], prefix);
+}
+
+function normalizeLegalPage(
+  document: SourceDocument,
+  currentEmail: string | undefined,
+  currentPhone: string | undefined
+): SeedDocument {
+  const cloned = cloneAsSeedDocument(
+    document,
+    hasCurrentSlug(document.slug) ? `legal-${document.slug.current}` : document._id,
+    "legalPage"
+  );
+
+  return normalizeKnownLegacyLegalMarkers(cloned, currentEmail, currentPhone) as SeedDocument;
+}
+
+function normalizeKnownLegacyLegalMarkers(
+  value: unknown,
+  currentEmail: string | undefined,
+  currentPhone: string | undefined
+): unknown {
+  if (typeof value === "string") {
+    let normalized = value;
+
+    if (currentEmail) {
+      normalized = normalized.replace(/info@drenovagroup\.com/g, currentEmail);
+    }
+
+    if (currentPhone) {
+      normalized = normalized.replace(/\(555\)\s?\d{3}-\d{4}/g, currentPhone);
+    }
+
+    normalized = normalized.replace(legacyIllinoisGoverningLaw, currentOntarioGoverningLaw);
+
+    return normalized;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((item) => normalizeKnownLegacyLegalMarkers(item, currentEmail, currentPhone));
+  }
+
+  if (!isRecord(value)) {
+    return value;
+  }
+
+  const normalized: Record<string, unknown> = {};
+  for (const [key, item] of Object.entries(value)) {
+    normalized[key] = normalizeKnownLegacyLegalMarkers(item, currentEmail, currentPhone);
+  }
+
+  return normalized;
+}
+
+function isStaleLegacyTestimonial(document: SourceDocument): boolean {
+  return typeof document.detail === "string" && staleTestimonialDetails.has(document.detail);
+}
+
+function validateNoStaleSeedContent(documents: SeedDocument[]) {
+  const serialized = JSON.stringify(documents);
+  const failures: string[] = [];
+
+  for (const marker of staleStringMarkers) {
+    if (serialized.includes(marker)) {
+      failures.push(marker);
+    }
+  }
+
+  for (const marker of staleRegexMarkers) {
+    if (marker.test(serialized)) {
+      failures.push(marker.source);
+    }
+  }
+
+  const oldCoverageStates = new Set(["Illinois", "Arizona", "Wisconsin", "Indiana", "Michigan"]);
   for (const document of documents) {
-    await client.createOrReplace(document);
+    for (const field of ["coverageAreas", "values", "valuePropositions"]) {
+      const items = document[field];
+      if (!Array.isArray(items)) {
+        continue;
+      }
+
+      for (const item of items) {
+        if (isRecord(item) && typeof item.state === "string" && oldCoverageStates.has(item.state)) {
+          failures.push(`${document._id}.${field}.${item.state}`);
+        }
+      }
+    }
+  }
+
+  if (failures.length > 0) {
+    throw new Error(
+      `Generated seed payload still contains known stale seed marker(s): ${failures.join(", ")}`
+    );
   }
 }
 
-function textToPortableText(text: string) {
-  return text.split("\n\n").map((paragraph, i) => ({
-    _type: "block" as const,
-    _key: `block-${i}`,
-    style: "normal" as const,
-    children: [{ _type: "span" as const, _key: `span-${i}`, text: paragraph, marks: [] }],
-    markDefs: [],
-  }));
-}
+function buildSeedPayload(source: SourcePayload): BuildSummary {
+  const siteSettings = buildSeedDocument(
+    ensureSourceDocument(source, "siteSettings"),
+    "siteSettings",
+    "siteSettings",
+    [
+      "companyName",
+      "tagline",
+      "phone",
+      "email",
+      "address",
+      "officeHours",
+      "navigationLinks",
+      "socialLinks",
+    ]
+  );
+  const homePage = buildSeedDocument(ensureSourceDocument(source, "homePage"), "homePage", "homePage", [
+    "hero",
+    "aboutSection",
+    "valuePropositions",
+    "workWithUsHeading",
+    "ctaCard1",
+    "ctaCard2",
+    "contactForm",
+  ]);
+  const aboutPage = buildSeedDocument(ensureSourceDocument(source, "aboutPage"), "aboutPage", "aboutPage", [
+    "hero",
+    "storyContent",
+    "storyOverline",
+    "storyTitle",
+    "storyImage",
+    "valuesHeading",
+    "values",
+    "coverageHeading",
+    "coverageAreas",
+    "stats",
+    "cta",
+  ]);
+  const buyPage = buildSeedDocument(ensureSourceDocument(source, "buyPage"), "buyPage", "buyPage", [
+    "hero",
+    "benefits",
+    "benefitsHeading",
+    "processSteps",
+    "processHeading",
+    "coverageHeading",
+    "coverageAreas",
+    "faqHeading",
+    "faqs",
+    "cta",
+  ]);
+  const sellPage = buildSeedDocument(ensureSourceDocument(source, "sellPage"), "sellPage", "sellPage", [
+    "hero",
+    "benefits",
+    "benefitsHeading",
+    "processSteps",
+    "processHeading",
+    "valuation",
+    "storiesHeading",
+    "testimonials",
+    "faqHeading",
+    "faqs",
+    "cta",
+  ]);
+  const contactPage = buildSeedDocument(
+    ensureSourceDocument(source, "contactPage"),
+    "contactPage",
+    "contactPage",
+    ["hero", "quickLinks"]
+  );
+  const teamPage = buildSeedDocument(ensureSourceDocument(source, "teamPage"), "teamPage", "teamPage", [
+    "hero",
+    "members",
+    "cta",
+  ]);
+  const listingsPage = buildSeedDocument(
+    ensureSourceDocument(source, "listingsPage"),
+    "listingsPage",
+    "listingsPage",
+    ["overline", "title", "featuredListingKeys"]
+  );
+  const buyersGuidePage = buildSeedDocument(
+    ensureSourceDocument(source, "buyersGuidePage"),
+    "buyersGuidePage",
+    "buyersGuidePage",
+    ["hero", "guideTitle", "guideDescription", "guideImage", "cta"]
+  );
+  const sellersGuidePage = buildSeedDocument(
+    ensureSourceDocument(source, "sellersGuidePage"),
+    "sellersGuidePage",
+    "sellersGuidePage",
+    ["hero", "guideTitle", "guideDescription", "guideImage", "cta"]
+  );
+  const homeEvaluationPage = buildSeedDocument(
+    ensureSourceDocument(source, "homeEvaluationPage"),
+    "homeEvaluationPage",
+    "homeEvaluationPage",
+    ["hero", "formHeading", "formDescription"]
+  );
 
-function headingBlock(text: string, key: string, style: "h2" | "h3" = "h2") {
+  const teamMembers = source.teamMembers.map((document) =>
+    pickEmbeddedFields(document, "teamMember", "team-member", [
+      "name",
+      "slug",
+      "role",
+      "image",
+      "bio",
+      "phone",
+      "email",
+    ])
+  );
+  const validTestimonials = source.testimonials.filter(
+    (document) => !isStaleLegacyTestimonial(document)
+  );
+  const excludedStaleTestimonials = source.testimonials.length - validTestimonials.length;
+  const testimonials = validTestimonials.map((document) =>
+    pickEmbeddedFields(document, "testimonial", "testimonial", ["quote", "name", "detail"])
+  );
+  const buyerFaqs = source.faqs
+    .filter((document) => document.category === "buyer")
+    .map((document) => pickEmbeddedFields(document, "faq", "buyer-faq", ["question", "answer"]));
+  const sellerFaqs = source.faqs
+    .filter((document) => document.category === "seller")
+    .map((document) => pickEmbeddedFields(document, "faq", "seller-faq", ["question", "answer"]));
+  const coverageAreas = source.coverageAreas.map((document) =>
+    pickEmbeddedFields(document, "coverageArea", "coverage-area", ["state", "cities"])
+  );
+  const companyValues = source.companyValues.map((document) =>
+    pickEmbeddedFields(document, "companyValue", "company-value", ["title", "description"])
+  );
+  const companyStats = source.companyStats.map((document) =>
+    pickEmbeddedFields(document, "companyStat", "company-stat", ["label", "value"])
+  );
+  const valuePropositions = source.valuePropositions.map((document) =>
+    pickEmbeddedFields(document, "valueProposition", "value-proposition", ["title", "description"])
+  );
+
+  homePage.valuePropositions = legacyOrExisting(
+    valuePropositions,
+    ensureSourceDocument(source, "homePage"),
+    "valuePropositions",
+    "value-proposition"
+  );
+  aboutPage.values = legacyOrExisting(
+    companyValues,
+    ensureSourceDocument(source, "aboutPage"),
+    "values",
+    "company-value"
+  );
+  aboutPage.coverageAreas = legacyOrExisting(
+    coverageAreas,
+    ensureSourceDocument(source, "aboutPage"),
+    "coverageAreas",
+    "coverage-area"
+  );
+  aboutPage.stats = legacyOrExisting(
+    companyStats,
+    ensureSourceDocument(source, "aboutPage"),
+    "stats",
+    "company-stat"
+  );
+  buyPage.coverageAreas = legacyOrExisting(
+    coverageAreas,
+    ensureSourceDocument(source, "buyPage"),
+    "coverageAreas",
+    "coverage-area"
+  );
+  buyPage.faqs = legacyOrExisting(buyerFaqs, ensureSourceDocument(source, "buyPage"), "faqs", "buyer-faq");
+  sellPage.testimonials = legacyOrExisting(
+    testimonials,
+    ensureSourceDocument(source, "sellPage"),
+    "testimonials",
+    "testimonial"
+  );
+  sellPage.faqs = legacyOrExisting(sellerFaqs, ensureSourceDocument(source, "sellPage"), "faqs", "seller-faq");
+  teamPage.members = legacyOrExisting(
+    teamMembers,
+    ensureSourceDocument(source, "teamPage"),
+    "members",
+    "team-member"
+  );
+
+  const currentEmail = typeof siteSettings.email === "string" ? siteSettings.email : undefined;
+  const currentPhone = typeof siteSettings.phone === "string" ? siteSettings.phone : undefined;
+  const legalPages = source.legalPages.map((document) =>
+    normalizeLegalPage(document, currentEmail, currentPhone)
+  );
+
+  const documents = [
+    siteSettings,
+    homePage,
+    aboutPage,
+    buyPage,
+    sellPage,
+    contactPage,
+    teamPage,
+    listingsPage,
+    buyersGuidePage,
+    sellersGuidePage,
+    homeEvaluationPage,
+    ...legalPages,
+  ];
+
+  validateNoStaleSeedContent(documents);
+
   return {
-    _type: "block" as const,
-    _key: key,
-    style,
-    children: [{ _type: "span" as const, _key: `${key}-span`, text, marks: [] }],
-    markDefs: [],
+    documents,
+    embeddedCounts: {
+      "homePage.valuePropositions": arrayCount(homePage.valuePropositions),
+      "aboutPage.values": arrayCount(aboutPage.values),
+      "aboutPage.coverageAreas": arrayCount(aboutPage.coverageAreas),
+      "aboutPage.stats": arrayCount(aboutPage.stats),
+      "buyPage.coverageAreas": arrayCount(buyPage.coverageAreas),
+      "buyPage.faqs": arrayCount(buyPage.faqs),
+      "sellPage.testimonials": arrayCount(sellPage.testimonials),
+      "sellPage.faqs": arrayCount(sellPage.faqs),
+      "teamPage.members": arrayCount(teamPage.members),
+    },
+    sourceCounts: {
+      teamMember: source.teamMembers.length,
+      testimonial: source.testimonials.length,
+      faq: source.faqs.length,
+      coverageArea: source.coverageAreas.length,
+      companyValue: source.companyValues.length,
+      companyStat: source.companyStats.length,
+      valueProposition: source.valuePropositions.length,
+      legalPage: source.legalPages.length,
+    },
+    excludedCounts: {
+      staleLegacyTestimonials: excludedStaleTestimonials,
+    },
   };
 }
 
-function paragraphBlock(text: string, key: string) {
+function arrayCount(value: unknown): number {
+  return Array.isArray(value) ? value.length : 0;
+}
+
+async function fetchSource(): Promise<SourcePayload> {
+  const source = await client.fetch<SourcePayload>(sourceQuery);
+
+  if (!source.homeEvaluationPage) {
+    source.homeEvaluationPage = buildHomeEvaluationFromLive(await fetchLiveHomeEvaluationContent());
+  }
+
+  return source;
+}
+
+function decodeHtml(value: string): string {
+  return value
+    .replace(/&#x27;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">");
+}
+
+function htmlToLines(html: string): string[] {
+  return decodeHtml(html)
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "\n")
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, "\n")
+    .replace(/<[^>]+>/g, "\n")
+    .split("\n")
+    .map((line) => line.replace(/\s+/g, " ").trim())
+    .filter(Boolean);
+}
+
+function extractRequiredLine(lines: string[], value: string): string {
+  const line = lines.find((item) => item === value);
+  if (!line) {
+    throw new Error(`Unable to derive required live home evaluation content: ${value}`);
+  }
+
+  return line;
+}
+
+async function fetchLiveHomeEvaluationContent(): Promise<LiveHomeEvaluationContent> {
+  const response = await fetch(liveHomeEvaluationUrl);
+  if (!response.ok) {
+    throw new Error(
+      `Published singleton homeEvaluationPage was not found in Sanity and ${liveHomeEvaluationUrl} returned ${response.status}.`
+    );
+  }
+
+  const lines = htmlToLines(await response.text());
   return {
-    _type: "block" as const,
-    _key: key,
-    style: "normal" as const,
-    children: [{ _type: "span" as const, _key: `${key}-span`, text, marks: [] }],
-    markDefs: [],
+    overline: extractRequiredLine(lines, "Home Evaluation"),
+    title: extractRequiredLine(lines, "What's Your Home Worth?"),
+    subtitle: extractRequiredLine(
+      lines,
+      "Get a comprehensive, data-driven valuation of your property from our local market experts."
+    ),
+    formHeading: extractRequiredLine(lines, "Request Your Free Evaluation"),
+    formDescription: extractRequiredLine(
+      lines,
+      "Please provide us with some details about your property. One of our experienced agents will review the information and contact you shortly with a comprehensive market analysis."
+    ),
   };
 }
 
-// ---------------------------------------------------------------------------
-// Data (mirrors frontend/src/lib/dummy-data.ts)
-// ---------------------------------------------------------------------------
-
-const listings = [
-  { id: "1", slug: "123-maple-drive-springfield-il", price: 425000, address: "123 Maple Drive", city: "Springfield", state: "IL", zip: "62701", beds: 4, baths: 3, sqft: 2850, image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80", status: "Active", propertyType: "Single Family" },
-  { id: "2", slug: "456-oak-avenue-naperville-il", price: 675000, address: "456 Oak Avenue", city: "Naperville", state: "IL", zip: "60540", beds: 5, baths: 4, sqft: 3600, image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80", status: "Active", propertyType: "Single Family" },
-  { id: "3", slug: "789-elm-street-chicago-il", price: 350000, address: "789 Elm Street", city: "Chicago", state: "IL", zip: "60614", beds: 2, baths: 2, sqft: 1200, image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&q=80", status: "Active", propertyType: "Condo" },
-  { id: "4", slug: "321-birch-lane-evanston-il", price: 520000, address: "321 Birch Lane", city: "Evanston", state: "IL", zip: "60201", beds: 3, baths: 2, sqft: 2100, image: "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=800&q=80", status: "Active", propertyType: "Townhouse" },
-  { id: "5", slug: "555-cedar-court-scottsdale-az", price: 890000, address: "555 Cedar Court", city: "Scottsdale", state: "AZ", zip: "85251", beds: 5, baths: 5, sqft: 4200, image: "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=800&q=80", status: "Active", propertyType: "Single Family" },
-  { id: "6", slug: "102-desert-ridge-phoenix-az", price: 465000, address: "102 Desert Ridge", city: "Phoenix", state: "AZ", zip: "85054", beds: 3, baths: 2, sqft: 1950, image: "https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=800&q=80", status: "Active", propertyType: "Single Family" },
-  { id: "7", slug: "88-lakeshore-drive-milwaukee-wi", price: 315000, address: "88 Lakeshore Drive", city: "Milwaukee", state: "WI", zip: "53202", beds: 2, baths: 1, sqft: 1100, image: "https://images.unsplash.com/photo-1600573472550-8090b5e0745e?w=800&q=80", status: "Active", propertyType: "Condo" },
-  { id: "8", slug: "240-prairie-path-madison-wi", price: 398000, address: "240 Prairie Path", city: "Madison", state: "WI", zip: "53703", beds: 3, baths: 2, sqft: 1800, image: "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&q=80", status: "Pending", propertyType: "Single Family" },
-  { id: "9", slug: "17-summit-place-indianapolis-in", price: 285000, address: "17 Summit Place", city: "Indianapolis", state: "IN", zip: "46204", beds: 3, baths: 2, sqft: 1650, image: "https://images.unsplash.com/photo-1600607687644-c7171b42498f?w=800&q=80", status: "Active", propertyType: "Single Family" },
-  { id: "10", slug: "400-river-road-carmel-in", price: 575000, address: "400 River Road", city: "Carmel", state: "IN", zip: "46032", beds: 4, baths: 3, sqft: 3100, image: "https://images.unsplash.com/photo-1600585153490-76fb20a32601?w=800&q=80", status: "Active", propertyType: "Single Family" },
-  { id: "11", slug: "62-harbor-view-grand-rapids-mi", price: 340000, address: "62 Harbor View", city: "Grand Rapids", state: "MI", zip: "49503", beds: 3, baths: 2, sqft: 1750, image: "https://images.unsplash.com/photo-1600566752355-35792bedcfea?w=800&q=80", status: "Sold", propertyType: "Townhouse" },
-  { id: "12", slug: "905-michigan-avenue-ann-arbor-mi", price: 490000, address: "905 Michigan Avenue", city: "Ann Arbor", state: "MI", zip: "48104", beds: 4, baths: 3, sqft: 2500, image: "https://images.unsplash.com/photo-1600563438938-a9a27216b4f5?w=800&q=80", status: "Active", propertyType: "Single Family" },
-];
-
-const teamMembers = [
-  { slug: "semir-drenova", name: "Semir Drenova", role: "Founder & Principal Broker", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80", bio: "With over 15 years of experience in residential and commercial real estate, Semir founded Drenova Group with a vision to bring a modern, client-first approach to the Midwest market. His expertise spans luxury homes, investment properties, and new construction across multiple states. Semir is known for his market knowledge, negotiation skills, and dedication to achieving the best outcomes for every client.", phone: "(555) 100-0001", email: "semir@drenovagroup.com" },
-  { slug: "elena-vasquez", name: "Elena Vasquez", role: "Senior Sales Agent", image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=600&q=80", bio: "Elena brings a decade of experience and a passion for helping families find their perfect home. Specializing in the greater Chicago area and suburban markets, she has built a reputation for her attention to detail and commitment to client satisfaction. Elena consistently ranks among the top agents in her region.", phone: "(555) 100-0002", email: "elena@drenovagroup.com" },
-  { slug: "marcus-chen", name: "Marcus Chen", role: "Buyer Specialist", image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=600&q=80", bio: "Marcus is dedicated to making the home-buying process seamless and stress-free. With deep knowledge of market trends and financing options, he guides first-time buyers and seasoned investors alike through every step of the transaction. His clients appreciate his patience, transparency, and data-driven approach.", phone: "(555) 100-0003", email: "marcus@drenovagroup.com" },
-  { slug: "sarah-mitchell", name: "Sarah Mitchell", role: "Listing Specialist", image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=600&q=80", bio: "Sarah specializes in helping homeowners maximize the value of their properties. Her marketing expertise, staging recommendations, and pricing strategies consistently deliver above-asking results. With a background in interior design, Sarah brings a unique eye for presentation that sets her listings apart.", phone: "(555) 100-0004", email: "sarah@drenovagroup.com" },
-  { slug: "david-okafor", name: "David Okafor", role: "Commercial & Investment Advisor", image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&q=80", bio: "David brings a strategic mindset to every real estate transaction. Specializing in commercial properties and investment portfolios, he helps clients build wealth through smart acquisitions and data-backed market analysis. His background in finance gives him a unique perspective on property valuation and ROI optimization.", phone: "(555) 100-0005", email: "david@drenovagroup.com" },
-];
-
-const testimonials = [
-  { quote: "Drenova Group made selling our home an incredibly smooth experience. From staging advice to closing, every detail was handled with care and professionalism.", name: "Jennifer & Mark Thompson", detail: "Sold in Naperville, IL" },
-  { quote: "As first-time buyers, we were nervous about the process. Marcus walked us through every step and found us the perfect home under budget. We couldn't be more grateful.", name: "Priya & Raj Patel", detail: "Purchased in Evanston, IL" },
-  { quote: "The level of market knowledge and negotiation skill that Semir brought to our investment property purchase was exceptional. We've already seen significant appreciation.", name: "Robert Nguyen", detail: "Investment Property, Phoenix, AZ" },
-  { quote: "Sarah's listing strategy was brilliant — professional photography, targeted marketing, and expert staging. We received multiple offers within the first weekend.", name: "Lisa & Tom Brennan", detail: "Sold in Chicago, IL" },
-  { quote: "Working with Drenova Group felt like having a trusted partner, not just an agent. Their modern approach and genuine care for clients set them apart from everyone else.", name: "Angela Davis", detail: "Purchased in Scottsdale, AZ" },
-];
-
-const companyStats = [
-  { label: "Years of Experience", value: "15+" },
-  { label: "Homes Sold", value: "500+" },
-  { label: "Expert Agents", value: "12" },
-  { label: "States Covered", value: "5" },
-];
-
-const valuePropositions = [
-  { title: "Multi-State Coverage", description: "Operating across Illinois, Arizona, Wisconsin, Indiana, and Michigan — we bring local expertise to every market we serve." },
-  { title: "Modern Approach", description: "From data-driven pricing to digital marketing strategies, we leverage the latest tools and technology to deliver exceptional results." },
-  { title: "Client-First Philosophy", description: "Every decision we make is guided by what's best for our clients. Your goals are our goals, and your success is our measure of performance." },
-];
-
-const buyerFaqs = [
-  { question: "How do I get pre-approved for a mortgage?", answer: "We recommend connecting with a mortgage lender early in the process. Pre-approval involves submitting financial documents (income verification, credit check, assets) to determine your budget. We work with trusted lending partners and can provide referrals to get you started." },
-  { question: "How long does the home buying process take?", answer: "On average, the buying process takes 30–60 days from accepted offer to closing. The timeline depends on factors like financing, inspections, and any negotiated repairs. We keep you informed at every step and work to resolve issues quickly." },
-  { question: "What costs should I expect beyond the purchase price?", answer: "Buyers should budget for closing costs (typically 2–5% of the purchase price), which include lender fees, title insurance, appraisal, and prepaid taxes/insurance. Your agent will provide a detailed estimate early in the process so there are no surprises." },
-  { question: "Do I need a buyer's agent?", answer: "Absolutely. A buyer's agent represents your interests exclusively, providing market expertise, negotiation support, and guidance through the entire transaction. Our services are typically compensated by the seller, so there's no direct cost to you." },
-  { question: "What if I find a home I love but it's out of my budget?", answer: "We'll help you evaluate all options — from negotiating a lower price to exploring different financing structures. Sometimes sellers are flexible on terms even if the listing price seems firm. Our market knowledge helps identify opportunities others might miss." },
-];
-
-const sellerFaqs = [
-  { question: "How do you determine my home's value?", answer: "We perform a Comparative Market Analysis (CMA) that examines recent sales of similar properties, current market conditions, your home's unique features, and neighborhood trends. This data-driven approach ensures your listing price is competitive and maximizes your return." },
-  { question: "How long will it take to sell my home?", answer: "Market conditions, pricing, location, and presentation all influence timing. In a balanced market, well-priced homes typically sell within 30–90 days. Our marketing strategies and staging expertise are designed to reduce time on market while achieving top-dollar results." },
-  { question: "What should I do to prepare my home for sale?", answer: "We provide a customized preparation checklist for every seller. Common recommendations include decluttering, minor repairs, fresh paint in neutral tones, and professional cleaning. Our staging consultation helps highlight your home's best features for maximum buyer appeal." },
-  { question: "What are the costs of selling a home?", answer: "Typical selling costs include agent commissions, closing costs, title fees, and any agreed-upon buyer credits or repairs. We provide a detailed net proceeds estimate upfront so you know exactly what to expect. Our transparent approach means no hidden fees." },
-  { question: "Should I make renovations before selling?", answer: "Not always — some renovations provide excellent ROI while others don't recoup their cost. We advise on which improvements will deliver the best return based on your specific market. Often, simple updates like fresh paint and landscaping have the biggest impact." },
-];
-
-const coverageAreas = [
-  { state: "Illinois", cities: ["Chicago", "Naperville", "Evanston", "Springfield"] },
-  { state: "Arizona", cities: ["Phoenix", "Scottsdale", "Tempe", "Mesa"] },
-  { state: "Wisconsin", cities: ["Milwaukee", "Madison", "Green Bay"] },
-  { state: "Indiana", cities: ["Indianapolis", "Carmel", "Fishers"] },
-  { state: "Michigan", cities: ["Grand Rapids", "Ann Arbor", "Detroit"] },
-];
-
-const companyValues = [
-  { title: "Integrity", description: "We operate with complete transparency. Every recommendation we make is grounded in honest market analysis and our clients' best interests." },
-  { title: "Excellence", description: "From marketing materials to negotiation strategy, we hold ourselves to the highest standard in every aspect of the transaction." },
-  { title: "Innovation", description: "We embrace modern technology and data-driven strategies to give our clients a competitive edge in today's real estate market." },
-  { title: "Community", description: "We're invested in the neighborhoods we serve. Building lasting relationships with our clients and communities is at the heart of everything we do." },
-];
-
-// ---------------------------------------------------------------------------
-// Seed functions
-// ---------------------------------------------------------------------------
-
-async function seedListings() {
-  console.log("Seeding listings...");
-  for (const listing of listings) {
-    const imageAsset = await imageWithAlt(
-      listing.image,
-      `listing-${listing.id}.jpg`,
-      `${listing.address}, ${listing.city}, ${listing.state}`
-    );
-
-    await client.createOrReplace({
-      _id: `listing-${listing.id}`,
-      _type: "listing",
-      title: listing.address,
-      slug: { _type: "slug", current: listing.slug },
-      price: listing.price,
-      address: listing.address,
-      city: listing.city,
-      state: listing.state,
-      zip: listing.zip,
-      beds: listing.beds,
-      baths: listing.baths,
-      sqft: listing.sqft,
-      image: imageAsset,
-      status: listing.status,
-      propertyType: listing.propertyType,
-    });
-    console.log(`  listing-${listing.id}: ${listing.address}`);
+function logSummary(
+  mode: "DRY RUN" | "COMMIT",
+  documents: SeedDocument[],
+  embeddedCounts: EmbeddedSummary,
+  sourceCounts: Record<string, number>,
+  excludedCounts: Record<string, number>
+) {
+  console.log(`Mode: ${mode}`);
+  console.log("Published source counts:");
+  for (const type of legacySourceTypes) {
+    console.log(`  ${type}: ${sourceCounts[type] ?? 0}`);
   }
-}
-
-async function seedTeamMembers() {
-  console.log("Seeding team members...");
-  for (const member of teamMembers) {
-    const imageAsset = await imageWithAlt(
-      member.image,
-      `team-${member.slug}.jpg`,
-      member.name
-    );
-
-    await client.createOrReplace({
-      _id: `team-${member.slug}`,
-      _type: "teamMember",
-      name: member.name,
-      slug: { _type: "slug", current: member.slug },
-      role: member.role,
-      image: imageAsset,
-      bio: textToPortableText(member.bio),
-      phone: member.phone,
-      email: member.email,
-    });
-    console.log(`  team-${member.slug}: ${member.name}`);
+  console.log(`  legalPage: ${sourceCounts.legalPage ?? 0}`);
+  console.log("Seed documents:");
+  for (const document of documents) {
+    console.log(`  ${document._id} (${document._type})`);
   }
-}
-
-async function seedTestimonials() {
-  console.log("Seeding testimonials...");
-  await createOrReplaceMany(
-    testimonials.map((t, i) => ({
-      _id: `testimonial-${i + 1}`,
-      _type: "testimonial",
-      quote: t.quote,
-      name: t.name,
-      detail: t.detail,
-    }))
-  );
-  for (let i = 0; i < testimonials.length; i++) {
-    const t = testimonials[i];
-    console.log(`  testimonial-${i + 1}: ${t.name}`);
+  console.log("Embedded fields:");
+  for (const [field, count] of Object.entries(embeddedCounts)) {
+    console.log(`  ${field}: ${count}`);
   }
+  console.log(
+    `Excluded stale legacy testimonials: ${excludedCounts.staleLegacyTestimonials ?? 0}`
+  );
+  console.log("Validation: passed stale seed marker checks");
 }
 
-async function seedFaqs() {
-  console.log("Seeding FAQs...");
-  for (let i = 0; i < buyerFaqs.length; i++) {
-    const faq = buyerFaqs[i];
-    await client.createOrReplace({
-      _id: `faq-buyer-${i + 1}`,
-      _type: "faq",
-      question: faq.question,
-      answer: faq.answer,
-      category: "buyer",
-      order: i + 1,
-    });
-    console.log(`  faq-buyer-${i + 1}: ${faq.question.slice(0, 40)}...`);
+async function commitSeed(sanityClient: SanityClient, documents: SeedDocument[]) {
+  let transaction = sanityClient.transaction();
+  for (const document of documents) {
+    transaction = transaction.createOrReplace(document);
   }
-  for (let i = 0; i < sellerFaqs.length; i++) {
-    const faq = sellerFaqs[i];
-    await client.createOrReplace({
-      _id: `faq-seller-${i + 1}`,
-      _type: "faq",
-      question: faq.question,
-      answer: faq.answer,
-      category: "seller",
-      order: i + 1,
-    });
-    console.log(`  faq-seller-${i + 1}: ${faq.question.slice(0, 40)}...`);
-  }
+
+  await transaction.commit();
 }
-
-async function seedCoverageAreas() {
-  console.log("Seeding coverage areas...");
-  await createOrReplaceMany(
-    coverageAreas.map((area, i) => ({
-      _id: `coverage-area-${i + 1}`,
-      _type: "coverageArea",
-      state: area.state,
-      cities: area.cities,
-      order: i + 1,
-    }))
-  );
-  for (let i = 0; i < coverageAreas.length; i++) {
-    const area = coverageAreas[i];
-    console.log(`  coverage-area-${i + 1}: ${area.state}`);
-  }
-}
-
-async function seedCompanyStats() {
-  console.log("Seeding company stats...");
-  await createOrReplaceMany(
-    companyStats.map((stat, i) => ({
-      _id: `company-stat-${i + 1}`,
-      _type: "companyStat",
-      label: stat.label,
-      value: stat.value,
-      order: i + 1,
-    }))
-  );
-  for (let i = 0; i < companyStats.length; i++) {
-    const stat = companyStats[i];
-    console.log(`  company-stat-${i + 1}: ${stat.label}`);
-  }
-}
-
-async function seedCompanyValues() {
-  console.log("Seeding company values...");
-  await createOrReplaceMany(
-    companyValues.map((val, i) => ({
-      _id: `company-value-${i + 1}`,
-      _type: "companyValue",
-      title: val.title,
-      description: val.description,
-      order: i + 1,
-    }))
-  );
-  for (let i = 0; i < companyValues.length; i++) {
-    const val = companyValues[i];
-    console.log(`  company-value-${i + 1}: ${val.title}`);
-  }
-}
-
-async function seedValuePropositions() {
-  console.log("Seeding value propositions...");
-  await createOrReplaceMany(
-    valuePropositions.map((vp, i) => ({
-      _id: `value-proposition-${i + 1}`,
-      _type: "valueProposition",
-      title: vp.title,
-      description: vp.description,
-      order: i + 1,
-    }))
-  );
-  for (let i = 0; i < valuePropositions.length; i++) {
-    const vp = valuePropositions[i];
-    console.log(`  value-proposition-${i + 1}: ${vp.title}`);
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Singleton page data
-// ---------------------------------------------------------------------------
-
-const siteSettingsData = {
-  companyName: "Drenova Group",
-  tagline: "Modern brokerage. Local expertise. Multi-state coverage.",
-  phone: "(555) 100-0000",
-  email: "info@drenovagroup.com",
-  address: "123 Main Street, Suite 200\nChicago, IL 60601",
-  officeHours: "Monday – Friday: 9:00 AM – 6:00 PM\nSaturday: 10:00 AM – 4:00 PM\nSunday: By Appointment",
-  navigationLinks: [
-    { _key: "nav-buy", label: "Buy", href: "/buy", showInHeader: true, showInFooter: true },
-    { _key: "nav-sell", label: "Sell", href: "/sell", showInHeader: true, showInFooter: true },
-    { _key: "nav-listings", label: "Listings", href: "/listings", showInHeader: true, showInFooter: true },
-    { _key: "nav-about", label: "About", href: "/about", showInHeader: false, showInFooter: true },
-    { _key: "nav-team", label: "Team", href: "/team", showInHeader: false, showInFooter: true },
-    { _key: "nav-contact", label: "Contact", href: "/contact", showInHeader: false, showInFooter: true },
-  ],
-  socialLinks: {
-    facebook: "https://facebook.com/drenovagroup",
-    instagram: "https://instagram.com/drenovagroup",
-    linkedin: "https://linkedin.com/company/drenovagroup",
-    twitter: "https://x.com/drenovagroup",
-  },
-};
-
-const homePageData = {
-  hero: {
-    _type: "heroSettings" as const,
-    overline: "Drenova Group Real Estate",
-    title: "Your Home's Story Starts Here",
-    subtitle:
-      "Modern brokerage. Local expertise. Multi-state coverage across Illinois, Arizona, Wisconsin, Indiana, and Michigan.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1600&q=80",
-    imageAlt: "Modern luxury home with warm lighting",
-  },
-  featuredListingsHeading: {
-    _type: "sectionHeading" as const,
-    overline: "Featured Properties",
-    title: "Explore Our Listings",
-    description: "Hand-picked properties across our coverage areas, ready for you to make them home.",
-  },
-  aboutSectionOverline: "About Us",
-  aboutSectionTitle: "An Elevated Approach to Real Estate",
-  aboutSectionContent:
-    "At Drenova Group, we combine deep local knowledge with modern tools and a client-first philosophy. Whether you're buying your first home or selling a luxury property, our experienced team delivers personalized service and exceptional results.",
-  aboutSectionImageUrl: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=80",
-  aboutSectionImageAlt: "Warm interior of a modern home",
-  valuePropsHeading: {
-    _type: "sectionHeading" as const,
-    overline: "Why Drenova Group",
-    title: "What Sets Us Apart",
-  },
-  cta: {
-    _type: "ctaSettings" as const,
-    title: "Ready to Get Started?",
-    subtitle: "Whether you're buying or selling, our team is here to guide you every step of the way.",
-  },
-  featuredListingIds: [
-    "listing-1",
-    "listing-2",
-    "listing-5",
-    "listing-6",
-    "listing-9",
-    "listing-10",
-  ],
-};
-
-const aboutPageData = {
-  hero: {
-    _type: "heroSettings" as const,
-    overline: "Our Story",
-    title: "About Drenova Group",
-    subtitle:
-      "A modern brokerage built on integrity, innovation, and an unwavering commitment to our clients.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=1600&q=80",
-    imageAlt: "Drenova Group office and team",
-  },
-  storyOverline: "Founded 2011",
-  storyTitle: "Built on Relationships, Driven by Results",
-  storyContent: [
-    {
-      _type: "block" as const,
-      _key: "story-1",
-      style: "normal" as const,
-      children: [
-        {
-          _type: "span" as const,
-          _key: "story-1-span",
-          text: "Drenova Group was founded with a simple belief: that real estate should be personal, transparent, and driven by what's best for the client. What started as a single agent with a passion for helping families find their homes has grown into a multi-state brokerage serving hundreds of clients every year.",
-          marks: [],
-        },
-      ],
-      markDefs: [],
-    },
-    {
-      _type: "block" as const,
-      _key: "story-2",
-      style: "normal" as const,
-      children: [
-        {
-          _type: "span" as const,
-          _key: "story-2-span",
-          text: "Today, our team of experienced agents operates across five states, bringing local expertise and a modern approach to every transaction. We combine data-driven market analysis with genuine care for our clients' goals — because buying or selling a home is more than a transaction, it's a life milestone.",
-          marks: [],
-        },
-      ],
-      markDefs: [],
-    },
-  ],
-  storyImageUrl:
-    "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=1200&q=80",
-  storyImageAlt: "Modern home interior",
-  valuesHeading: {
-    _type: "sectionHeading" as const,
-    overline: "Our Values",
-    title: "What We Stand For",
-    description: "The principles that guide every interaction, negotiation, and decision we make.",
-  },
-  coverageHeading: {
-    _type: "sectionHeading" as const,
-    overline: "Where We Serve",
-    title: "Multi-State Coverage",
-    description: "Local expertise across five states and growing.",
-  },
-  cta: {
-    _type: "ctaSettings" as const,
-    title: "Meet Our Team",
-    subtitle: "The people behind Drenova Group are what make us different.",
-  },
-};
-
-const buyPageData = {
-  hero: {
-    _type: "heroSettings" as const,
-    overline: "For Buyers",
-    title: "Find Your Next Home",
-    subtitle:
-      "Let our experienced agents guide you through every step — from search to closing.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=1600&q=80",
-    imageAlt: "Beautiful home exterior with warm lighting",
-  },
-  benefitsHeading: {
-    _type: "sectionHeading" as const,
-    overline: "Why Choose Us",
-    title: "Buy With Confidence",
-  },
-  benefits: [
-    { _key: "buy-benefit-1", title: "Expert Local Knowledge", description: "Our agents live and work in the communities they serve. You'll get insider knowledge on neighborhoods, schools, market trends, and hidden opportunities." },
-    { _key: "buy-benefit-2", title: "Data-Driven Search", description: "We leverage real-time MLS data and market analytics to identify properties that match your criteria and help you make informed decisions." },
-    { _key: "buy-benefit-3", title: "Full-Service Support", description: "From mortgage pre-approval guidance to closing coordination, we manage every detail so you can focus on finding the right home." },
-  ],
-  processHeading: {
-    _type: "sectionHeading" as const,
-    overline: "The Process",
-    title: "How Buying Works",
-    description: "A clear, transparent process from start to finish.",
-  },
-  processSteps: [
-    { _type: "processStep" as const, _key: "buy-step-1", stepNumber: "01", title: "Search & Discover", description: "Browse our curated listings, set your criteria, and explore neighborhoods that match your lifestyle and budget." },
-    { _type: "processStep" as const, _key: "buy-step-2", stepNumber: "02", title: "Tour & Evaluate", description: "Schedule private showings with your dedicated agent. We'll provide detailed market analysis for every property you're considering." },
-    { _type: "processStep" as const, _key: "buy-step-3", stepNumber: "03", title: "Offer & Negotiate", description: "We craft competitive offers backed by real-time market data. Our negotiation expertise ensures you get the best possible terms." },
-    { _type: "processStep" as const, _key: "buy-step-4", stepNumber: "04", title: "Close & Celebrate", description: "From inspection to closing, we coordinate every detail. Our team ensures a smooth transaction so you can focus on moving in." },
-  ],
-  coverageHeading: {
-    _type: "sectionHeading" as const,
-    overline: "Where We Serve",
-    title: "Explore Our Markets",
-    description: "We bring local expertise to every community across our five-state coverage area.",
-  },
-  faqHeading: {
-    _type: "sectionHeading" as const,
-    overline: "FAQs",
-    title: "Common Buyer Questions",
-  },
-  cta: {
-    _type: "ctaSettings" as const,
-    title: "Start Your Search Today",
-    subtitle: "Browse our listings or connect with an agent to begin your home buying journey.",
-  },
-};
-
-const sellPageData = {
-  hero: {
-    _type: "heroSettings" as const,
-    overline: "For Sellers",
-    title: "Sell with Confidence",
-    subtitle:
-      "Expert pricing, professional marketing, and skilled negotiation — we handle every detail.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1600&q=80",
-    imageAlt: "Luxury home exterior at golden hour",
-  },
-  benefitsHeading: {
-    _type: "sectionHeading" as const,
-    overline: "Why Choose Us",
-    title: "The Drenova Difference",
-  },
-  benefits: [
-    { _key: "sell-benefit-1", title: "Strategic Pricing", description: "Our data-driven Comparative Market Analysis ensures your home is priced to attract buyers while maximizing your return." },
-    { _key: "sell-benefit-2", title: "Professional Marketing", description: "From professional photography and staging to targeted digital campaigns, we showcase your home to the right audience." },
-    { _key: "sell-benefit-3", title: "Expert Negotiation", description: "Our agents are skilled negotiators who advocate fiercely for your interests, ensuring the best possible terms on every offer." },
-  ],
-  processHeading: {
-    _type: "sectionHeading" as const,
-    overline: "The Process",
-    title: "How Selling Works",
-    description: "A proven, step-by-step approach to getting top dollar for your home.",
-  },
-  processSteps: [
-    { _type: "processStep" as const, _key: "sell-step-1", stepNumber: "01", title: "Prepare & Price", description: "We analyze comparable sales, assess your home's unique features, and develop a pricing strategy designed to maximize your return." },
-    { _type: "processStep" as const, _key: "sell-step-2", stepNumber: "02", title: "Stage & Style", description: "Our staging recommendations and professional photography showcase your home at its absolute best — first impressions matter." },
-    { _type: "processStep" as const, _key: "sell-step-3", stepNumber: "03", title: "List & Market", description: "Your listing reaches thousands of qualified buyers through MLS syndication, targeted digital advertising, and our professional network." },
-    { _type: "processStep" as const, _key: "sell-step-4", stepNumber: "04", title: "Negotiate & Accept", description: "We evaluate every offer with you, negotiate favorable terms, and guide you through counteroffers with confidence and clarity." },
-    { _type: "processStep" as const, _key: "sell-step-5", stepNumber: "05", title: "Close & Move On", description: "We manage inspections, appraisals, and paperwork through closing. Our goal is a seamless handoff so you can move forward with ease." },
-  ],
-  valuation: {
-    _type: "valuationSection" as const,
-    overline: "Free Home Valuation",
-    title: "What's Your Home Worth?",
-    description: "Get a complimentary market analysis from our team. We'll evaluate recent comparable sales, current market conditions, and your home's unique features to provide an accurate valuation.",
-    ctaText: "Request Valuation",
-    imageUrl: "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=1200&q=80",
-    imageAlt: "Beautiful home exterior",
-  },
-  storiesHeading: {
-    _type: "sectionHeading" as const,
-    overline: "Success Stories",
-    title: "Results That Speak",
-  },
-  faqHeading: {
-    _type: "sectionHeading" as const,
-    overline: "FAQs",
-    title: "Common Seller Questions",
-  },
-  cta: {
-    _type: "ctaSettings" as const,
-    title: "Ready to Sell?",
-    subtitle: "Connect with an agent today and take the first step toward a successful sale.",
-  },
-};
-
-// ---------------------------------------------------------------------------
-// Singleton seed functions
-// ---------------------------------------------------------------------------
-
-async function seedSiteSettings() {
-  console.log("Seeding siteSettings...");
-  await client.createOrReplace({
-    _id: "siteSettings",
-    _type: "siteSettings",
-    companyName: siteSettingsData.companyName,
-    tagline: siteSettingsData.tagline,
-    phone: siteSettingsData.phone,
-    email: siteSettingsData.email,
-    address: siteSettingsData.address,
-    officeHours: siteSettingsData.officeHours,
-    navigationLinks: siteSettingsData.navigationLinks,
-    socialLinks: siteSettingsData.socialLinks,
-  });
-  console.log("  siteSettings");
-}
-
-async function seedHomePage() {
-  console.log("Seeding homePage...");
-  const heroImage = await imageWithAlt(
-    homePageData.hero.imageUrl,
-    "home-hero.jpg",
-    homePageData.hero.imageAlt
-  );
-
-  const aboutImage = await imageWithAlt(
-    homePageData.aboutSectionImageUrl,
-    "home-about.jpg",
-    homePageData.aboutSectionImageAlt
-  );
-
-  await client.createOrReplace({
-    _id: "homePage",
-    _type: "homePage",
-    hero: {
-      _type: "heroSettings",
-      image: heroImage,
-      overline: homePageData.hero.overline,
-      title: homePageData.hero.title,
-      subtitle: homePageData.hero.subtitle,
-    },
-    featuredListings: homePageData.featuredListingIds.map((id) => ({
-      _type: "reference",
-      _ref: id,
-      _key: id,
-    })),
-    featuredListingsHeading: homePageData.featuredListingsHeading,
-    aboutSection: {
-      title: homePageData.aboutSectionTitle,
-      description: homePageData.aboutSectionContent,
-      image: aboutImage,
-      buttonText: "Learn More",
-      buttonHref: "/about",
-    },
-    valuePropsHeading: homePageData.valuePropsHeading,
-    cta: homePageData.cta,
-  });
-  console.log("  homePage");
-}
-
-async function seedAboutPage() {
-  console.log("Seeding aboutPage...");
-  const heroImage = await imageWithAlt(
-    aboutPageData.hero.imageUrl,
-    "about-hero.jpg",
-    aboutPageData.hero.imageAlt
-  );
-
-  const storyImage = await imageWithAlt(
-    aboutPageData.storyImageUrl,
-    "about-story.jpg",
-    aboutPageData.storyImageAlt
-  );
-
-  await client.createOrReplace({
-    _id: "aboutPage",
-    _type: "aboutPage",
-    hero: {
-      _type: "heroSettings",
-      image: heroImage,
-      overline: aboutPageData.hero.overline,
-      title: aboutPageData.hero.title,
-      subtitle: aboutPageData.hero.subtitle,
-    },
-    storyContent: aboutPageData.storyContent,
-    storyOverline: aboutPageData.storyOverline,
-    storyTitle: aboutPageData.storyTitle,
-    storyImage: storyImage,
-    valuesHeading: aboutPageData.valuesHeading,
-    coverageHeading: aboutPageData.coverageHeading,
-    cta: aboutPageData.cta,
-  });
-  console.log("  aboutPage");
-}
-
-async function seedBuyPage() {
-  console.log("Seeding buyPage...");
-  const heroImage = await imageWithAlt(
-    buyPageData.hero.imageUrl,
-    "buy-hero.jpg",
-    buyPageData.hero.imageAlt
-  );
-
-  await client.createOrReplace({
-    _id: "buyPage",
-    _type: "buyPage",
-    hero: {
-      _type: "heroSettings",
-      image: heroImage,
-      overline: buyPageData.hero.overline,
-      title: buyPageData.hero.title,
-      subtitle: buyPageData.hero.subtitle,
-    },
-    benefits: buyPageData.benefits,
-    benefitsHeading: buyPageData.benefitsHeading,
-    processSteps: buyPageData.processSteps,
-    processHeading: buyPageData.processHeading,
-    coverageHeading: buyPageData.coverageHeading,
-    faqHeading: buyPageData.faqHeading,
-    cta: buyPageData.cta,
-  });
-  console.log("  buyPage");
-}
-
-async function seedSellPage() {
-  console.log("Seeding sellPage...");
-  const heroImage = await imageWithAlt(
-    sellPageData.hero.imageUrl,
-    "sell-hero.jpg",
-    sellPageData.hero.imageAlt
-  );
-
-  const valuationImage = await imageWithAlt(
-    sellPageData.valuation.imageUrl,
-    "sell-valuation.jpg",
-    sellPageData.valuation.imageAlt
-  );
-
-  await client.createOrReplace({
-    _id: "sellPage",
-    _type: "sellPage",
-    hero: {
-      _type: "heroSettings",
-      image: heroImage,
-      overline: sellPageData.hero.overline,
-      title: sellPageData.hero.title,
-      subtitle: sellPageData.hero.subtitle,
-    },
-    benefits: sellPageData.benefits,
-    benefitsHeading: sellPageData.benefitsHeading,
-    processSteps: sellPageData.processSteps,
-    processHeading: sellPageData.processHeading,
-    valuation: {
-      _type: "valuationSection",
-      overline: sellPageData.valuation.overline,
-      title: sellPageData.valuation.title,
-      description: sellPageData.valuation.description,
-      ctaText: sellPageData.valuation.ctaText,
-      image: valuationImage,
-    },
-    storiesHeading: sellPageData.storiesHeading,
-    faqHeading: sellPageData.faqHeading,
-    cta: sellPageData.cta,
-  });
-  console.log("  sellPage");
-}
-
-async function seedContactPage() {
-  console.log("Seeding contactPage...");
-  const heroImage = await imageWithAlt(
-    "https://images.unsplash.com/photo-1600563438938-a9a27216b4f5?w=1600&q=80",
-    "contact-hero.jpg",
-    "Modern office interior"
-  );
-
-  await client.createOrReplace({
-    _id: "contactPage",
-    _type: "contactPage",
-    hero: {
-      _type: "heroSettings",
-      image: heroImage,
-      title: "Get in Touch",
-      subtitle: "Have a question or ready to get started? We'd love to hear from you.",
-    },
-    quickLinks: [
-      {
-        _key: "ql-buy",
-        overline: "For Buyers",
-        title: "Looking to Buy?",
-        description: "Explore our buying guide and browse available listings.",
-        href: "/buy",
-      },
-      {
-        _key: "ql-sell",
-        overline: "For Sellers",
-        title: "Ready to Sell?",
-        description: "Learn about our selling process and request a free home valuation.",
-        href: "/sell",
-      },
-    ],
-  });
-  console.log("  contactPage");
-}
-
-async function seedTeamPage() {
-  console.log("Seeding teamPage...");
-  const heroImage = await imageWithAlt(
-    "https://images.unsplash.com/photo-1600573472550-8090b5e0745e?w=1600&q=80",
-    "team-hero.jpg",
-    "Drenova Group team"
-  );
-
-  await client.createOrReplace({
-    _id: "teamPage",
-    _type: "teamPage",
-    hero: {
-      _type: "heroSettings",
-      image: heroImage,
-      title: "Our Team",
-      subtitle: "Experienced professionals dedicated to helping you achieve your real estate goals.",
-    },
-    cta: {
-      _type: "ctaSettings",
-      title: "Get in Touch",
-      subtitle: "Have a question or ready to start? We'd love to hear from you.",
-    },
-  });
-  console.log("  teamPage");
-}
-
-async function seedListingsPage() {
-  console.log("Seeding listingsPage...");
-  await client.createOrReplace({
-    _id: "listingsPage",
-    _type: "listingsPage",
-    overline: "Properties",
-    title: "All Listings",
-  });
-  console.log("  listingsPage");
-}
-
-async function seedLegalPages() {
-  console.log("Seeding legal pages...");
-
-  const privacyBody = [
-    headingBlock("1. Information We Collect", "priv-h-1"),
-    paragraphBlock("We collect information you provide directly to us, such as when you fill out a contact form, request a property valuation, or communicate with one of our agents. This may include your name, email address, phone number, and details about your real estate needs.", "priv-p-1"),
-    headingBlock("2. How We Use Your Information", "priv-h-2"),
-    paragraphBlock("We use the information we collect to respond to your inquiries, provide real estate services, send you relevant property updates, improve our website and services, and comply with legal obligations. We do not sell your personal information to third parties.", "priv-p-2"),
-    headingBlock("3. Information Sharing", "priv-h-3"),
-    paragraphBlock("We may share your information with our agents and team members to provide you with real estate services, with service providers who assist in operating our website and business, and when required by law or to protect our rights.", "priv-p-3"),
-    headingBlock("4. Cookies and Tracking", "priv-h-4"),
-    paragraphBlock("Our website uses cookies and similar technologies to enhance your browsing experience, analyze site traffic, and understand usage patterns. You can control cookie preferences through your browser settings.", "priv-p-4"),
-    headingBlock("5. Data Security", "priv-h-5"),
-    paragraphBlock("We implement reasonable security measures to protect your personal information from unauthorized access, alteration, or destruction. However, no method of electronic transmission or storage is completely secure.", "priv-p-5"),
-    headingBlock("6. Your Rights", "priv-h-6"),
-    paragraphBlock("You have the right to access, correct, or delete your personal information. You may also opt out of marketing communications at any time. To exercise these rights, please contact us at info@drenovagroup.com.", "priv-p-6"),
-    headingBlock("7. Changes to This Policy", "priv-h-7"),
-    paragraphBlock("We may update this privacy policy from time to time. We will notify you of any material changes by posting the updated policy on our website with a revised effective date.", "priv-p-7"),
-    headingBlock("8. Contact Us", "priv-h-8"),
-    paragraphBlock("If you have questions about this privacy policy or our data practices, please contact us at info@drenovagroup.com or call (555) 123-4567.", "priv-p-8"),
-  ];
-
-  await client.createOrReplace({
-    _id: "legal-privacy",
-    _type: "legalPage",
-    title: "Privacy Policy",
-    slug: { _type: "slug", current: "privacy" },
-    lastUpdated: "2026-02-19",
-    body: privacyBody,
-  });
-  console.log("  legal-privacy: Privacy Policy");
-
-  const termsBody = [
-    headingBlock("1. Acceptance of Terms", "terms-h-1"),
-    paragraphBlock("By accessing and using the Drenova Group website, you accept and agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our website.", "terms-p-1"),
-    headingBlock("2. Use of Website", "terms-h-2"),
-    paragraphBlock("This website is provided for informational purposes and to facilitate real estate services. You agree to use the website only for lawful purposes and in accordance with these terms. You may not use the website in any way that could damage, disable, or impair our services.", "terms-p-2"),
-    headingBlock("3. Property Listings", "terms-h-3"),
-    paragraphBlock("Property listings displayed on this website are provided for informational purposes only. While we strive to ensure accuracy, listing data is sourced from MLS systems and may be subject to change without notice. Drenova Group does not guarantee the accuracy, completeness, or availability of any listing information.", "terms-p-3"),
-    headingBlock("4. Intellectual Property", "terms-h-4"),
-    paragraphBlock("All content on this website, including text, graphics, logos, images, and software, is the property of Drenova Group or its content suppliers and is protected by copyright and intellectual property laws. You may not reproduce, distribute, or create derivative works from any content without our express written consent.", "terms-p-4"),
-    headingBlock("5. Limitation of Liability", "terms-h-5"),
-    paragraphBlock("Drenova Group shall not be liable for any direct, indirect, incidental, consequential, or punitive damages arising from your use of this website or any services provided. This includes, but is not limited to, damages resulting from errors, omissions, or interruptions in service.", "terms-p-5"),
-    headingBlock("6. Third-Party Links", "terms-h-6"),
-    paragraphBlock("Our website may contain links to third-party websites. These links are provided for your convenience and do not signify our endorsement of such websites. We are not responsible for the content or privacy practices of third-party sites.", "terms-p-6"),
-    headingBlock("7. Modifications", "terms-h-7"),
-    paragraphBlock("We reserve the right to modify these terms at any time. Changes will be effective immediately upon posting to the website. Your continued use of the website constitutes acceptance of the modified terms.", "terms-p-7"),
-    headingBlock("8. Governing Law", "terms-h-8"),
-    paragraphBlock("These terms shall be governed by and construed in accordance with the laws of the State of Illinois, without regard to its conflict of law provisions.", "terms-p-8"),
-    headingBlock("9. Contact", "terms-h-9"),
-    paragraphBlock("For questions about these terms, please contact us at info@drenovagroup.com or call (555) 123-4567.", "terms-p-9"),
-  ];
-
-  await client.createOrReplace({
-    _id: "legal-terms",
-    _type: "legalPage",
-    title: "Terms of Service",
-    slug: { _type: "slug", current: "terms" },
-    lastUpdated: "2026-02-19",
-    body: termsBody,
-  });
-  console.log("  legal-terms: Terms of Service");
-}
-
-// ---------------------------------------------------------------------------
-// Main
-// ---------------------------------------------------------------------------
 
 async function main() {
-  if (!process.env.SANITY_API_WRITE_TOKEN) {
-    console.error("SANITY_API_WRITE_TOKEN environment variable is required.");
-    console.error("   Create a write token at: https://www.sanity.io/manage/project/apggi8zn/api#tokens");
-    process.exit(1);
+  if (isCommit && !process.env.SANITY_API_WRITE_TOKEN) {
+    throw new Error("SANITY_API_WRITE_TOKEN is required when using --commit.");
   }
 
-  console.log("Starting Sanity seed...\n");
+  if (!isCommit && !process.env.SANITY_API_WRITE_TOKEN) {
+    console.warn(
+      "SANITY_API_WRITE_TOKEN is not set. Dry-run reads may fail if the dataset requires authentication."
+    );
+  }
 
-  await seedListings();
-  await seedTeamMembers();
-  await seedTestimonials();
-  await seedFaqs();
-  await seedCoverageAreas();
-  await seedCompanyStats();
-  await seedCompanyValues();
-  await seedValuePropositions();
-  await seedSiteSettings();
-  await seedHomePage();
-  await seedAboutPage();
-  await seedBuyPage();
-  await seedSellPage();
-  await seedContactPage();
-  await seedTeamPage();
-  await seedListingsPage();
-  await seedLegalPages();
+  const source = await fetchSource();
+  const { documents, embeddedCounts, sourceCounts, excludedCounts } = buildSeedPayload(source);
+  logSummary(isCommit ? "COMMIT" : "DRY RUN", documents, embeddedCounts, sourceCounts, excludedCounts);
 
-  console.log("\nSeed complete!");
-  console.log("   Documents: 12 listings, 5 team members, 5 testimonials, 10 FAQs, 5 coverage areas, 4 stats, 4 values, 3 value propositions, 2 legal pages");
-  console.log("   Singletons: siteSettings, homePage, aboutPage, buyPage, sellPage, contactPage, teamPage, listingsPage");
+  if (!isCommit) {
+    console.log(`Dry-run complete. Re-run with ${COMMIT_FLAG} to write ${documents.length} document(s).`);
+    return;
+  }
+
+  await commitSeed(client, documents);
+  console.log(`Seed committed: ${documents.length} document(s) createOrReplace'd.`);
 }
 
-main().catch((err) => {
-  console.error("Seed failed:", err);
-  process.exit(1);
+main().catch((error: unknown) => {
+  const message = error instanceof Error ? error.message : String(error);
+  console.error(`Seed failed: ${message}`);
+  process.exitCode = 1;
 });

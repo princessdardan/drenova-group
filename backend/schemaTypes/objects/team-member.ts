@@ -4,7 +4,7 @@ import { UsersIcon } from "@sanity/icons";
 export const teamMember = defineType({
   name: "teamMember",
   title: "Team Member",
-  type: "document",
+  type: "object",
   icon: UsersIcon,
   fields: [
     defineField({
@@ -32,11 +32,11 @@ export const teamMember = defineType({
       type: "image",
       options: { hotspot: true },
       fields: [
-        {
+        defineField({
           name: "alt",
           type: "string",
           title: "Alt Text",
-        },
+        }),
       ],
       validation: (rule) => rule.required(),
     }),
@@ -44,17 +44,19 @@ export const teamMember = defineType({
       name: "bio",
       title: "Biography",
       type: "blockContent",
+      validation: (rule) => rule.required(),
     }),
     defineField({
       name: "phone",
       title: "Phone Number",
       type: "string",
+      validation: (rule) => rule.required(),
     }),
     defineField({
       name: "email",
       title: "Email Address",
       type: "string",
-      validation: (rule) => rule.email(),
+      validation: (rule) => rule.required().email(),
     }),
   ],
   preview: {

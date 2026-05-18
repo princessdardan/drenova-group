@@ -5,15 +5,15 @@ import { processStep } from "./objects/process-step";
 import { sectionHeading } from "./objects/section-heading";
 import { ctaSettings } from "./objects/cta-settings";
 import { valuationSection } from "./objects/valuation-section";
+import { teamMember } from "./objects/team-member";
+import { testimonial } from "./objects/testimonial";
+import { faq } from "./objects/faq";
+import { coverageArea } from "./objects/coverage-area";
+import { companyStat } from "./objects/company-stat";
+import { companyValue } from "./objects/company-value";
+import { valueProposition } from "./objects/value-proposition";
 
 // Documents
-import { teamMember } from "./documents/team-member";
-import { testimonial } from "./documents/testimonial";
-import { faq } from "./documents/faq";
-import { coverageArea } from "./documents/coverage-area";
-import { companyStat } from "./documents/company-stat";
-import { companyValue } from "./documents/company-value";
-import { valueProposition } from "./documents/value-proposition";
 import { legalPage } from "./documents/legal-page";
 import { leadSubmission } from "./documents/lead-submission";
 
@@ -38,8 +38,6 @@ export const schemaTypes = [
   sectionHeading,
   ctaSettings,
   valuationSection,
-
-  // Documents
   teamMember,
   testimonial,
   faq,
@@ -47,6 +45,8 @@ export const schemaTypes = [
   companyStat,
   companyValue,
   valueProposition,
+
+  // Documents
   legalPage,
   leadSubmission,
 

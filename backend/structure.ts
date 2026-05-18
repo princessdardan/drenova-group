@@ -4,12 +4,6 @@ import {
   HomeIcon,
   DocumentTextIcon,
   UsersIcon,
-  CommentIcon,
-  HelpCircleIcon,
-  PinIcon,
-  BarChartIcon,
-  StarIcon,
-  BulbOutlineIcon,
   BasketIcon,
   TagIcon,
   EnvelopeIcon,
@@ -139,23 +133,6 @@ export const structure: StructureResolver = (S) =>
       S.divider(),
 
       // Collection document lists
-      S.documentTypeListItem("teamMember").title("Team Members").icon(UsersIcon),
-      S.documentTypeListItem("testimonial")
-        .title("Testimonials")
-        .icon(CommentIcon),
-      S.documentTypeListItem("faq").title("FAQs").icon(HelpCircleIcon),
-      S.documentTypeListItem("coverageArea")
-        .title("Coverage Areas")
-        .icon(PinIcon),
-      S.documentTypeListItem("companyStat")
-        .title("Company Stats")
-        .icon(BarChartIcon),
-      S.documentTypeListItem("companyValue")
-        .title("Company Values")
-        .icon(StarIcon),
-      S.documentTypeListItem("valueProposition")
-        .title("Value Propositions")
-        .icon(BulbOutlineIcon),
       S.documentTypeListItem("legalPage")
         .title("Legal Pages")
         .icon(DocumentTextIcon),

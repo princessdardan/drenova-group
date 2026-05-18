@@ -1,4 +1,4 @@
-import { defineType, defineField } from "sanity";
+import { defineType, defineField, defineArrayMember } from "sanity";
 import { DocumentTextIcon } from "@sanity/icons";
 
 export const aboutPage = defineType({
@@ -47,9 +47,27 @@ export const aboutPage = defineType({
       type: "sectionHeading",
     }),
     defineField({
+      name: "values",
+      title: "Company Values",
+      type: "array",
+      of: [defineArrayMember({ type: "companyValue" })],
+    }),
+    defineField({
       name: "coverageHeading",
       title: "Coverage Section Heading",
       type: "sectionHeading",
+    }),
+    defineField({
+      name: "coverageAreas",
+      title: "Coverage Areas",
+      type: "array",
+      of: [defineArrayMember({ type: "coverageArea" })],
+    }),
+    defineField({
+      name: "stats",
+      title: "Company Stats",
+      type: "array",
+      of: [defineArrayMember({ type: "companyStat" })],
     }),
     defineField({
       name: "cta",

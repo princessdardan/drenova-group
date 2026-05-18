@@ -3,7 +3,7 @@ import { Hero } from "@/components/sections/hero";
 import { Accordion } from "@/components/ui/accordion";
 import { CtaSection } from "@/components/sections/cta-section";
 import { Reveal } from "@/components/ui/reveal";
-import { getBuyPage, getFaqsByCategory, getCoverageAreas } from "@/lib/sanity/fetch";
+import { getBuyPage } from "@/lib/sanity/fetch";
 import { resolveSanityImageUrl } from "@/lib/sanity/image";
 import { makeMetadata } from "@/lib/seo";
 import { SectionShell } from "@/components/sections/section-shell";
@@ -19,16 +19,14 @@ export const metadata: Metadata = makeMetadata({
 });
 
 export default async function BuyPage() {
-  const [buyPage, buyerFaqs, coverageAreas] = await Promise.all([
-    getBuyPage(),
-    getFaqsByCategory("buyer"),
-    getCoverageAreas(),
-  ]);
+  const buyPage = await getBuyPage();
 
   const heroImage = resolveSanityImageUrl(buyPage?.hero?.image, { width: 1920, height: 1080, fallback: "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=1600&q=80", fit: "crop" });
 
   const benefits = buyPage?.benefits ?? [];
   const processSteps = buyPage?.processSteps ?? [];
+  const buyerFaqs = buyPage?.faqs ?? [];
+  const coverageAreas = buyPage?.coverageAreas ?? [];
   const bh = buyPage?.benefitsHeading;
   const ph = buyPage?.processHeading;
   const ch = buyPage?.coverageHeading;

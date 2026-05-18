@@ -1,14 +1,6 @@
 import { draftMode } from "next/headers";
 import { client, previewClient } from "./client";
 import {
-  allTeamMembersQuery,
-  teamMemberBySlugQuery,
-  allTestimonialsQuery,
-  faqsByCategoryQuery,
-  allCoverageAreasQuery,
-  allCompanyStatsQuery,
-  allCompanyValuesQuery,
-  allValuePropositionsQuery,
   siteSettingsQuery,
   homePageQuery,
   aboutPageQuery,
@@ -23,13 +15,7 @@ import {
   homeEvaluationPageQuery,
 } from "./queries";
 import type { TeamMember } from "@/types/team";
-import type { Testimonial } from "@/types/testimonial";
 import type {
-  FAQ,
-  CoverageArea,
-  CompanyStat,
-  CompanyValue,
-  ValueProposition,
   SiteSettings,
   HomePage,
   AboutPage,
@@ -68,10 +54,6 @@ async function sanityFetch<T>(
   });
 }
 
-function collectionFetcher<T>(query: string, tag: string): () => Promise<T[]> {
-  return () => sanityFetch<T[]>(query, [tag]);
-}
-
 function singletonFetcher<T>(query: string, tag: string): () => Promise<T | null> {
   return () => sanityFetch<T | null>(query, [tag]);
 }
@@ -83,62 +65,6 @@ function paramFetcher<T>(
 ): (value: string) => Promise<T> {
   return (value: string) => sanityFetch<T>(query, [tag], { [paramName]: value });
 }
-
-// ─── Team Member fetchers ────────────────────────────────────────────
-
-export const getTeamMembers = collectionFetcher<TeamMember>(
-  allTeamMembersQuery,
-  "teamMember"
-);
-
-export const getTeamMemberBySlug = paramFetcher<TeamMember | null>(
-  teamMemberBySlugQuery,
-  "teamMember",
-  "slug"
-);
-
-// ─── Testimonial fetchers ────────────────────────────────────────────
-
-export const getTestimonials = collectionFetcher<Testimonial>(
-  allTestimonialsQuery,
-  "testimonial"
-);
-
-// ─── FAQ fetchers ────────────────────────────────────────────────────
-
-export const getFaqsByCategory = paramFetcher<FAQ[]>(
-  faqsByCategoryQuery,
-  "faq",
-  "category"
-);
-
-// ─── Coverage Area fetchers ──────────────────────────────────────────
-
-export const getCoverageAreas = collectionFetcher<CoverageArea>(
-  allCoverageAreasQuery,
-  "coverageArea"
-);
-
-// ─── Company Stat fetchers ───────────────────────────────────────────
-
-export const getCompanyStats = collectionFetcher<CompanyStat>(
-  allCompanyStatsQuery,
-  "companyStat"
-);
-
-// ─── Company Value fetchers ──────────────────────────────────────────
-
-export const getCompanyValues = collectionFetcher<CompanyValue>(
-  allCompanyValuesQuery,
-  "companyValue"
-);
-
-// ─── Value Proposition fetchers ──────────────────────────────────────
-
-export const getValuePropositions = collectionFetcher<ValueProposition>(
-  allValuePropositionsQuery,
-  "valueProposition"
-);
 
 // ─── Singleton fetchers ──────────────────────────────────────────────
 
@@ -173,6 +99,20 @@ export const getTeamPage = singletonFetcher<TeamPage>(
   teamPageQuery,
   "teamPage"
 );
+
+// ─── Team Member fetchers ────────────────────────────────────────────
+
+export async function getTeamMembers(): Promise<TeamMember[]> {
+  const teamPage = await getTeamPage();
+  return teamPage?.members ?? [];
+}
+
+export async function getTeamMemberBySlug(
+  slug: string
+): Promise<TeamMember | null> {
+  const members = await getTeamMembers();
+  return members.find((member) => member.slug === slug) ?? null;
+}
 
 export const getListingsPage = singletonFetcher<ListingsPage>(
   listingsPageQuery,
