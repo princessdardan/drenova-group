@@ -19,16 +19,16 @@ schemaTypes/
 | Task | Location | Notes |
 |------|----------|-------|
 | Register schema | `index.ts` | Objects first, then documents, then singletons |
-| Reusable blocks | `objects/` | `heroSettings`, `ctaSettings`, `sectionHeading`, etc. |
-| CMS collections | `documents/` | Team, testimonials, FAQs, listings, lead submissions |
-| Page content | `singletons/` | Home/about/buy/sell/contact/team/listings/guide pages |
+| Reusable blocks | `objects/` | Shared blocks plus nested team/testimonial/FAQ/value objects |
+| CMS collections | `documents/` | `legalPage` and read-only `leadSubmission` only |
+| Page content | `singletons/` | Site settings, marketing pages, guide pages, listings page, home evaluation |
 | Studio singleton nav | `../structure.ts` | Must be kept in sync with singleton schemas |
 
 ## CONVENTIONS
 
 - Use `defineType` and `defineField`; export one named const per file.
 - File names are kebab-case; exported schema constants and `name` values are camelCase.
-- Put reusable nested shapes in `objects/`, then reference by `type` from documents/singletons.
+- Put reusable nested shapes in `objects/`, including team members, testimonials, FAQs, coverage/value/stat cards, then reference by `type` from documents/singletons.
 - Register objects before any schema that references them.
 - Keep field validation inline with `validation: (Rule) => ...`.
 - Use `preview.select` for normal documents; use `preview.prepare` for fixed-title singletons.
@@ -53,5 +53,5 @@ npm run seed
 
 ## NOTES
 
-- `leadSubmission` exists as a document type for captured form submissions.
-- Some README counts are stale; trust `schemaTypes/index.ts` for the current schema inventory.
+- `leadSubmission` exists as a read-only document type for captured form submissions.
+- Current inventory is 13 objects, 2 documents, and 11 singletons; trust `schemaTypes/index.ts` over README counts.

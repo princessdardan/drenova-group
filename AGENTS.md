@@ -1,7 +1,7 @@
 # PROJECT KNOWLEDGE BASE
 
-**Generated:** 2026-05-14
-**Commit:** 76bd614
+**Generated:** 2026-05-19
+**Commit:** 0bccfef
 **Branch:** clean-main
 
 ## OVERVIEW
@@ -27,9 +27,10 @@ drenova-group/
 |------|----------|-------|
 | Run site dev/build/lint | `package.json` | Root scripts proxy to `frontend/` except `studio` and `seed` |
 | Web pages and API routes | `frontend/src/app/` | App Router pages, Open Graph images, draft/revalidate/sync routes |
-| Shared UI | `frontend/src/components/` | `ui/` primitives, `sections/` page sections |
-| Sanity reads | `frontend/src/lib/sanity/` | GROQ queries + typed fetch wrappers with ISR tags |
+| Shared UI | `frontend/src/components/` | `ui/` primitives, `sections/` page sections; see nested AGENTS.md |
+| Sanity reads | `frontend/src/lib/sanity/` | GROQ queries + typed fetch wrappers with ISR tags; see nested AGENTS.md |
 | AMPRE listings | `frontend/src/lib/ampre/` | Compliance-sensitive; see nested AGENTS.md |
+| AMPRE sync API | `frontend/src/app/api/ampre/` | Only route subtree allowed to call AMPRE; see nested AGENTS.md |
 | Sanity Studio | `backend/` | Config, desk structure, schema registry |
 | Schema authoring | `backend/schemaTypes/` | Objects before referencing documents/singletons |
 | Initial content | `scripts/seed-sanity.ts` | Large seed script for documents and singletons |
@@ -48,6 +49,7 @@ drenova-group/
 | `fetchAmpreProperties` | AMPRE client | `frontend/src/lib/ampre/client.ts` | Daily sync-only OData client |
 | `mapAmpreToListing` | Mapper | `frontend/src/lib/ampre/mapper.ts` | RESO/AMPRE to internal `Listing`, including address suppression |
 | `GET` / `POST` | Route handlers | `frontend/src/app/api/ampre/sync/route.ts` | Vercel Cron AMPRE sync |
+| `submitContactForm`, `submitLeadForm` | Server actions | `frontend/src/app/actions/` | Form validation, Sanity writes, Resend delivery |
 | `schemaTypes` | Registry | `backend/schemaTypes/index.ts` | Studio schema registration order |
 | `structure` | Desk resolver | `backend/structure.ts` | Singleton and collection navigation |
 
@@ -61,7 +63,7 @@ drenova-group/
 - Shared components use named exports. Pages use default exports.
 - Page metadata uses `export const metadata: Metadata` and inherits the title template from `layout.tsx`.
 - Sanity singletons use fixed document IDs matching their type names and are hardcoded in `backend/structure.ts`.
-- Playwright e2e is the only test suite; no Jest/Vitest unit tests are configured.
+- Frontend tests are split between Node's built-in test runner for `frontend/src/**/*.test.ts` and Playwright e2e in `frontend/e2e`.
 
 ## ANTI-PATTERNS (THIS PROJECT)
 
@@ -87,6 +89,7 @@ npm run dev          # frontend dev server on localhost:3000
 npm run build        # frontend production build
 npm run start        # frontend production server
 npm run lint         # frontend ESLint
+npm -w frontend run test:unit
 npm run studio       # Sanity Studio on localhost:3333
 npm run seed         # seed Sanity content from scripts/seed-sanity.ts
 npm run test:e2e     # Playwright e2e in frontend/e2e
@@ -101,4 +104,5 @@ npm -w backend run deploy
 - CI is minimal: `.github/workflows/deploy-studio.yml` deploys Sanity Studio from `backend/`; there is no frontend CI workflow.
 - `frontend/vercel.json` schedules `/api/ampre/sync` daily at 06:00 UTC.
 - `/api/ampre/sync` sets `maxDuration = 120`, which assumes a Vercel plan that supports it.
+- Current Sanity schema inventory is 13 reusable objects, 2 collection documents, and 11 singletons; README counts may be stale.
 - README references root `DESIGN.md` and `prd.md`, but current design/product docs live under `docs/`.

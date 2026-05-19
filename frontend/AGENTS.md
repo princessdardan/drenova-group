@@ -2,15 +2,15 @@
 
 ## OVERVIEW
 
-Next.js 16 App Router app deployed from `frontend/`; owns public pages, API routes, UI, Sanity reads, AMPRE Redis reads, e2e tests.
+Next.js 16 App Router app deployed from `frontend/`; owns public pages, API routes, UI, Sanity reads, AMPRE Redis reads, unit tests, and e2e tests.
 
 ## STRUCTURE
 
 ```text
 frontend/
 ├── src/app/          # pages, metadata, OG images, actions, API routes
-├── src/components/   # ui primitives + section components
-├── src/lib/sanity/   # client, image helper, GROQ, typed fetch wrappers
+├── src/components/   # ui primitives + section components; nested AGENTS.md
+├── src/lib/sanity/   # client, image helper, GROQ, typed fetch wrappers; nested AGENTS.md
 ├── src/lib/ampre/    # compliance-sensitive listing pipeline
 ├── src/types/        # Listing, Sanity, team, testimonial types
 ├── e2e/              # Playwright specs
@@ -29,6 +29,7 @@ frontend/
 | UI primitives | `src/components/ui/` | Named exports, semantic Tailwind tokens |
 | Shared sections | `src/components/sections/` | Header/footer/hero/forms/CTA |
 | Sanity integration | `src/lib/sanity/` | `queries.ts` projections must match `src/types/sanity.ts` |
+| Unit tests | `src/**/*.test.ts` | Node built-in test runner via `tsx`; colocated with implementation |
 | Browser tests | `e2e/` | Playwright desktop and mobile Chrome projects |
 
 ## CONVENTIONS
@@ -50,7 +51,7 @@ frontend/
 - Do not use raw colors in JSX; semantic tokens and existing globals first.
 - Do not bypass `src/lib/sanity/fetch.ts` for content reads unless adding a new fetch wrapper there.
 - Do not import `src/lib/ampre/client.ts` from UI, pages, or components.
-- Do not assume unit tests exist; validate frontend behavior with lint/build and Playwright where relevant.
+- Do not add Jest, Vitest, or Cypress config; the existing unit path is Node `node:test` and e2e is Playwright.
 
 ## COMMANDS
 
@@ -58,6 +59,7 @@ frontend/
 npm -w frontend run dev
 npm -w frontend run build
 npm -w frontend run lint
+npm -w frontend run test:unit
 npm -w frontend run test:e2e
 npm -w frontend run test:e2e:ui
 ```
@@ -67,3 +69,4 @@ npm -w frontend run test:e2e:ui
 - `next.config.ts` enables React Compiler and allows images only from Unsplash, Sanity CDN, and AMPRE image host.
 - Playwright starts/reuses `npm run dev` at `http://localhost:3000` and runs Desktop Chrome plus a 390x844 mobile viewport.
 - `tsconfig.json` excludes `e2e` and `playwright.config.ts` from app compilation.
+- Fixture behavior is inline: AMPRE/listing e2e seams live in `src/lib/ampre/fetch.ts` and `src/app/api/e2e/`, not a standalone fixtures directory.
