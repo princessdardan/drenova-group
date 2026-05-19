@@ -17,6 +17,12 @@ export interface ResendEmailSendResult {
   error: unknown;
 }
 
+interface ResendProviderErrorLog {
+  name?: string;
+  message?: string;
+  statusCode?: number | null;
+}
+
 export interface EmailTransport {
   send(message: ResendEmailSendInput): Promise<ResendEmailSendResult>;
 }
@@ -67,6 +73,11 @@ export async function sendEmailMessage(
     });
 
     if (result.error) {
+      console.error(
+        "Resend provider rejected email:",
+        sanitizeResendProviderError(result.error)
+      );
+
       return {
         ok: false,
         error: {
@@ -107,6 +118,35 @@ function toResendTags(
   tags: EmailMessagePayload["tags"]
 ): ResendEmailSendInput["tags"] {
   return tags?.map((tag) => ({ name: "category", value: tag }));
+}
+
+function sanitizeResendProviderError(error: unknown): ResendProviderErrorLog {
+  if (!isRecord(error)) {
+    return {};
+  }
+
+  const sanitized: ResendProviderErrorLog = {};
+  const name = error.name;
+  const message = error.message;
+  const statusCode = error.statusCode;
+
+  if (typeof name === "string") {
+    sanitized.name = name;
+  }
+
+  if (typeof message === "string") {
+    sanitized.message = message;
+  }
+
+  if (typeof statusCode === "number" || statusCode === null) {
+    sanitized.statusCode = statusCode;
+  }
+
+  return sanitized;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
 }
 
 function assertServerRuntime(): void {

@@ -65,16 +65,41 @@ test("rejects onboarding@resend.dev as a production sender", () => {
 });
 
 test("returns a safe failure when Resend returns an error result", async () => {
+  const originalConsoleError = console.error;
+  let logged: unknown[] | undefined;
   const transport = createTransport(async () => ({
     data: null,
-    error: { message: "Invalid `from` address", raw: message.text },
+    error: {
+      name: "invalid_from_address",
+      message: "Invalid `from` address",
+      statusCode: 422,
+      raw: message.text,
+      secret: "secret_key",
+    },
   }));
 
-  const result = await sendEmailMessage(message, validConfig(), transport);
+  console.error = (...args: unknown[]) => {
+    logged = args;
+  };
 
-  assert.equal(result.ok, false);
-  assert.equal(result.error.code, "provider_error");
-  assert.doesNotMatch(result.error.message, /Avery|Invalid `from`|secret/i);
+  try {
+    const result = await sendEmailMessage(message, validConfig(), transport);
+
+    assert.equal(result.ok, false);
+    assert.equal(result.error.code, "provider_error");
+    assert.doesNotMatch(result.error.message, /Avery|Invalid `from`|secret/i);
+    assert.deepEqual(logged, [
+      "Resend provider rejected email:",
+      {
+        name: "invalid_from_address",
+        message: "Invalid `from` address",
+        statusCode: 422,
+      },
+    ]);
+    assert.doesNotMatch(JSON.stringify(logged), /Avery|secret_key/i);
+  } finally {
+    console.error = originalConsoleError;
+  }
 });
 
 test("sends a message through the injected transport", async () => {

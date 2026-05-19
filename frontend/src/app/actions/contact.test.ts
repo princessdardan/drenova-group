@@ -53,7 +53,7 @@ describe("submitContactForm", () => {
   it("sends email with contact template by default", async () => {
     let fetchOptions: RequestInit | undefined;
     
-    global.fetch = async (url, options) => {
+    global.fetch = async (_url, options) => {
       fetchOptions = options;
       return new Response(JSON.stringify({ id: "test-id" }), {
         status: 200,
@@ -81,7 +81,7 @@ describe("submitContactForm", () => {
   it("sends email with team-profile template when provided", async () => {
     let fetchOptions: RequestInit | undefined;
     
-    global.fetch = async (url, options) => {
+    global.fetch = async (_url, options) => {
       fetchOptions = options;
       return new Response(JSON.stringify({ id: "test-id" }), {
         status: 200,
@@ -116,6 +116,13 @@ describe("submitContactForm", () => {
   });
 
   it("returns error if sendEmailMessage fails", async () => {
+    const originalConsoleError = console.error;
+    const logs: unknown[][] = [];
+
+    console.error = (...args: unknown[]) => {
+      logs.push(args);
+    };
+
     global.fetch = async () => {
       return new Response(JSON.stringify({ message: "Failed" }), {
         status: 400,
@@ -129,8 +136,22 @@ describe("submitContactForm", () => {
     formData.append("subject", "general");
     formData.append("message", "Hello");
 
-    const result = await submitContactForm(formData);
-    assert.strictEqual(result.success, false);
-    assert.strictEqual(result.error, "Failed to send your message. Please try again later.");
+    try {
+      const result = await submitContactForm(formData);
+      assert.strictEqual(result.success, false);
+      assert.strictEqual(result.error, "Failed to send your message. Please try again later.");
+      assert.deepStrictEqual(logs, [
+        ["Resend provider rejected email:", { message: "Failed" }],
+        [
+          "Failed to send contact email:",
+          {
+            code: "provider_error",
+            message: "Email provider rejected the message.",
+          },
+        ],
+      ]);
+    } finally {
+      console.error = originalConsoleError;
+    }
   });
 });
