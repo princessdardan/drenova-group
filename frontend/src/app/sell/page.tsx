@@ -12,6 +12,7 @@ import { resolveSanityImageUrl } from "@/lib/sanity/image";
 import { makeMetadata } from "@/lib/seo";
 import { BenefitsSection } from "@/components/sections/benefits-section";
 import { ProcessTimeline } from "@/components/sections/process-timeline";
+import { PageContactSection } from "@/components/sections/page-contact-section";
 
 export const metadata: Metadata = makeMetadata({
   title: "Sell",
@@ -52,7 +53,7 @@ export default async function SellPage() {
         subtitle={sellPage?.hero?.subtitle ?? "Expert pricing, professional marketing, and skilled negotiation — we handle every detail."}
         actions={[
           {
-            href: sellPage?.hero?.buttonHref ?? "/contact",
+            href: sellPage?.hero?.buttonHref ?? "#contact",
             label: sellPage?.hero?.buttonText ?? "Get a Valuation",
             className: "border-white text-white hover:bg-white hover:text-black",
           }
@@ -112,7 +113,7 @@ export default async function SellPage() {
               {val?.description ?? "Get a complimentary market analysis from our team. We'll evaluate recent comparable sales, current market conditions, and your home's unique features to provide an accurate valuation."}
             </p>
             <div>
-              <ButtonLink href="/contact" variant="accent">
+              <ButtonLink href="#contact" variant="accent">
                 {val?.ctaText ?? "Request Valuation"}
               </ButtonLink>
             </div>
@@ -164,17 +165,20 @@ export default async function SellPage() {
         bg="background"
         actions={[
           {
-            href: cta?.primaryButtonHref ?? "/contact",
+            href: cta?.primaryButtonHref ?? "#contact",
             label: cta?.primaryButtonText ?? "Get Your Home's Value",
             variant: "accent",
           },
           {
-            href: cta?.secondaryButtonHref ?? "/contact",
+            href: cta?.secondaryButtonHref ?? "#contact",
             label: cta?.secondaryButtonText ?? "Connect with an Agent",
             variant: "minimal",
           }
         ]}
       />
+
+      {/* ─── Contact Form ─── */}
+      <PageContactSection leadSource="sell" />
     </>
   );
 }

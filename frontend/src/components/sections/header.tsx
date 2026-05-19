@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { MobileMenu } from "@/components/sections/mobile-menu";
@@ -12,31 +12,38 @@ interface HeaderProps {
   email?: string;
 }
 
+function subscribeToScroll(callback: () => void) {
+  window.addEventListener("scroll", callback, { passive: true });
+  return () => window.removeEventListener("scroll", callback);
+}
+
+function getScrollSnapshot() {
+  return window.scrollY > 50;
+}
+
+function getServerScrollSnapshot() {
+  return false;
+}
+
 export function Header({ navigationLinks, phone, email }: HeaderProps) {
   const pathname = usePathname();
-  const isHomepage = pathname === "/";
+  const isListingRoute = pathname === "/listings" || pathname.startsWith("/listings/");
+  const hasScrolled = useSyncExternalStore(
+    subscribeToScroll,
+    getScrollSnapshot,
+    getServerScrollSnapshot
+  );
+  const isSolidHeader = isListingRoute || hasScrolled;
 
   const [menuOpen, setMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(!isHomepage);
 
   const allLinks = navigationLinks ?? DEFAULT_NAV_LINKS;
-
-  useEffect(() => {
-    // Only track scroll on homepage; other pages always show scrolled state
-    if (!isHomepage) return;
-
-    function handleScroll() {
-      setScrolled(window.scrollY > 50);
-    }
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [isHomepage]);
 
   return (
     <>
       <header
         className={`fixed z-40 transition-all duration-300 ease-out ${
-          scrolled
+          isSolidHeader
             ? "glass-nav top-4 left-4 right-4 rounded-2xl max-w-[calc(100%-2rem)] mx-auto"
             : "top-0 left-0 right-0 text-white"
         }`}

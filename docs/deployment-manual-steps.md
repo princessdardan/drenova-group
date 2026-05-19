@@ -13,6 +13,7 @@ Go to **Project Settings → Environment Variables** and add:
 | `NEXT_PUBLIC_SANITY_PROJECT_ID` | `apggi8zn` |
 | `NEXT_PUBLIC_SANITY_DATASET` | `production` |
 | `SANITY_API_READ_TOKEN` | Sanity dashboard → API → Tokens (viewer role) |
+| `SANITY_API_WRITE_TOKEN` | Sanity dashboard → API → Tokens (editor role) |
 | `SANITY_REVALIDATE_SECRET` | Generate: `openssl rand -base64 32` |
 | `SANITY_PREVIEW_SECRET` | Generate: `openssl rand -base64 32` |
 | `AMPRE_API_BASE_URL` | AMPRE OData endpoint |
@@ -21,7 +22,7 @@ Go to **Project Settings → Environment Variables** and add:
 | `UPSTASH_REDIS_REST_URL` | Upstash dashboard → Redis → REST URL |
 | `UPSTASH_REDIS_REST_TOKEN` | Upstash dashboard → Redis → REST Token |
 | `RESEND_API_KEY` | resend.com → API Keys |
-| `RESEND_FROM_EMAIL` | Verified sender address (e.g. `Drenova Group <noreply@drenovagroup.com>`) |
+| `RESEND_FROM_EMAIL` | Verified sender address on the Resend domain (e.g. `Drenova Group <send.info@info.drenova.ca>`) |
 | `CONTACT_EMAIL` | Inbox for form submissions (e.g. `info@drenovagroup.com`) |
 | `NEXT_PUBLIC_SITE_URL` | Production URL (e.g. `https://drenovagroup.com`) |
 
@@ -29,18 +30,59 @@ Go to **Project Settings → Environment Variables** and add:
 
 ## 2. Resend Email Setup
 
-The contact form uses [Resend](https://resend.com) to deliver submissions.
+The contact form and lead submissions use [Resend](https://resend.com) for delivery.
 
-1. Create a Resend account at resend.com
-2. Add and verify your sending domain (`drenovagroup.com`)
-3. Create an API key
-4. Set `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, and `CONTACT_EMAIL` in Vercel env vars
+### Human Setup Steps
+1. **Create Account:** Sign up at [resend.com](https://resend.com).
+2. **Add Domain:** Go to **Domains → Add New Domain**.
+   - Enter your sending domain (e.g., `info.drenova.ca`).
+   - **Recommendation:** Use a subdomain such as `info.drenova.ca` or `mail.drenovagroup.com` for reputation segmentation. This keeps transactional mail separate from your primary domain's reputation.
+3. **Verify DNS:**
+   - **Auto Configure:** If your domain is on Vercel, use the "Auto Configure" button to add DNS records automatically.
+   - **Manual Fallback:** If Auto Configure is unavailable, copy the MX, TXT (SPF), and CNAME (DKIM) records provided by Resend into your DNS provider exactly as shown.
+4. **Wait for Verification:** Verification can take from a few minutes to 24 hours. Status must show "Verified" in Resend.
+5. **Create API Key:** Go to **API Keys → Create API Key**. Give it a descriptive name (e.g., `Drenova Production`).
+6. **Configure Vercel:** Add the following variables to Vercel (see Section 1):
+   - `RESEND_API_KEY`: The key created in step 5.
+   - `RESEND_FROM_EMAIL`: Must use your verified domain (e.g., `Drenova Group <send.info@info.drenova.ca>`). **Forbidden:** Do not use `onboarding@resend.dev` in Production.
+   - `CONTACT_EMAIL`: The inbox where you want to receive submissions (e.g., `info@drenovagroup.com`).
+   - Automated emails set `reply-to` to `semir@drenova.ca` in code so replies go to Semir while the sender remains on Resend's verified sending domain.
 
-Free tier: 100 emails/day, 3,000/month.
+### Environment Scoping
+- **Production:** Use your verified domain and production API key.
+- **Preview:** Use your verified domain. You can use the same production key or a separate test key.
+- **Development:** For local work, you can use `onboarding@resend.dev` as the sender, but it only allows sending to your own account email. **Never use this in Production.**
+
+### Local Development Sync
+After setting variables in Vercel (scoped to **Development**), sync them to your local machine:
+1. Ensure you are logged in: `npx vercel login`
+2. Link your project: `npx vercel link`
+3. Pull variables: `vercel env pull frontend/.env.local --yes`
 
 ---
 
-## 3. Brand Assets
+## 3. Human Smoke-Test Checklist
+
+Before declaring a deployment "Live," perform these manual checks in a Preview or Production environment.
+
+### Email Delivery
+- [ ] **Contact Form:** Submit the form at `/contact`. Verify the admin receives an email with the correct details and `reply-to` is `semir@drenova.ca`.
+- [ ] **Lead Form:** Submit a lead form (e.g., on the homepage). Verify the user receives a confirmation email and the admin receives a notification.
+- [ ] **Listing Inquiry:** Submit an inquiry on a listing detail page. Verify the email contains the correct listing context (MLS#, Title, Price) and NO suppressed address data.
+- [ ] **Test Inboxes:** Use a real test inbox (e.g., your work email) to verify formatting and links. Avoid using `delivered@resend.dev` for final human verification as you won't see the actual content.
+
+### Troubleshooting
+- **Emails not arriving:** Check if `RESEND_FROM_EMAIL` uses a verified domain. Check Resend dashboard logs for errors.
+- **Missing Env Vars:** Ensure `vercel env pull` was run or variables were added to the correct Vercel environment (Production vs Preview).
+- **Resend 403/Unauthorized:** Verify the `RESEND_API_KEY` is valid and has not been deleted.
+- **Resend 422/Unverified:** You are trying to send from a domain that hasn't been verified in Resend yet.
+- **Resend 429/Rate Limit:** You have exceeded your plan's rate limit. Check Resend dashboard for usage and consider upgrading if this is frequent.
+- **Resend 5xx/Provider Outage:** Resend is experiencing an internal error or outage. Check [status.resend.com](https://status.resend.com).
+- **Accidental `onboarding@resend.dev`:** If you see this sender in Preview or Production, the `RESEND_FROM_EMAIL` variable is likely missing or incorrectly set to the development fallback. Update the Vercel environment variables immediately.
+
+---
+
+## 4. Brand Assets
 
 Add real brand files to `frontend/public/`:
 

@@ -11,6 +11,7 @@ import { resolveSanityImageUrl } from "@/lib/sanity/image";
 import { makeMetadata } from "@/lib/seo";
 import { SectionShell } from "@/components/sections/section-shell";
 import { CoverageAreaGrid } from "@/components/sections/coverage-area-grid";
+import { PageContactSection } from "@/components/sections/page-contact-section";
 
 export const metadata: Metadata = makeMetadata({
   title: "About",
@@ -143,12 +144,15 @@ export default async function AboutPage() {
             label: cta?.primaryButtonText ?? "View Team",
           },
           {
-            href: cta?.secondaryButtonHref ?? "/contact",
+            href: cta?.secondaryButtonHref ?? "#contact",
             label: cta?.secondaryButtonText ?? "Get in Touch",
             variant: "minimal",
           }
         ]}
       />
+
+      {/* ─── Contact Form ─── */}
+      <PageContactSection leadSource="about" />
     </>
   );
 }

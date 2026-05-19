@@ -10,6 +10,7 @@ import {
   formatFee,
 } from "@/lib/format";
 import { ImageCarousel } from "@/components/ui/image-carousel";
+import { ListingInquiryForm } from "@/components/sections/listing-inquiry-form";
 
 interface ListingDetailProps {
   params: Promise<{ slug: string }>;
@@ -168,6 +169,18 @@ export default async function ListingDetailPage(props: ListingDetailProps) {
 
   const displayLocation = formatListingLocation(listing);
 
+  const listingContext = {
+    listingSlug: listing.slug,
+    listingMlsNumber: listing.listingKey,
+    listingTitle: listing.addressSuppressed
+      ? `Property in ${listing.city}, ${listing.province}`
+      : `${listing.address}, ${listing.city}, ${listing.province}`,
+    listingPrice: listing.price,
+    listingUrl: `/listings/${listing.slug}`,
+    listingCity: listing.city,
+    listingPropertyType: listing.propertyType,
+  };
+
   return (
     <div className="pt-20 lg:pt-24 pb-20 lg:pb-0">
       <ImageCarousel
@@ -206,7 +219,9 @@ export default async function ListingDetailPage(props: ListingDetailProps) {
                       ? formatPrice(listing.price)
                       : `${listing.address} — ${formatPrice(listing.price)}`}
                   </h1>
-                  <p className="text-muted mt-1">{displayLocation}</p>
+                  <p className="text-muted mt-1">
+                    {listing.addressSuppressed ? `Address withheld — ${displayLocation}` : displayLocation}
+                  </p>
                 </div>
                 {listing.status !== "Active" && (
                   <span className="bg-foreground text-background text-xs uppercase tracking-wider font-semibold px-3 py-1 rounded shrink-0">
@@ -521,56 +536,53 @@ export default async function ListingDetailPage(props: ListingDetailProps) {
 
             {/* Sidebar */}
             <div className="lg:col-span-1">
-              <div className="sticky top-28 bg-surface-alt border border-border rounded-lg p-6 space-y-5">
-                {/* Price */}
-                <div>
-                  <p className="text-2xl font-bold">
-                    {formatPrice(listing.price)}
-                  </p>
-                  {hasPriceChange && listing.originalListPrice != null && (
-                    <p className="text-sm text-muted mt-1">
-                      <span className="line-through">
-                        {formatPrice(listing.originalListPrice)}
-                      </span>
-                      <span className="ml-2">
-                        {listing.price < listing.originalListPrice
-                          ? `${formatPrice(listing.originalListPrice - listing.price)} below`
-                          : `${formatPrice(listing.price - listing.originalListPrice)} above`}
-                        {" "}original
-                      </span>
+              <div className="sticky top-28 space-y-6">
+                <div className="bg-surface-alt border border-border rounded-lg p-6 space-y-5">
+                  {/* Price */}
+                  <div>
+                    <p className="text-2xl font-bold">
+                      {formatPrice(listing.price)}
                     </p>
-                  )}
-                </div>
-
-                {/* MLS # */}
-                <div className="py-3 border-t border-border">
-                  <p className="text-sm text-muted">MLS #</p>
-                  <p className="font-mono text-xs mt-0.5">
-                    {listing.listingKey}
-                  </p>
-                </div>
-
-                {/* Agent Info */}
-                {listing.listAgentName && (
-                  <div className="py-3 border-t border-border">
-                    <p className="text-sm text-muted">Listed by</p>
-                    <p className="font-medium mt-0.5">
-                      {listing.listAgentName}
-                    </p>
-                    {listing.listOfficeName && (
-                      <p className="text-sm text-muted">
-                        {listing.listOfficeName}
+                    {hasPriceChange && listing.originalListPrice != null && (
+                      <p className="text-sm text-muted mt-1">
+                        <span className="line-through">
+                          {formatPrice(listing.originalListPrice)}
+                        </span>
+                        <span className="ml-2">
+                          {listing.price < listing.originalListPrice
+                            ? `${formatPrice(listing.originalListPrice - listing.price)} below`
+                            : `${formatPrice(listing.price - listing.originalListPrice)} above`}
+                          {" "}original
+                        </span>
                       </p>
                     )}
                   </div>
-                )}
 
-                <Link
-                  href="/contact"
-                  className="block w-full text-center bg-accent text-white font-semibold py-3 px-6 rounded-lg hover:bg-accent/90 transition-colors"
-                >
-                  Request Information
-                </Link>
+                  {/* MLS # */}
+                  <div className="py-3 border-t border-border">
+                    <p className="text-sm text-muted">MLS #</p>
+                    <p className="font-mono text-xs mt-0.5">
+                      {listing.listingKey}
+                    </p>
+                  </div>
+
+                  {/* Agent Info */}
+                  {listing.listAgentName && (
+                    <div className="py-3 border-t border-border">
+                      <p className="text-sm text-muted">Listed by</p>
+                      <p className="font-medium mt-0.5">
+                        {listing.listAgentName}
+                      </p>
+                      {listing.listOfficeName && (
+                        <p className="text-sm text-muted">
+                          {listing.listOfficeName}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <ListingInquiryForm listingContext={listingContext} />
               </div>
             </div>
           </div>
@@ -589,7 +601,7 @@ export default async function ListingDetailPage(props: ListingDetailProps) {
             )}
           </div>
           <Link
-            href="/contact"
+            href="#listing-inquiry"
             className="shrink-0 bg-accent text-white font-semibold py-2.5 px-5 rounded-lg text-sm hover:bg-accent/90 transition-colors"
           >
             Request Info

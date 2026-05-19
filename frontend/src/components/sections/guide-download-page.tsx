@@ -33,7 +33,7 @@ export function GuideDownloadPage({ page, source, defaults }: GuideDownloadPageP
       />
 
       {/* ─── Guide Section with Form ─── */}
-      <SectionShell bg="background" container="md" containerClassName="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+      <SectionShell id="contact" bg="background" container="md" containerClassName="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
         {/* Book mockup image */}
         <div className="flex justify-center lg:justify-start">
           {defaults.guideImage ? (

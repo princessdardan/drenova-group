@@ -53,7 +53,7 @@ export default async function BuyersGuidePage() {
               label: cta.primaryButtonText ?? "Browse Listings",
             },
             {
-              href: cta.secondaryButtonHref ?? "/contact",
+              href: cta.secondaryButtonHref ?? "#contact",
               label: cta.secondaryButtonText ?? "Talk to an Agent",
               variant: "minimal",
             }

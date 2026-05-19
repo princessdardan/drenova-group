@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { Hero } from "@/components/sections/hero";
 import { ButtonLink } from "@/components/ui/button";
-import { LeadForm } from "@/components/sections/lead-form";
 import { Reveal } from "@/components/ui/reveal";
 import { StaggerChildren } from "@/components/ui/stagger-children";
 import { getHomePage } from "@/lib/sanity/fetch";
@@ -10,6 +9,7 @@ import { resolveSanityImageUrl } from "@/lib/sanity/image";
 import { makeMetadata } from "@/lib/seo";
 import { SectionShell } from "@/components/sections/section-shell";
 import { MediaCard } from "@/components/ui/media-card";
+import { PageContactSection } from "@/components/sections/page-contact-section";
 
 export const metadata: Metadata = makeMetadata({
   title: "Luxury Real Estate Across GTA and York Region",
@@ -190,37 +190,13 @@ export default async function HomePage() {
       </SectionShell>
 
       {/* ─── Contact Form ─── */}
-      <section
-        id="contact"
-        className="bg-footer-bg py-16 px-6 lg:py-24 lg:px-8"
-        style={
-          {
-            "--background": "#030910",
-            "--foreground": "#F0F3F5",
-            "--surface-alt": "#172029",
-            "--border": "#2A3440",
-            "--muted": "#8B8E92",
-            "--muted-foreground": "#6B6E72",
-            "--ring": "#C4622A",
-            "--accent": "#C4622A",
-          } as React.CSSProperties
-        }
-      >
-        <Reveal className="max-w-2xl lg:max-w-3xl mx-auto text-center">
-          <h2 className="font-display text-3xl lg:text-5xl font-bold tracking-tight text-footer-text mb-4">
-            {homePage?.contactForm?.heading ??
-              "Start Your Home Journey Today"}
-          </h2>
-          {(homePage?.contactForm?.subtitle) && (
-            <p className="text-lg text-footer-muted leading-8 mb-8">
-              {homePage.contactForm.subtitle}
-            </p>
-          )}
-          <div className="text-left text-footer-text">
-            <LeadForm source="homepage" showPhone />
-          </div>
-        </Reveal>
-      </section>
+      <PageContactSection
+        heading={homePage?.contactForm?.heading ?? "Start Your Home Journey Today"}
+        subtitle={homePage?.contactForm?.subtitle}
+        formType="lead"
+        leadSource="homepage"
+        showPhone={true}
+      />
     </>
   );
 }

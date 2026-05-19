@@ -6,6 +6,7 @@ import { StaggerChildren } from "@/components/ui/stagger-children";
 import { getTeamPage } from "@/lib/sanity/fetch";
 import { makeMetadata } from "@/lib/seo";
 import { SectionShell } from "@/components/sections/section-shell";
+import { PageContactSection } from "@/components/sections/page-contact-section";
 
 export const metadata: Metadata = makeMetadata({
   title: "Our Team",
@@ -47,11 +48,14 @@ export default async function TeamPage() {
         subtitle={cta?.subtitle ?? "Have a question or ready to start? We'd love to hear from you."}
         actions={[
           {
-            href: cta?.primaryButtonHref ?? "/contact",
+            href: cta?.primaryButtonHref ?? "#contact",
             label: cta?.primaryButtonText ?? "Contact Us",
           }
         ]}
       />
+
+      {/* ─── Contact Form ─── */}
+      <PageContactSection leadSource="team" />
     </>
   );
 }

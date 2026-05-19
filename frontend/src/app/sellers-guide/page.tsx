@@ -65,7 +65,7 @@ export default async function SellersGuidePage() {
               label: cta.primaryButtonText ?? "Get Your Home's Value",
             },
             {
-              href: cta.secondaryButtonHref ?? "/contact",
+              href: cta.secondaryButtonHref ?? "#contact",
               label: cta.secondaryButtonText ?? "Talk to an Agent",
               variant: "minimal",
             }

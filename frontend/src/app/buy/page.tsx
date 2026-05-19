@@ -11,6 +11,7 @@ import { SectionHeader } from "@/components/ui/section-header";
 import { BenefitsSection } from "@/components/sections/benefits-section";
 import { ProcessTimeline } from "@/components/sections/process-timeline";
 import { CoverageAreaGrid } from "@/components/sections/coverage-area-grid";
+import { PageContactSection } from "@/components/sections/page-contact-section";
 
 export const metadata: Metadata = makeMetadata({
   title: "Buy",
@@ -113,12 +114,15 @@ export default async function BuyPage() {
             label: cta?.primaryButtonText ?? "Browse Listings",
           },
           {
-            href: cta?.secondaryButtonHref ?? "/contact",
+            href: cta?.secondaryButtonHref ?? "#contact",
             label: cta?.secondaryButtonText ?? "Talk to an Agent",
             variant: "minimal",
           }
         ]}
       />
+
+      {/* ─── Contact Form ─── */}
+      <PageContactSection leadSource="buy" />
     </>
   );
 }

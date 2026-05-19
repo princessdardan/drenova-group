@@ -1,20 +1,36 @@
 "use server";
 
-import { Resend } from "resend";
+import { renderContactEmailTemplate } from "@/lib/email/templates";
+import { sendEmailMessage } from "@/lib/email/mailer";
+import type { ContactEmailTemplateKey } from "@/lib/email/types";
 
 interface ContactResult {
   success: boolean;
   error?: string;
 }
 
+function getString(formData: FormData, key: string): string {
+  const value = formData.get(key);
+  return typeof value === "string" ? value.trim() : "";
+}
+
 export async function submitContactForm(
   formData: FormData
 ): Promise<ContactResult> {
-  const name = formData.get("name") as string;
-  const email = formData.get("email") as string;
-  const phone = (formData.get("phone") as string) || "";
-  const subject = formData.get("subject") as string;
-  const message = formData.get("message") as string;
+  const name = getString(formData, "name");
+  const email = getString(formData, "email");
+  const phone = getString(formData, "phone");
+  const subject = getString(formData, "subject");
+  const message = getString(formData, "message");
+  
+  const rawTemplateKey = getString(formData, "templateKey");
+  const templateKey: ContactEmailTemplateKey = 
+    rawTemplateKey === "team-profile" ? "team-profile" : "contact";
+
+  const sourcePath = getString(formData, "sourcePath") || undefined;
+  const agentName = getString(formData, "agentName") || undefined;
+  const agentRole = getString(formData, "agentRole") || undefined;
+  const agentSlug = getString(formData, "agentSlug") || undefined;
 
   if (!name || !email || !subject || !message) {
     return { success: false, error: "All required fields must be filled." };
@@ -24,40 +40,27 @@ export async function submitContactForm(
     return { success: false, error: "Please enter a valid email address." };
   }
 
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
-    console.error("RESEND_API_KEY is not configured — contact form submission dropped");
-    return {
-      success: false,
-      error: "Email service is not configured. Please call us directly.",
-    };
-  }
+  const templateResult = renderContactEmailTemplate(templateKey, {
+    name,
+    email,
+    phone,
+    subject,
+    message,
+    sourcePath,
+    agentName,
+    agentRole,
+    agentSlug,
+  });
 
-  try {
-    const resend = new Resend(apiKey);
+  const result = await sendEmailMessage(templateResult.adminContact);
 
-    await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL ?? "Drenova Group <noreply@drenovagroup.com>",
-      to: process.env.CONTACT_EMAIL ?? "info@drenovagroup.com",
-      replyTo: email,
-      subject: `[${subject}] New inquiry from ${name}`,
-      text: [
-        `Name: ${name}`,
-        `Email: ${email}`,
-        `Phone: ${phone || "Not provided"}`,
-        `Subject: ${subject}`,
-        "",
-        "Message:",
-        message,
-      ].join("\n"),
-    });
-
-    return { success: true };
-  } catch (error) {
-    console.error("Failed to send contact email:", error);
+  if (!result.ok) {
+    console.error("Failed to send contact email:", result.error);
     return {
       success: false,
       error: "Failed to send your message. Please try again later.",
     };
   }
+
+  return { success: true };
 }

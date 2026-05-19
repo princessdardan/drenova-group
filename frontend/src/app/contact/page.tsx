@@ -45,7 +45,7 @@ export default async function ContactPage() {
           <h2 className="font-display text-2xl lg:text-4xl font-bold tracking-tight mb-6">
             Send Us a Message
           </h2>
-          <ContactForm />
+          <ContactForm templateKey="contact" sourcePath="/contact" />
         </Reveal>
 
         <Reveal delay={0.1}>

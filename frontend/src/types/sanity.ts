@@ -281,7 +281,15 @@ export interface LeadSubmission {
   province?: string;
   postalCode?: string;
   notes?: string;
-  source: "buyers-guide" | "sellers-guide" | "homepage" | "home-evaluation";
+  source: "buyers-guide" | "sellers-guide" | "homepage" | "buy" | "sell" | "about" | "team" | "home-evaluation" | "listing-detail";
+  listingSlug?: string;
+  listingMlsNumber?: string;
+  listingTitle?: string;
+  listingPrice?: number;
+  listingUrl?: string;
+  listingCity?: string;
+  listingCommunity?: string;
+  listingPropertyType?: string;
   submittedAt: string;
 }
 

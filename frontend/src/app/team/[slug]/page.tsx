@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { ContactForm } from "@/components/sections/contact-form";
+import { PageContactSection } from "@/components/sections/page-contact-section";
 import { isSanityImage } from "@/types/sanity";
 import { resolveSanityImageUrl } from "@/lib/sanity/image";
 import { getTeamMembers, getTeamMemberBySlug } from "@/lib/sanity/fetch";
@@ -106,17 +106,16 @@ export default async function TeamMemberPage({
       </section>
 
       {/* ─── Contact Form ─── */}
-      <section className="bg-background py-16 px-6 lg:py-24 lg:px-8">
-        <div className="max-w-2xl mx-auto">
-          <h2 className="font-display text-2xl lg:text-4xl font-bold tracking-tight mb-2 text-center">
-            Contact {member.name.split(" ")[0]}
-          </h2>
-          <p className="text-muted text-center mb-8">
-            Send a message and {member.name.split(" ")[0]} will get back to you shortly.
-          </p>
-          <ContactForm />
-        </div>
-      </section>
+      <PageContactSection
+        heading={`Contact ${member.name.split(" ")[0]}`}
+        subtitle={`Send a message and ${member.name.split(" ")[0]} will get back to you shortly.`}
+        formType="contact"
+        templateKey="team-profile"
+        sourcePath={`/team/${member.slug}`}
+        agentName={member.name}
+        agentRole={member.role}
+        agentSlug={member.slug}
+      />
     </>
   );
 }

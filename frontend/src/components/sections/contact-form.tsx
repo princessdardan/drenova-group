@@ -16,9 +16,21 @@ const subjectOptions = [
 
 interface ContactFormProps {
   prefilledSubject?: string;
+  templateKey?: "contact" | "team-profile";
+  sourcePath?: string;
+  agentName?: string;
+  agentRole?: string;
+  agentSlug?: string;
 }
 
-export function ContactForm({ prefilledSubject }: ContactFormProps) {
+export function ContactForm({
+  prefilledSubject,
+  templateKey,
+  sourcePath,
+  agentName,
+  agentRole,
+  agentSlug,
+}: ContactFormProps) {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -67,6 +79,11 @@ export function ContactForm({ prefilledSubject }: ContactFormProps) {
 
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-4">
+      {templateKey && <input type="hidden" name="templateKey" value={templateKey} />}
+      {sourcePath && <input type="hidden" name="sourcePath" value={sourcePath} />}
+      {agentName && <input type="hidden" name="agentName" value={agentName} />}
+      {agentRole && <input type="hidden" name="agentRole" value={agentRole} />}
+      {agentSlug && <input type="hidden" name="agentSlug" value={agentSlug} />}
       <Input
         id="name"
         name="name"

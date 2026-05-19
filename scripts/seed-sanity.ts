@@ -299,6 +299,46 @@ function buildSeedDocument(
   return stripUndefined(document) as SeedDocument;
 }
 
+function rewriteContactHref(document: SeedDocument, path: readonly string[]) {
+  let parent: Record<string, unknown> = document;
+
+  for (const segment of path.slice(0, -1)) {
+    const next = parent[segment];
+    if (!isRecord(next)) {
+      return;
+    }
+
+    parent = next;
+  }
+
+  const field = path[path.length - 1];
+  if (field && parent[field] === "/contact") {
+    parent[field] = "#contact";
+  }
+}
+
+function rewriteEligibleMarketingContactCtas(documents: {
+  homePage: SeedDocument;
+  aboutPage: SeedDocument;
+  buyPage: SeedDocument;
+  sellPage: SeedDocument;
+  teamPage: SeedDocument;
+  buyersGuidePage: SeedDocument;
+  sellersGuidePage: SeedDocument;
+}) {
+  rewriteContactHref(documents.homePage, ["hero", "buttonHref"]);
+  rewriteContactHref(documents.homePage, ["ctaCard1", "buttonHref"]);
+  rewriteContactHref(documents.homePage, ["ctaCard2", "buttonHref"]);
+  rewriteContactHref(documents.aboutPage, ["cta", "secondaryButtonHref"]);
+  rewriteContactHref(documents.buyPage, ["cta", "secondaryButtonHref"]);
+  rewriteContactHref(documents.sellPage, ["hero", "buttonHref"]);
+  rewriteContactHref(documents.sellPage, ["cta", "primaryButtonHref"]);
+  rewriteContactHref(documents.sellPage, ["cta", "secondaryButtonHref"]);
+  rewriteContactHref(documents.teamPage, ["cta", "primaryButtonHref"]);
+  rewriteContactHref(documents.buyersGuidePage, ["cta", "secondaryButtonHref"]);
+  rewriteContactHref(documents.sellersGuidePage, ["cta", "secondaryButtonHref"]);
+}
+
 function buildHomeEvaluationFromLive(content: LiveHomeEvaluationContent): SeedDocument {
   return {
     _id: "homeEvaluationPage",
@@ -551,6 +591,16 @@ function buildSeedPayload(source: SourcePayload): BuildSummary {
     "homeEvaluationPage",
     ["hero", "formHeading", "formDescription"]
   );
+
+  rewriteEligibleMarketingContactCtas({
+    homePage,
+    aboutPage,
+    buyPage,
+    sellPage,
+    teamPage,
+    buyersGuidePage,
+    sellersGuidePage,
+  });
 
   const teamMembers = source.teamMembers.map((document) =>
     pickEmbeddedFields(document, "teamMember", "team-member", [

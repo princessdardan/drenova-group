@@ -7,7 +7,16 @@ import { Button } from "@/components/ui/button";
 import { FormStatus } from "@/components/ui/form-status";
 import { submitLeadForm } from "@/app/actions/lead";
 
-type LeadSource = "buyers-guide" | "sellers-guide" | "homepage" | "home-evaluation";
+export type LeadSource =
+  | "buyers-guide"
+  | "sellers-guide"
+  | "homepage"
+  | "buy"
+  | "sell"
+  | "about"
+  | "team"
+  | "home-evaluation"
+  | "listing-detail";
 
 interface LeadFormProps {
   source: LeadSource;
@@ -71,6 +80,7 @@ export function LeadForm({ source, showPhone = false }: LeadFormProps) {
 
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-4">
+      <input type="hidden" name="source" value={source} />
       {serverError && (
         <FormStatus error message={serverError} />
       )}

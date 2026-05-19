@@ -13,6 +13,7 @@ node_modules
 # testing
 coverage
 frontend/test-results
+.playwright-mcp
 
 # next.js
 .next/
@@ -50,4 +51,8 @@ scripts/data/
 .claude/projects/-Users-dardan-Documents-drenova-group/memory/feedback_ampre_single_fetch.md
 docs/sanity-deploy-hooks-guide.md
 
+# agent docs
+.sisyphus/
+
+# extra docs
 flowchart/

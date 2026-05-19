@@ -35,8 +35,16 @@ Create `frontend/.env.local` with the following:
 NEXT_PUBLIC_SANITY_PROJECT_ID=your_project_id
 NEXT_PUBLIC_SANITY_DATASET=production
 SANITY_API_READ_TOKEN=your_read_token
+SANITY_API_WRITE_TOKEN=your_write_token
 SANITY_REVALIDATE_SECRET=your_revalidate_secret
+
+# Email delivery (Resend)
+RESEND_API_KEY=your_resend_api_key
+RESEND_FROM_EMAIL=Drenova Group <send.info@info.drenova.ca>
+CONTACT_EMAIL=info@yourdomain.com
 ```
+
+Refer to `docs/deployment-manual-steps.md` for detailed instructions on setting up external services like Sanity and Resend.
 
 ## Project Structure
 

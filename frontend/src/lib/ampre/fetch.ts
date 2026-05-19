@@ -157,6 +157,55 @@ export async function getAmpreListingByKey(
 export async function getAmpreListingBySlug(
   slug: string
 ): Promise<Listing | null> {
+  if (process.env.NODE_ENV !== "production") {
+    if (slug === "e2e-lead-capture-fixture") {
+      return {
+        id: "e2e-1",
+        slug: "e2e-lead-capture-fixture",
+        listingKey: "E2E-123",
+        address: "123 Test St",
+        city: "Test City",
+        province: "ON",
+        postalCode: "T3S T1N",
+        price: 1000000,
+        beds: 3,
+        baths: 2,
+        sqft: 2000,
+        propertyType: "Residential",
+        transactionType: "Sale",
+        modificationTimestamp: new Date().toISOString(),
+        lastSeen: new Date().toISOString(),
+        addressSuppressed: false,
+        image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80",
+        images: [],
+        status: "Active",
+      };
+    }
+    if (slug === "e2e-suppressed-address-fixture") {
+      return {
+        id: "e2e-2",
+        slug: "e2e-suppressed-address-fixture",
+        listingKey: "E2E-456",
+        address: "456 Hidden Ave",
+        city: "Secret City",
+        province: "ON",
+        postalCode: "H1D D3N",
+        price: 2000000,
+        beds: 4,
+        baths: 3,
+        sqft: 3000,
+        propertyType: "Residential",
+        transactionType: "Sale",
+        modificationTimestamp: new Date().toISOString(),
+        lastSeen: new Date().toISOString(),
+        addressSuppressed: true,
+        image: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80",
+        images: [],
+        status: "Active",
+      };
+    }
+  }
+
   const all = await getAllListingsFromKV();
   return findPublicListingBySlug(all, slug);
 }
