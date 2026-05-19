@@ -120,8 +120,8 @@ test("sends a message through the injected transport", async () => {
     html: message.html,
     replyTo: automatedReplyToEmail,
     tags: [
-      { name: "category", value: "template:contact" },
-      { name: "category", value: "audience:admin" },
+      { name: "template", value: "contact" },
+      { name: "audience", value: "admin" },
     ],
   });
 });
@@ -178,14 +178,14 @@ test("maps every lead source message to the final Resend transport payload", asy
     assert.equal(sentMessages[0]?.from, verifiedFromEmail);
     assert.equal(sentMessages[0]?.replyTo, automatedReplyToEmail);
     assert.deepEqual(sentMessages[0]?.tags, [
-      { name: "category", value: `template:${source}` },
-      { name: "category", value: "audience:user" },
+      { name: "template", value: source },
+      { name: "audience", value: "user" },
     ]);
     assert.equal(sentMessages[1]?.to, "info@drenovagroup.com");
     assert.equal(sentMessages[1]?.replyTo, automatedReplyToEmail);
     assert.deepEqual(sentMessages[1]?.tags, [
-      { name: "category", value: `template:${source}` },
-      { name: "category", value: "audience:admin" },
+      { name: "template", value: source },
+      { name: "audience", value: "admin" },
     ]);
   }
 });

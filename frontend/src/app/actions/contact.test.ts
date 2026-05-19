@@ -74,7 +74,7 @@ describe("submitContactForm", () => {
     const body = JSON.parse(fetchOptions.body as string) as ResendPayload;
     assert.strictEqual(body.from, verifiedFromEmail);
     assert.strictEqual(body.reply_to, automatedReplyToEmail);
-    assert.ok(body.tags?.some((t) => t.name === "category" && t.value === "template:contact"));
+    assert.ok(body.tags?.some((t) => t.name === "template" && t.value === "contact"));
     assert.ok(body.text.includes("Source: Contact Page"));
   });
 
@@ -107,7 +107,7 @@ describe("submitContactForm", () => {
     const body = JSON.parse(fetchOptions.body as string) as ResendPayload;
     assert.strictEqual(body.from, verifiedFromEmail);
     assert.strictEqual(body.reply_to, automatedReplyToEmail);
-    assert.ok(body.tags?.some((t) => t.name === "category" && t.value === "template:team-profile"));
+    assert.ok(body.tags?.some((t) => t.name === "template" && t.value === "team-profile"));
     assert.ok(body.text.includes("Source: Team Profile"));
     assert.ok(body.text.includes("Agent Name: Agent Smith"));
     assert.ok(body.text.includes("Agent Role: Broker"));

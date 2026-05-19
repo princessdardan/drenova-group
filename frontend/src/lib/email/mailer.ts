@@ -117,7 +117,14 @@ function createResendTransport(apiKey: string): EmailTransport {
 function toResendTags(
   tags: EmailMessagePayload["tags"]
 ): ResendEmailSendInput["tags"] {
-  return tags?.map((tag) => ({ name: "category", value: tag }));
+  return tags?.map((tag) => {
+    const [name, ...valueParts] = tag.split(":");
+
+    return {
+      name: valueParts.length > 0 ? name : "category",
+      value: valueParts.length > 0 ? valueParts.join("-") : tag,
+    };
+  });
 }
 
 function sanitizeResendProviderError(error: unknown): ResendProviderErrorLog {
