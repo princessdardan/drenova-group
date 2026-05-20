@@ -94,7 +94,10 @@ test("renders user confirmations and admin notifications for all lead templates"
     assertMessage(result.adminNotification);
     assert.equal("replyTo" in result.adminNotification, false);
     assert.match(result.userConfirmation.text, new RegExp(expectedLanguage[source]));
-    assert.match(result.userConfirmation.html, /The Drenova Group Team/);
+    assert.match(result.userConfirmation.text, /semir@drenova\.ca/);
+    assert.match(result.userConfirmation.html, /semir@drenova\.ca/);
+    assert.doesNotMatch(result.userConfirmation.text, /info@drenovagroup\.com/);
+    assert.doesNotMatch(result.userConfirmation.html, /info@drenovagroup\.com/);
     assert.match(result.adminNotification.subject, /New lead from Avery Morgan/);
     assert.deepEqual(result.userConfirmation.tags, [
       `template:${source}`,

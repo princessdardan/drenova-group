@@ -124,7 +124,7 @@ export function renderLeadEmailTemplates(
     "",
     "Best regards,",
     "The Drenova Group Team",
-    "info@drenovagroup.com",
+    "semir@drenova.ca",
   ];
   const adminText = buildLeadAdminText(context, copy.label, fullName);
 

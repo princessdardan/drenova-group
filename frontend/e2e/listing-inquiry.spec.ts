@@ -5,7 +5,7 @@ const suppressedAddressFixturePath = "/listings/e2e-suppressed-address-fixture";
 const safeSubmissionEndpoint = "**/api/e2e/listing-inquiry-submissions";
 
 async function expectFixturePage(page: Page, path: string) {
-  const response = await page.goto(path);
+  const response = await page.goto(path, { waitUntil: "domcontentloaded" });
   expect(response?.status(), `${path} must be a deterministic e2e listing fixture`).toBe(200);
 }
 
@@ -98,5 +98,26 @@ test.describe("Listing inquiry lead capture on mobile", () => {
 
     await expect(page).toHaveURL(/#listing-inquiry$/);
     await expect(page.locator("#listing-inquiry").getByLabel("Name")).toBeVisible();
+  });
+});
+
+test.describe("Listing inquiry lead capture on laptop", () => {
+  test.use({ viewport: { width: 1366, height: 768 } });
+
+  test("submit button is reachable without scrolling to page bottom", async ({ page }) => {
+    await expectFixturePage(page, listingInquiryFixturePath);
+
+    const submitButton = page
+      .locator("#listing-inquiry")
+      .getByRole("button", { name: /request information|submit inquiry/i });
+
+    const sidebar = page.locator(".sticky.top-28");
+    await sidebar.evaluate((el) => {
+      el.scrollTop = el.scrollHeight;
+    });
+
+    expect(await page.evaluate(() => window.scrollY)).toBe(0);
+    await expect(submitButton).toBeVisible();
+    await expect(submitButton).toBeEnabled();
   });
 });

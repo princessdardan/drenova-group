@@ -101,7 +101,7 @@ export function ListingInquiryForm({ listingContext }: ListingInquiryFormProps) 
 
   if (submitted) {
     return (
-      <div className="dimensional-card p-6 sm:p-8" id="listing-inquiry">
+      <div className="dimensional-card p-5 sm:p-6" id="listing-inquiry">
         <FormStatus
           title="Thank You"
           message="Your inquiry has been received. A member of our team will reach out shortly."
@@ -111,9 +111,9 @@ export function ListingInquiryForm({ listingContext }: ListingInquiryFormProps) 
   }
 
   return (
-    <div className="dimensional-card p-6 sm:p-8" id="listing-inquiry">
-      <h3 className="font-display text-2xl font-bold tracking-tight mb-6">Request Information</h3>
-      <form onSubmit={handleSubmit} noValidate className="space-y-4">
+    <div className="dimensional-card p-5 sm:p-6" id="listing-inquiry">
+      <h3 className="font-display text-xl sm:text-2xl font-bold tracking-tight mb-4 sm:mb-6">Request Information</h3>
+      <form onSubmit={handleSubmit} noValidate className="space-y-3 sm:space-y-4">
         {serverError && <FormStatus error message={serverError} />}
         <Input
           id="name"

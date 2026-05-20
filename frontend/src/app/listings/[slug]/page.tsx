@@ -536,7 +536,7 @@ export default async function ListingDetailPage(props: ListingDetailProps) {
 
             {/* Sidebar */}
             <div className="lg:col-span-1">
-              <div className="sticky top-28 space-y-6">
+              <div className="sticky top-28 space-y-6 max-h-[calc(100vh-7rem)] overflow-y-auto pb-4 overscroll-contain">
                 <div className="bg-surface-alt border border-border rounded-lg p-6 space-y-5">
                   {/* Price */}
                   <div>
