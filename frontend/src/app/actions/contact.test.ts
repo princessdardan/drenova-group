@@ -19,6 +19,7 @@ interface ResendPayload {
 
 const verifiedFromEmail = "Drenova Group <send.info@info.drenova.ca>";
 const automatedReplyToEmail = "semir@drenova.ca";
+const consentText = "I agree to the Privacy Policy.";
 
 describe("submitContactForm", () => {
   beforeEach(() => {
@@ -45,9 +46,38 @@ describe("submitContactForm", () => {
     formData.append("email", "invalid-email");
     formData.append("subject", "general");
     formData.append("message", "Hello");
+    formData.append("privacyMarketingConsent", "true");
+    formData.append("privacyMarketingConsentText", consentText);
     const result = await submitContactForm(formData);
     assert.strictEqual(result.success, false);
     assert.strictEqual(result.error, "Please enter a valid email address.");
+  });
+
+  it("returns error if consent is missing", async () => {
+    const formData = new FormData();
+    formData.append("name", "John Doe");
+    formData.append("email", "john@example.com");
+    formData.append("subject", "general");
+    formData.append("message", "Hello");
+
+    const result = await submitContactForm(formData);
+
+    assert.strictEqual(result.success, false);
+    assert.strictEqual(result.error, "Consent is required.");
+  });
+
+  it("returns error if consent is explicitly false", async () => {
+    const formData = new FormData();
+    formData.append("name", "John Doe");
+    formData.append("email", "john@example.com");
+    formData.append("subject", "general");
+    formData.append("message", "Hello");
+    formData.append("privacyMarketingConsent", "false");
+
+    const result = await submitContactForm(formData);
+
+    assert.strictEqual(result.success, false);
+    assert.strictEqual(result.error, "Consent is required.");
   });
 
   it("sends email with contact template by default", async () => {
@@ -66,6 +96,8 @@ describe("submitContactForm", () => {
     formData.append("email", "john@example.com");
     formData.append("subject", "general");
     formData.append("message", "Hello");
+    formData.append("privacyMarketingConsent", "true");
+    formData.append("privacyMarketingConsentText", "client-controlled copy");
 
     const result = await submitContactForm(formData);
     assert.strictEqual(result.success, true);
@@ -76,6 +108,9 @@ describe("submitContactForm", () => {
     assert.strictEqual(body.reply_to, automatedReplyToEmail);
     assert.ok(body.tags?.some((t) => t.name === "template" && t.value === "contact"));
     assert.ok(body.text.includes("Source: Contact Page"));
+    assert.ok(body.text.includes("Privacy/Marketing Consent: Provided"));
+    assert.ok(body.text.includes("Consent Text: I agree to be contacted by Drenova Group"));
+    assert.ok(!body.text.includes("client-controlled copy"));
   });
 
   it("sends email with team-profile template when provided", async () => {
@@ -99,6 +134,8 @@ describe("submitContactForm", () => {
     formData.append("agentRole", "Broker");
     formData.append("agentSlug", "agent-smith");
     formData.append("sourcePath", "/team/agent-smith");
+    formData.append("privacyMarketingConsent", "true");
+    formData.append("privacyMarketingConsentText", consentText);
 
     const result = await submitContactForm(formData);
     assert.strictEqual(result.success, true);
@@ -135,6 +172,8 @@ describe("submitContactForm", () => {
     formData.append("email", "john@example.com");
     formData.append("subject", "general");
     formData.append("message", "Hello");
+    formData.append("privacyMarketingConsent", "true");
+    formData.append("privacyMarketingConsentText", consentText);
 
     try {
       const result = await submitContactForm(formData);

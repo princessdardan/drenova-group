@@ -157,6 +157,7 @@ export interface SiteSettings {
   officeHours?: string;
   navigationLinks?: NavigationLink[];
   socialLinks?: SocialLinks;
+  privacyMarketingConsentText?: PortableTextBlock[];
 }
 
 export interface HomePage {
@@ -282,6 +283,9 @@ export interface LeadSubmission {
   postalCode?: string;
   notes?: string;
   source: "buyers-guide" | "sellers-guide" | "homepage" | "buy" | "sell" | "about" | "team" | "home-evaluation" | "listing-detail";
+  privacyMarketingConsent?: boolean;
+  privacyMarketingConsentAt?: string;
+  privacyMarketingConsentText?: string;
   listingSlug?: string;
   listingMlsNumber?: string;
   listingTitle?: string;

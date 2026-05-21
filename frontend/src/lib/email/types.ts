@@ -52,6 +52,7 @@ export interface LeadEmailContext {
   postalCode?: string;
   notes?: string;
   listing?: SafeListingEmailContext;
+  privacyMarketingConsentText: string;
 }
 
 export interface ContactEmailContext {
@@ -64,6 +65,7 @@ export interface ContactEmailContext {
   agentName?: string;
   agentRole?: string;
   agentSlug?: string;
+  privacyMarketingConsentText: string;
 }
 
 export interface LeadTemplateRenderResult {

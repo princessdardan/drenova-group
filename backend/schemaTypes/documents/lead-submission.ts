@@ -102,6 +102,25 @@ export const leadSubmission = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: "privacyMarketingConsent",
+      title: "Privacy and Marketing Consent",
+      type: "boolean",
+      readOnly: true,
+    }),
+    defineField({
+      name: "privacyMarketingConsentAt",
+      title: "Consent Captured At",
+      type: "datetime",
+      readOnly: true,
+    }),
+    defineField({
+      name: "privacyMarketingConsentText",
+      title: "Consent Text Snapshot",
+      type: "text",
+      rows: 3,
+      readOnly: true,
+    }),
+    defineField({
       name: "listingSlug",
       title: "Listing Slug",
       type: "string",

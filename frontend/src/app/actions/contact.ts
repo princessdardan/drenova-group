@@ -3,6 +3,10 @@
 import { renderContactEmailTemplate } from "@/lib/email/templates";
 import { sendEmailMessage } from "@/lib/email/mailer";
 import type { ContactEmailTemplateKey } from "@/lib/email/types";
+import {
+  getPrivacyMarketingConsentTextSnapshot,
+  isPrivacyMarketingConsentGranted,
+} from "@/lib/forms/server-consent";
 
 interface ContactResult {
   success: boolean;
@@ -22,6 +26,7 @@ export async function submitContactForm(
   const phone = getString(formData, "phone");
   const subject = getString(formData, "subject");
   const message = getString(formData, "message");
+  const privacyMarketingConsent = formData.get("privacyMarketingConsent");
   
   const rawTemplateKey = getString(formData, "templateKey");
   const templateKey: ContactEmailTemplateKey = 
@@ -36,9 +41,15 @@ export async function submitContactForm(
     return { success: false, error: "All required fields must be filled." };
   }
 
+  if (!isPrivacyMarketingConsentGranted(privacyMarketingConsent)) {
+    return { success: false, error: "Consent is required." };
+  }
+
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return { success: false, error: "Please enter a valid email address." };
   }
+
+  const privacyMarketingConsentText = await getPrivacyMarketingConsentTextSnapshot();
 
   const templateResult = renderContactEmailTemplate(templateKey, {
     name,
@@ -50,6 +61,7 @@ export async function submitContactForm(
     agentName,
     agentRole,
     agentSlug,
+    privacyMarketingConsentText,
   });
 
   const result = await sendEmailMessage(templateResult.adminContact);

@@ -22,6 +22,8 @@ const leadSources = [
   "listing-detail",
 ] as const satisfies readonly LeadSource[];
 
+const consentText = "I agree to the Privacy Policy.";
+
 test("lead action routes every accepted source through the matching template key", async () => {
   for (const source of leadSources) {
     const dependencies = createDependencies();
@@ -67,6 +69,9 @@ test("listing-detail submission persists and emails only safe listing context", 
     email: "avery@example.com",
     phone: "416-555-0199",
     source: "listing-detail",
+    privacyMarketingConsent: true,
+    privacyMarketingConsentAt: dependencies.createdDocuments[0]?.privacyMarketingConsentAt,
+    privacyMarketingConsentText: consentText,
     listingSlug: "ravine-view-home",
     listingMlsNumber: "C9876543",
     listingTitle: "Ravine View Home",
@@ -111,6 +116,32 @@ test("listing-detail submission persists and emails only safe listing context", 
     assert.doesNotMatch(renderedEmailPayloads, escapeRegExp(forbidden));
     assert.equal(Object.hasOwn(dependencies.createdDocuments[0] ?? {}, forbidden), false);
   }
+});
+
+test("lead action requires consent for every accepted source", async () => {
+  for (const source of leadSources) {
+    const formData = formDataForSource(source);
+    formData.delete("privacyMarketingConsent");
+    const dependencies = createDependencies();
+
+    const result = await submitLeadFormWithDependencies(formData, dependencies);
+
+    assert.deepEqual(result, { success: false, error: "Consent is required." });
+    assert.equal(dependencies.createdDocuments.length, 0);
+    assert.equal(dependencies.sentEmails.length, 0);
+  }
+});
+
+test("lead action rejects explicitly false consent", async () => {
+  const formData = formDataForSource("homepage");
+  formData.set("privacyMarketingConsent", "false");
+  const dependencies = createDependencies();
+
+  const result = await submitLeadFormWithDependencies(formData, dependencies);
+
+  assert.deepEqual(result, { success: false, error: "Consent is required." });
+  assert.equal(dependencies.createdDocuments.length, 0);
+  assert.equal(dependencies.sentEmails.length, 0);
 });
 
 test("user confirmation failure prevents admin notification", async () => {
@@ -214,6 +245,9 @@ interface CreatedLeadDocument {
   phone?: string;
   source: LeadSource;
   submittedAt: string;
+  privacyMarketingConsent: boolean;
+  privacyMarketingConsentAt: string;
+  privacyMarketingConsentText: string;
   addressLine?: string;
   unit?: string;
   city?: string;
@@ -273,6 +307,7 @@ function createDependencies(options: DependencyOptions = {}): TestDependencies {
     },
     getEmailConfig: () => options.emailConfig ?? { ok: true, config: validConfig() },
     renderLeadEmailTemplates,
+    getPrivacyMarketingConsentText: async () => consentText,
     async sendEmailMessage(message, config) {
       const callIndex = sentEmails.length;
       events.push(`email:${callIndex}`);
@@ -291,6 +326,8 @@ function formDataForSource(source: LeadSource): FormData {
   const formData = new FormData();
   formData.set("source", source);
   formData.set("email", "avery@example.com");
+  formData.set("privacyMarketingConsent", "true");
+  formData.set("privacyMarketingConsentText", consentText);
 
   if (source === "home-evaluation" || source === "listing-detail") {
     formData.set("name", "Avery Morgan");

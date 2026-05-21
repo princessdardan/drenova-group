@@ -11,6 +11,8 @@ test.describe("Contact form", () => {
     await expect(page.locator('input[name="phone"]')).toBeVisible();
     await expect(page.locator('select[name="subject"]')).toBeVisible();
     await expect(page.locator('textarea[name="message"]')).toBeVisible();
+    await expect(page.locator('input[name="privacyMarketingConsent"]')).toBeVisible();
+    await expect(page.locator('#privacyMarketingConsent-label a[href="/privacy"]')).toBeVisible();
   });
 
   test("submitting empty form shows validation errors", async ({ page }) => {
@@ -20,6 +22,7 @@ test.describe("Contact form", () => {
     await expect(page.locator("#email-error")).toHaveText("Email is required.");
     await expect(page.locator("#subject-error")).toHaveText("Please select a subject.");
     await expect(page.locator("#message-error")).toHaveText("Message is required.");
+    await expect(page.locator("#privacyMarketingConsent-error")).toHaveText("Consent is required.");
 
     await expect(page.locator('input[name="name"]')).toHaveAttribute("aria-invalid", "true");
     await expect(page.locator('input[name="name"]')).toHaveAttribute("aria-describedby", "name-error");
@@ -29,6 +32,8 @@ test.describe("Contact form", () => {
     await expect(page.locator('select[name="subject"]')).toHaveAttribute("aria-describedby", "subject-error");
     await expect(page.locator('textarea[name="message"]')).toHaveAttribute("aria-invalid", "true");
     await expect(page.locator('textarea[name="message"]')).toHaveAttribute("aria-describedby", "message-error");
+    await expect(page.locator('input[name="privacyMarketingConsent"]')).toHaveAttribute("aria-invalid", "true");
+    await expect(page.locator('input[name="privacyMarketingConsent"]')).toHaveAttribute("aria-describedby", "privacyMarketingConsent-error");
 
     await expect(page.locator('input[name="phone"]')).toHaveAttribute("aria-invalid", "false");
     await expect(page.locator('input[name="phone"]')).not.toHaveAttribute("aria-describedby", /.+/);
@@ -46,6 +51,13 @@ test.describe("Contact form", () => {
     await expect(page.getByLabel("Phone")).toHaveAttribute("name", "phone");
     await expect(page.getByLabel("Subject")).toHaveAttribute("name", "subject");
     await expect(page.getByLabel("Message")).toHaveAttribute("name", "message");
+    await expect(page.getByLabel(/I agree to be contacted/i)).toHaveAttribute("name", "privacyMarketingConsent");
+  });
+
+  test("/contact#contact targets the visible form section", async ({ page }) => {
+    await page.goto("/contact#contact");
+
+    await expect(page.locator("#contact").getByLabel("Name")).toBeVisible();
   });
 });
 
@@ -74,6 +86,7 @@ test.describe("Home evaluation lead form", () => {
 
     await expect(page.locator("#name-error")).toHaveText("Name is required.");
     await expect(page.locator("#email-error")).toHaveText("Email is required.");
+    await expect(page.locator("#privacyMarketingConsent-error")).toHaveText("Consent is required.");
 
     await expect(page.locator('input[name="name"]')).toHaveAttribute("aria-invalid", "true");
     await expect(page.locator('input[name="name"]')).toHaveAttribute("aria-describedby", "name-error");
@@ -87,5 +100,11 @@ test.describe("Home evaluation lead form", () => {
     await expect(page.locator('input[name="province"]')).toHaveAttribute("aria-invalid", "false");
     await expect(page.locator('input[name="postalCode"]')).toHaveAttribute("aria-invalid", "false");
     await expect(page.locator('textarea[name="notes"]')).toHaveAttribute("aria-invalid", "false");
+  });
+
+  test("/home-evaluation#contact targets the visible form section", async ({ page }) => {
+    await page.goto("/home-evaluation#contact");
+
+    await expect(page.locator("#contact").getByLabel("Name")).toBeVisible();
   });
 });

@@ -159,6 +159,8 @@ export function renderContactEmailTemplate(
     ...optionalLine("Agent Name", context.agentName),
     ...optionalLine("Agent Role", context.agentRole),
     ...optionalLine("Agent Slug", context.agentSlug),
+    "Privacy/Marketing Consent: Provided",
+    `Consent Text: ${context.privacyMarketingConsentText}`,
     "",
     "Message:",
     context.message,
@@ -224,6 +226,8 @@ function buildLeadAdminText(
     ...(isListing ? optionalLine("Listed Price", formatPrice(listing?.listingPrice)) : []),
     ...(!isListing ? optionalLine("Notes", context.notes) : []),
     `Source: ${label}`,
+    "Privacy/Marketing Consent: Provided",
+    `Consent Text: ${context.privacyMarketingConsentText}`,
   ];
 }
 

@@ -25,7 +25,8 @@ export const siteSettingsQuery = groq`*[_type == "siteSettings"][0] {
     showInHeader,
     showInFooter
   },
-  socialLinks
+  socialLinks,
+  privacyMarketingConsentText
 }`;
 
 export const homePageQuery = groq`*[_type == "homePage"][0] {

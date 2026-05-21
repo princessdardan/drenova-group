@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { FormStatus } from "@/components/ui/form-status";
+import { FormConsentField } from "@/components/sections/form-consent-field";
 import { submitContactForm } from "@/app/actions/contact";
+import type { PortableTextBlock } from "@portabletext/types";
 
 const subjectOptions = [
   { value: "buying", label: "Buying" },
@@ -21,6 +23,7 @@ interface ContactFormProps {
   agentName?: string;
   agentRole?: string;
   agentSlug?: string;
+  consentText?: PortableTextBlock[];
 }
 
 export function ContactForm({
@@ -30,6 +33,7 @@ export function ContactForm({
   agentName,
   agentRole,
   agentSlug,
+  consentText,
 }: ContactFormProps) {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -45,10 +49,16 @@ export function ContactForm({
       errs.email = "Please enter a valid email address.";
     if (!form.get("subject")) errs.subject = "Please select a subject.";
     if (!form.get("message")) errs.message = "Message is required.";
+    if (!form.get("privacyMarketingConsent")) {
+      errs.privacyMarketingConsent = "Consent is required.";
+    }
     return errs;
   }
 
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: {
+    preventDefault: () => void;
+    currentTarget: HTMLFormElement;
+  }) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const errs = validate(formData);
@@ -121,6 +131,10 @@ export function ContactForm({
         label="Message"
         placeholder="How can we help you?"
         error={errors.message}
+      />
+      <FormConsentField
+        text={consentText}
+        error={errors.privacyMarketingConsent}
       />
       {serverError && (
         <FormStatus error message={serverError} />

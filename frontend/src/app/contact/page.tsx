@@ -41,12 +41,16 @@ export default async function ContactPage() {
       />
 
       {/* ─── Form + Office Info ─── */}
-      <SectionShell bg="background" container="lg" containerClassName="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
+      <SectionShell id="contact" bg="background" container="lg" containerClassName="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
         <Reveal>
           <h2 className="font-display text-2xl lg:text-4xl font-bold tracking-tight mb-6">
             Send Us a Message
           </h2>
-          <ContactForm templateKey="contact" sourcePath="/contact" />
+          <ContactForm
+            templateKey="contact"
+            sourcePath="/contact"
+            consentText={siteSettings?.privacyMarketingConsentText}
+          />
         </Reveal>
 
         <Reveal delay={0.1}>

@@ -4,6 +4,7 @@ import { Playfair_Display, Plus_Jakarta_Sans, Geist_Mono } from "next/font/googl
 import { Analytics } from "@vercel/analytics/next";
 import { Header } from "@/components/sections/header";
 import { Footer } from "@/components/sections/footer";
+import { FormConsentProvider } from "@/components/sections/form-consent-provider";
 import { DraftBanner } from "@/components/ui/draft-banner";
 import { getSiteSettings } from "@/lib/sanity/fetch";
 import { SITE_URL } from "@/lib/seo";
@@ -81,16 +82,18 @@ export default async function RootLayout({
           Skip to main content
         </a>
         {isDraftMode && <DraftBanner />}
-        <Header
-          navigationLinks={headerLinks}
-          phone={siteSettings?.phone}
-          email={siteSettings?.email}
-        />
-        <main id="main-content">{children}</main>
-        <Footer
-          navigationLinks={footerLinks}
-          officeHours={siteSettings?.officeHours}
-        />
+        <FormConsentProvider consentText={siteSettings?.privacyMarketingConsentText}>
+          <Header
+            navigationLinks={headerLinks}
+            phone={siteSettings?.phone}
+            email={siteSettings?.email}
+          />
+          <main id="main-content">{children}</main>
+          <Footer
+            navigationLinks={footerLinks}
+            officeHours={siteSettings?.officeHours}
+          />
+        </FormConsentProvider>
         <Analytics />
       </body>
     </html>

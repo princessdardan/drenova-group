@@ -4,7 +4,9 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { FormStatus } from "@/components/ui/form-status";
+import { FormConsentField } from "@/components/sections/form-consent-field";
 import { submitLeadForm } from "@/app/actions/lead";
+import type { PortableTextBlock } from "@portabletext/types";
 
 interface ListingContext {
   listingSlug?: string;
@@ -19,9 +21,10 @@ interface ListingContext {
 
 interface ListingInquiryFormProps {
   listingContext: ListingContext;
+  consentText?: PortableTextBlock[];
 }
 
-export function ListingInquiryForm({ listingContext }: ListingInquiryFormProps) {
+export function ListingInquiryForm({ listingContext, consentText }: ListingInquiryFormProps) {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -35,6 +38,9 @@ export function ListingInquiryForm({ listingContext }: ListingInquiryFormProps) 
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       errs.email = "Please enter a valid email address.";
     if (!form.get("phone")) errs.phone = "Phone is required.";
+    if (!form.get("privacyMarketingConsent")) {
+      errs.privacyMarketingConsent = "Consent is required.";
+    }
     return errs;
   }
 
@@ -140,6 +146,10 @@ export function ListingInquiryForm({ listingContext }: ListingInquiryFormProps) 
           placeholder="(555) 123-4567"
           required
           error={errors.phone}
+        />
+        <FormConsentField
+          text={consentText}
+          error={errors.privacyMarketingConsent}
         />
         <Button
           type="submit"

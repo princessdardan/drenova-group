@@ -1,5 +1,6 @@
 // Objects
 import { blockContent } from "./objects/block-content";
+import { formConsentText } from "./objects/form-consent-text";
 import { heroSettings } from "./objects/hero-settings";
 import { processStep } from "./objects/process-step";
 import { sectionHeading } from "./objects/section-heading";
@@ -33,6 +34,7 @@ import { homeEvaluationPage } from "./singletons/home-evaluation-page";
 export const schemaTypes = [
   // Objects (must be registered before types that reference them)
   blockContent,
+  formConsentText,
   heroSettings,
   processStep,
   sectionHeading,

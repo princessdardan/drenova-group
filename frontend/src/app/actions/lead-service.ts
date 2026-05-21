@@ -6,6 +6,7 @@ import type {
   LeadTemplateRenderResult,
   SafeListingEmailContext,
 } from "@/lib/email/types";
+import { isPrivacyMarketingConsentGranted } from "@/lib/forms/server-consent";
 
 export type LeadSource = LeadEmailContext["source"];
 
@@ -22,6 +23,7 @@ export interface LeadActionDependencies {
   writeClient: LeadWriteClient;
   getEmailConfig(): EmailConfigResult;
   renderLeadEmailTemplates(context: LeadEmailContext): LeadTemplateRenderResult;
+  getPrivacyMarketingConsentText(): Promise<string>;
   sendEmailMessage(
     message: EmailMessagePayload,
     config?: EmailConfig
@@ -37,6 +39,9 @@ type LeadSubmissionDocument = {
   phone?: string;
   source: LeadSource;
   submittedAt: string;
+  privacyMarketingConsent: boolean;
+  privacyMarketingConsentAt: string;
+  privacyMarketingConsentText: string;
 } & Partial<NonListingLeadFields> &
   Partial<SafeListingEmailContext>;
 
@@ -62,6 +67,7 @@ export async function submitLeadFormWithDependencies(
   const submittedLastName = stringValue(formData, "lastName");
   const email = stringValue(formData, "email") ?? "";
   const phone = stringValue(formData, "phone");
+  const privacyMarketingConsent = formData.get("privacyMarketingConsent");
   const nameParts = name?.split(/\s+/) ?? [];
   const firstName = submittedFirstName ?? nameParts[0] ?? "";
   const lastName =
@@ -76,6 +82,10 @@ export async function submitLeadFormWithDependencies(
 
   if (!firstName || !lastName || !email) {
     return { success: false, error: "All fields are required." };
+  }
+
+  if (!isPrivacyMarketingConsentGranted(privacyMarketingConsent)) {
+    return { success: false, error: "Consent is required." };
   }
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -100,18 +110,21 @@ export async function submitLeadFormWithDependencies(
   const isListing = source === "listing-detail";
   const listing = isListing ? getListingContext(formData) : undefined;
   const nonListingFields = isListing ? {} : getNonListingLeadFields(formData);
+  const privacyMarketingConsentText = await dependencies.getPrivacyMarketingConsentText();
   const templateContext: LeadEmailContext = {
     source,
     firstName,
     lastName,
     email,
     phone,
+    privacyMarketingConsentText,
     ...nonListingFields,
     ...(listing ? { listing } : {}),
   };
   const templates = dependencies.renderLeadEmailTemplates(templateContext);
 
   try {
+    const submittedAt = new Date().toISOString();
     await dependencies.writeClient.create({
       _type: "leadSubmission",
       firstName,
@@ -119,9 +132,12 @@ export async function submitLeadFormWithDependencies(
       email,
       phone,
       source,
+      privacyMarketingConsent: true,
+      privacyMarketingConsentAt: submittedAt,
+      privacyMarketingConsentText,
       ...nonListingFields,
       ...listing,
-      submittedAt: new Date().toISOString(),
+      submittedAt,
     });
   } catch {
     return { success: false, error: genericFailure };

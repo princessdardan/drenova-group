@@ -507,6 +507,7 @@ function buildSeedPayload(source: SourcePayload): BuildSummary {
       "officeHours",
       "navigationLinks",
       "socialLinks",
+      "privacyMarketingConsentText",
     ]
   );
   const homePage = buildSeedDocument(ensureSourceDocument(source, "homePage"), "homePage", "homePage", [

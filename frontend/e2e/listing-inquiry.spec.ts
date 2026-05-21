@@ -19,6 +19,8 @@ test.describe("Listing inquiry lead capture", () => {
     await expect(inquiry.getByLabel("Name")).toHaveAttribute("name", "name");
     await expect(inquiry.getByLabel("Email")).toHaveAttribute("name", "email");
     await expect(inquiry.getByLabel("Phone")).toHaveAttribute("name", "phone");
+    await expect(inquiry.getByLabel(/I agree to be contacted/i)).toHaveAttribute("name", "privacyMarketingConsent");
+    await expect(inquiry.locator('#privacyMarketingConsent-label a[href="/privacy"]')).toBeVisible();
   });
 
   test("successful inquiry submission uses the e2e-safe seam instead of real email", async ({ page }) => {
@@ -31,6 +33,7 @@ test.describe("Listing inquiry lead capture", () => {
       expect(payload).toContain("Test Lead");
       expect(payload).toContain("lead@example.test");
       expect(payload).toContain("555-0100");
+      expect(payload).toContain("privacyMarketingConsent");
       expect(payload).toContain("e2e-lead-capture-fixture");
       expect(payload).not.toMatch(/address/i);
       expect(payload).not.toMatch(/postal/i);
@@ -48,6 +51,7 @@ test.describe("Listing inquiry lead capture", () => {
     await inquiry.getByLabel("Name").fill("Test Lead");
     await inquiry.getByLabel("Email").fill("lead@example.test");
     await inquiry.getByLabel("Phone").fill("555-0100");
+    await inquiry.getByLabel(/I agree to be contacted/i).check();
     await inquiry.getByRole("button", { name: /request information|submit inquiry/i }).click();
 
     await expect(page.getByText(/thank you|inquiry received/i)).toBeVisible();
@@ -78,6 +82,7 @@ test.describe("Listing inquiry lead capture", () => {
     await inquiry.getByLabel("Name").fill("Suppressed Listing Lead");
     await inquiry.getByLabel("Email").fill("suppressed@example.test");
     await inquiry.getByLabel("Phone").fill("555-0101");
+    await inquiry.getByLabel(/I agree to be contacted/i).check();
     await inquiry.getByRole("button", { name: /request information|submit inquiry/i }).click();
 
     await expect(page.getByText(/thank you|inquiry received/i)).toBeVisible();

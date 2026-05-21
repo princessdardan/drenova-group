@@ -5,7 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { FormStatus } from "@/components/ui/form-status";
+import { FormConsentField } from "@/components/sections/form-consent-field";
 import { submitLeadForm } from "@/app/actions/lead";
+import type { PortableTextBlock } from "@portabletext/types";
 
 export type LeadSource =
   | "buyers-guide"
@@ -21,9 +23,10 @@ export type LeadSource =
 interface LeadFormProps {
   source: LeadSource;
   showPhone?: boolean;
+  consentText?: PortableTextBlock[];
 }
 
-export function LeadForm({ source, showPhone = false }: LeadFormProps) {
+export function LeadForm({ source, showPhone = false, consentText }: LeadFormProps) {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -41,6 +44,9 @@ export function LeadForm({ source, showPhone = false }: LeadFormProps) {
     if (!email) errs.email = "Email is required.";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       errs.email = "Please enter a valid email address.";
+    if (!form.get("privacyMarketingConsent")) {
+      errs.privacyMarketingConsent = "Consent is required.";
+    }
     return errs;
   }
 
@@ -176,6 +182,10 @@ export function LeadForm({ source, showPhone = false }: LeadFormProps) {
           />
         </>
       )}
+      <FormConsentField
+        text={consentText}
+        error={errors.privacyMarketingConsent}
+      />
       <Button
         type="submit"
         variant="primary"

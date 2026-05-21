@@ -29,6 +29,11 @@ const marketingLeadPages = [
   { path: "/sellers-guide", name: "Seller guide", source: "sellers-guide" },
 ];
 
+const contactFormPages = [
+  { path: "/contact", name: "Contact" },
+  { path: "/home-evaluation", name: "Home evaluation" },
+];
+
 const routesWithoutGenericLeadCapture = [
   { path: "/listings", name: "Listings" },
   { path: "/privacy", name: "Privacy" },
@@ -112,6 +117,20 @@ test.describe("Lead capture anchors", () => {
       const contactCtas = page.locator('a[href="#contact"]');
       await expect(contactCtas.first()).toBeVisible();
       expect(await contactCtas.count()).toBeGreaterThan(0);
+    });
+  }
+
+  for (const { path, name } of contactFormPages) {
+    test(`${name} page exposes a local #contact form target`, async ({ page }) => {
+      await page.goto(`${path}#contact`);
+
+      const contactTarget = page.locator("#contact");
+      await expect(page).toHaveURL(/#contact$/);
+      await expect(contactTarget).toHaveCount(1);
+      await expect(contactTarget).toBeVisible();
+      await expect(contactTarget.locator('input[name="name"]')).toBeVisible();
+      await expect(contactTarget.locator('input[name="email"]')).toBeVisible();
+      await expect(contactTarget.locator('input[name="privacyMarketingConsent"]')).toBeVisible();
     });
   }
 

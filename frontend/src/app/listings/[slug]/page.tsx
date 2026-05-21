@@ -589,7 +589,9 @@ export default async function ListingDetailPage(props: ListingDetailProps) {
                   )}
                 </div>
 
-                <ListingInquiryForm listingContext={listingContext} />
+                <ListingInquiryForm
+                  listingContext={listingContext}
+                />
               </div>
             </div>
           </div>

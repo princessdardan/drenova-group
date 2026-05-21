@@ -33,7 +33,7 @@ export default async function HomeEvaluationPage() {
       />
 
       {/* ─── Form Section ─── */}
-      <SectionShell bg="background" container="sm">
+      <SectionShell id="contact" bg="background" container="sm">
         <div className="text-center mb-12">
           <h2 className="font-display text-3xl lg:text-4xl font-bold tracking-tight mb-6">
             {page?.formHeading ?? "Request Your Free Evaluation"}

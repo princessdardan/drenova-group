@@ -91,6 +91,13 @@ export const siteSettings = defineType({
         defineField({ name: "twitter", title: "X / Twitter URL", type: "url" }),
       ],
     }),
+    defineField({
+      name: "privacyMarketingConsentText",
+      title: "Privacy and Marketing Consent Text",
+      type: "formConsentText",
+      description:
+        "Rich text shown beside every form consent checkbox. Add a Privacy Policy hyperlink here.",
+    }),
   ],
   preview: {
     prepare: () => ({ title: "Site Settings" }),

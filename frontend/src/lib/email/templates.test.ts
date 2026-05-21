@@ -14,6 +14,8 @@ import type {
   LeadEmailContext,
 } from "./types";
 
+const consentText = "I agree to the Privacy Policy.";
+
 const baseLeadContext: Omit<LeadEmailContext, "source"> = {
   firstName: "Avery",
   lastName: "Morgan",
@@ -25,6 +27,7 @@ const baseLeadContext: Omit<LeadEmailContext, "source"> = {
   province: "ON",
   postalCode: "M5H 1A1",
   notes: "Interested in a spring move.",
+  privacyMarketingConsentText: consentText,
 };
 
 const contactContext: ContactEmailContext = {
@@ -37,6 +40,7 @@ const contactContext: ContactEmailContext = {
   agentName: "Jordan Lee",
   agentRole: "Agent",
   agentSlug: "jordan-lee",
+  privacyMarketingConsentText: consentText,
 };
 
 test("exports the complete page-specific template matrix", () => {
@@ -99,6 +103,8 @@ test("renders user confirmations and admin notifications for all lead templates"
     assert.doesNotMatch(result.userConfirmation.text, /info@drenovagroup\.com/);
     assert.doesNotMatch(result.userConfirmation.html, /info@drenovagroup\.com/);
     assert.match(result.adminNotification.subject, /New lead from Avery Morgan/);
+    assert.match(result.adminNotification.text, /Privacy\/Marketing Consent: Provided/);
+    assert.match(result.adminNotification.text, /Consent Text: I agree to the Privacy Policy\./);
     assert.deepEqual(result.userConfirmation.tags, [
       `template:${source}`,
       "audience:user",
@@ -122,6 +128,8 @@ test("renders admin contact emails for contact and team-profile templates", () =
     assert.match(result.adminContact.text, /Agent Role: Agent/);
     assert.match(result.adminContact.text, /Agent Slug: jordan-lee/);
     assert.match(result.adminContact.text, /Source Path: \/team\/jordan-lee/);
+    assert.match(result.adminContact.text, /Privacy\/Marketing Consent: Provided/);
+    assert.match(result.adminContact.text, /Consent Text: I agree to the Privacy Policy\./);
     assert.deepEqual(result.adminContact.tags, [`template:${key}`, "audience:admin"]);
   }
 });
@@ -141,6 +149,7 @@ test("escapes user-provided values in HTML output", () => {
     firstName: "Ada <script>alert(1)</script>",
     lastName: "O'Neil & Sons",
     email: "ada@example.com",
+    privacyMarketingConsentText: consentText,
     listing: {
       listingTitle: "Loft <img src=x onerror=alert(1)> & Terrace",
     },
@@ -150,6 +159,7 @@ test("escapes user-provided values in HTML output", () => {
     email: "kai@example.com",
     subject: "Tour <now>",
     message: "Can you show \"Suite A\" & the terrace?",
+    privacyMarketingConsentText: consentText,
   });
 
   assert.doesNotMatch(maliciousLead.userConfirmation.html, /<script>/);
