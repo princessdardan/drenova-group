@@ -7,6 +7,7 @@ import { makeMetadata } from "@/lib/seo";
 export const metadata: Metadata = makeMetadata({
   title: "Privacy Policy",
   description: "Drenova Group privacy policy — how we collect, use, and protect your personal information.",
+  path: "/privacy",
 });
 
 export default async function PrivacyPage() {
@@ -54,7 +55,7 @@ function PrivacyFallback() {
           </h2>
           <p className="text-muted leading-7">
             If you have questions about this privacy policy or our data practices, please
-            contact us at info@drenovagroup.com.
+            contact us at semir@drenova.ca.
           </p>
         </div>
       </div>

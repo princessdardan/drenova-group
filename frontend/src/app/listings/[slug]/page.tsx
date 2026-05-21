@@ -11,6 +11,7 @@ import {
 } from "@/lib/format";
 import { ImageCarousel } from "@/components/ui/image-carousel";
 import { ListingInquiryForm } from "@/components/sections/listing-inquiry-form";
+import { canonicalUrl } from "@/lib/seo";
 
 interface ListingDetailProps {
   params: Promise<{ slug: string }>;
@@ -81,9 +82,15 @@ export async function generateMetadata(
   return {
     title,
     description,
+    alternates: {
+      canonical: canonicalUrl(`/listings/${listing.slug}`),
+    },
     openGraph: listing.image
-      ? { images: [{ url: listing.image, alt: title }] }
-      : undefined,
+      ? {
+          url: canonicalUrl(`/listings/${listing.slug}`),
+          images: [{ url: listing.image, alt: title }],
+        }
+      : { url: canonicalUrl(`/listings/${listing.slug}`) },
   };
 }
 

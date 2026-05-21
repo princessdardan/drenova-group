@@ -120,7 +120,7 @@ export function renderLeadEmailTemplates(
     "",
     body,
     "",
-    "In the meantime, feel free to browse our listings at https://drenovagroup.com/listings or contact us directly.",
+    "In the meantime, feel free to browse our listings at https://drenova.ca/listings or contact us directly.",
     "",
     "Best regards,",
     "The Drenova Group Team",

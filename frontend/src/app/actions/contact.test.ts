@@ -24,7 +24,7 @@ describe("submitContactForm", () => {
   beforeEach(() => {
     process.env.RESEND_API_KEY = "re_test_key";
     process.env.RESEND_FROM_EMAIL = verifiedFromEmail;
-    process.env.CONTACT_EMAIL = "info@drenovagroup.com";
+    process.env.CONTACT_EMAIL = "semir@drenova.ca";
   });
 
   afterEach(() => {

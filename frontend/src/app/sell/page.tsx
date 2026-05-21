@@ -18,6 +18,7 @@ export const metadata: Metadata = makeMetadata({
   title: "Sell",
   description:
     "Sell your home with confidence. Drenova Group delivers expert pricing, professional marketing, and skilled negotiation to maximize your return.",
+  path: "/sell",
 });
 
 export default async function SellPage() {

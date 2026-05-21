@@ -16,7 +16,8 @@ import { PageContactSection } from "@/components/sections/page-contact-section";
 export const metadata: Metadata = makeMetadata({
   title: "About",
   description:
-    "Learn about Drenova Group — our story, mission, values, and the team behind our multi-state real estate brokerage.",
+    "Learn about Drenova Group — our story, mission, values, and the Ontario real estate team behind our client-first approach.",
+  path: "/about",
 });
 
 export default async function AboutPage() {
@@ -64,7 +65,7 @@ export default async function AboutPage() {
                   Drenova Group was founded with a simple belief: that real estate
                   should be personal, transparent, and driven by what&apos;s best for the
                   client. What started as a single agent with a passion for helping
-                  families find their homes has grown into a multi-state brokerage
+                  families find their homes has grown into an Ontario real estate team
                   serving hundreds of clients every year.
                 </p>
                 <p className="text-muted leading-7">

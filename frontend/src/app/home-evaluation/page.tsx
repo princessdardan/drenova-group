@@ -10,6 +10,7 @@ export const metadata: Metadata = makeMetadata({
   title: "Home Evaluation",
   description:
     "Get a free, no-obligation home evaluation from Drenova Group. Discover the true value of your property in today's market.",
+  path: "/home-evaluation",
 });
 
 export default async function HomeEvaluationPage() {

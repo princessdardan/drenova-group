@@ -6,6 +6,7 @@ import { Header } from "@/components/sections/header";
 import { Footer } from "@/components/sections/footer";
 import { DraftBanner } from "@/components/ui/draft-banner";
 import { getSiteSettings } from "@/lib/sanity/fetch";
+import { SITE_URL } from "@/lib/seo";
 import "./globals.css";
 
 const playfairDisplay = Playfair_Display({
@@ -30,18 +31,17 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://drenovagroup.com"
-  ),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Drenova Group | Real Estate",
     template: "%s | Drenova Group",
   },
   description:
-    "Drenova Group is a modern real estate brokerage serving buyers and sellers across Illinois, Arizona, Wisconsin, Indiana, and Michigan.",
+    "Drenova Group is a modern real estate team serving buyers and sellers across Toronto, the GTA, York Region, and surrounding Ontario communities.",
   openGraph: {
     type: "website",
     siteName: "Drenova Group",
+    url: SITE_URL,
   },
   twitter: {
     card: "summary_large_image",

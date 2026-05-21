@@ -1,7 +1,5 @@
 import type { MetadataRoute } from "next";
-
-const BASE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://drenovagroup.com";
+import { canonicalUrl } from "@/lib/seo";
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -12,6 +10,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/api/"],
       },
     ],
-    sitemap: `${BASE_URL}/sitemap.xml`,
+    sitemap: canonicalUrl("/sitemap.xml"),
   };
 }

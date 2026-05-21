@@ -125,7 +125,7 @@ export async function generateOgImage({ title, subtitle }: OgLayoutProps) {
             color: "rgba(240, 243, 245, 0.4)",
           }}
         >
-          drenovagroup.com
+          drenova.ca
         </div>
       </div>
     ),

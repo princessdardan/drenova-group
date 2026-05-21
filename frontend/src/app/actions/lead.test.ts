@@ -71,7 +71,7 @@ test("listing-detail submission persists and emails only safe listing context", 
     listingMlsNumber: "C9876543",
     listingTitle: "Ravine View Home",
     listingPrice: 1895000,
-    listingUrl: "https://drenovagroup.com/listings/ravine-view-home",
+    listingUrl: "https://drenova.ca/listings/ravine-view-home",
     listingCity: "Markham",
     listingCommunity: "Unionville",
     listingPropertyType: "Detached",
@@ -85,7 +85,7 @@ test("listing-detail submission persists and emails only safe listing context", 
   for (const allowedValue of [
     "Ravine View Home",
     "C9876543",
-    "https://drenovagroup.com/listings/ravine-view-home",
+    "https://drenova.ca/listings/ravine-view-home",
     "Markham",
     "Unionville",
     "Detached",
@@ -305,7 +305,7 @@ function formDataForSource(source: LeadSource): FormData {
     formData.set("listingMlsNumber", "C9876543");
     formData.set("listingTitle", "Ravine View Home");
     formData.set("listingPrice", "1895000");
-    formData.set("listingUrl", "https://drenovagroup.com/listings/ravine-view-home");
+    formData.set("listingUrl", "https://drenova.ca/listings/ravine-view-home");
     formData.set("listingCity", "Markham");
     formData.set("listingCommunity", "Unionville");
     formData.set("listingPropertyType", "Detached");
@@ -328,7 +328,7 @@ function validConfig(): EmailConfig {
     apiKey: "re_test_key",
     fromEmail: "Drenova Group <send.info@info.drenova.ca>",
     replyToEmail: "semir@drenova.ca",
-    contactEmail: "info@drenovagroup.com",
+    contactEmail: "semir@drenova.ca",
   };
 }
 

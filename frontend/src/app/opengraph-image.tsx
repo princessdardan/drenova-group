@@ -7,6 +7,6 @@ export const contentType = "image/png";
 export default function Image() {
   return generateOgImage({
     title: "Here to Guide You On Your Home Journey",
-    subtitle: "Modern real estate brokerage across Illinois, Arizona & Wisconsin",
+    subtitle: "Modern real estate guidance across Toronto, the GTA & York Region",
   });
 }

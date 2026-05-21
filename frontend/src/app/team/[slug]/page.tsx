@@ -6,6 +6,7 @@ import { isSanityImage } from "@/types/sanity";
 import { resolveSanityImageUrl } from "@/lib/sanity/image";
 import { getTeamMembers, getTeamMemberBySlug } from "@/lib/sanity/fetch";
 import { PortableTextRenderer } from "@/components/ui/portable-text";
+import { canonicalUrl } from "@/lib/seo";
 
 export async function generateStaticParams() {
   const members = await getTeamMembers();
@@ -31,9 +32,15 @@ export async function generateMetadata({
   return {
     title: member.name,
     description: `${member.name} — ${member.role} at Drenova Group.`,
+    alternates: {
+      canonical: canonicalUrl(`/team/${member.slug}`),
+    },
     openGraph: ogImage
-      ? { images: [{ url: ogImage, alt: member.name }] }
-      : undefined,
+      ? {
+          url: canonicalUrl(`/team/${member.slug}`),
+          images: [{ url: ogImage, alt: member.name }],
+        }
+      : { url: canonicalUrl(`/team/${member.slug}`) },
   };
 }
 

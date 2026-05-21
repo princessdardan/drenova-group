@@ -114,7 +114,7 @@ test("sends a message through the injected transport", async () => {
   assert.deepEqual(result, { ok: true, data: { id: "email_123" } });
   assert.deepEqual(sentMessage, {
     from: verifiedFromEmail,
-    to: "info@drenovagroup.com",
+    to: "semir@drenova.ca",
     subject: message.subject,
     text: message.text,
     html: message.html,
@@ -158,7 +158,7 @@ test("maps every lead source message to the final Resend transport payload", asy
               listingMlsNumber: "C9876543",
               listingTitle: "Ravine View Home",
               listingPrice: 1895000,
-              listingUrl: "https://drenovagroup.com/listings/ravine-view-home",
+              listingUrl: "https://drenova.ca/listings/ravine-view-home",
               listingCity: "Markham",
               listingCommunity: "Unionville",
               listingPropertyType: "Detached",
@@ -181,7 +181,7 @@ test("maps every lead source message to the final Resend transport payload", asy
       { name: "template", value: source },
       { name: "audience", value: "user" },
     ]);
-    assert.equal(sentMessages[1]?.to, "info@drenovagroup.com");
+    assert.equal(sentMessages[1]?.to, "semir@drenova.ca");
     assert.equal(sentMessages[1]?.replyTo, automatedReplyToEmail);
     assert.deepEqual(sentMessages[1]?.tags, [
       { name: "template", value: source },
@@ -216,7 +216,7 @@ function setEmailEnv(overrides: {
   );
   setEnvValue(
     "CONTACT_EMAIL",
-    "contactEmail" in overrides ? overrides.contactEmail : "info@drenovagroup.com"
+    "contactEmail" in overrides ? overrides.contactEmail : "semir@drenova.ca"
   );
 }
 
@@ -234,7 +234,7 @@ function validConfig() {
     apiKey: "re_test_key",
     fromEmail: verifiedFromEmail,
     replyToEmail: automatedReplyToEmail,
-    contactEmail: "info@drenovagroup.com",
+    contactEmail: "semir@drenova.ca",
   };
 }
 

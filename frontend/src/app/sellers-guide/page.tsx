@@ -9,6 +9,7 @@ export const metadata: Metadata = makeMetadata({
   title: "Seller's Guide",
   description:
     "Download the Drenova Group Seller's Guide. Learn pricing strategies, home staging tips, and how to maximize your home's value.",
+  path: "/sellers-guide",
 });
 
 export default async function SellersGuidePage() {

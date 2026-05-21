@@ -16,7 +16,8 @@ import { PageContactSection } from "@/components/sections/page-contact-section";
 export const metadata: Metadata = makeMetadata({
   title: "Buy",
   description:
-    "Find your next home with Drenova Group. Expert guidance through every step of the home buying process across multiple states.",
+    "Find your next home with Drenova Group. Expert guidance through every step of the home buying process across Toronto, the GTA, and surrounding Ontario communities.",
+  path: "/buy",
 });
 
 export default async function BuyPage() {

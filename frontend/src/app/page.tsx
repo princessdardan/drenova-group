@@ -15,6 +15,7 @@ export const metadata: Metadata = makeMetadata({
   title: "Luxury Real Estate Across GTA and York Region",
   description:
     "Drenova Group — a modern real estate brokerage offering expert buying and selling services with a personal approach. Start your home journey today.",
+  path: "/",
 });
 
 export default async function HomePage() {

@@ -12,6 +12,7 @@ export const metadata: Metadata = makeMetadata({
   title: "Our Team",
   description:
     "Meet the experienced agents and advisors of Drenova Group. Our team brings local expertise and a client-first approach to every transaction.",
+  path: "/team",
 });
 
 export default async function TeamPage() {

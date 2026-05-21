@@ -7,6 +7,6 @@ export const contentType = "image/png";
 export default function Image() {
   return generateOgImage({
     title: "Property Listings",
-    subtitle: "Browse available properties across our multi-state coverage area",
+    subtitle: "Browse available properties across Toronto, the GTA & surrounding areas",
   });
 }

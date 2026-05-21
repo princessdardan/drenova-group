@@ -34,7 +34,7 @@ export async function Footer({ navigationLinks, officeHours }: FooterProps) {
   const settings = await getSiteSettings();
 
   const companyName = settings?.companyName ?? "Drenova Group";
-  const address = settings?.address ?? "123 Main Street, Suite 200, Chicago, IL 60601";
+  const address = settings?.address ?? "Ontario, Canada";
   const phone = settings?.phone;
   const email = settings?.email;
   const social = settings?.socialLinks;

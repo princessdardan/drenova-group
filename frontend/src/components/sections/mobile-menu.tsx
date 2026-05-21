@@ -107,7 +107,7 @@ export function MobileMenu({
         </nav>
         
         <div className="text-center pb-8">
-          <p className="text-sm text-muted">{email ?? "info@drenovagroup.com"}</p>
+          <p className="text-sm text-muted">{email ?? "semir@drenova.ca"}</p>
           <p className="text-sm text-muted mt-1">{phone ?? "(555) 123-4567"}</p>
         </div>
       </div>

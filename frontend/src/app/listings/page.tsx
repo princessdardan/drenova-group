@@ -16,6 +16,7 @@ export const metadata: Metadata = makeMetadata({
   title: "Listings",
   description:
     "Browse all available property listings from Drenova Group. Filter by location, price, bedrooms, and more.",
+  path: "/listings",
 });
 
 interface ListingsPageProps {

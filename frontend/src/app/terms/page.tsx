@@ -7,6 +7,7 @@ import { makeMetadata } from "@/lib/seo";
 export const metadata: Metadata = makeMetadata({
   title: "Terms of Service",
   description: "Drenova Group terms of service — the terms and conditions governing use of our website.",
+  path: "/terms",
 });
 
 export default async function TermsPage() {
@@ -42,7 +43,7 @@ function TermsFallback() {
             2. Contact
           </h2>
           <p className="text-muted leading-7">
-            For questions about these terms, please contact us at info@drenovagroup.com.
+            For questions about these terms, please contact us at semir@drenova.ca.
           </p>
         </div>
       </div>

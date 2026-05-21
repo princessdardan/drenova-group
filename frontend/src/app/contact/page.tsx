@@ -12,6 +12,7 @@ export const metadata: Metadata = makeMetadata({
   title: "Contact",
   description:
     "Get in touch with Drenova Group. Reach out for buying, selling, or general real estate inquiries.",
+  path: "/contact",
 });
 
 export default async function ContactPage() {
@@ -22,9 +23,9 @@ export default async function ContactPage() {
 
   const hero = contactPage?.hero;
   const quickLinks = contactPage?.quickLinks;
-  const address = siteSettings?.address ?? "123 Main Street, Suite 200\nChicago, IL 60601";
+  const address = siteSettings?.address ?? "Ontario, Canada";
   const phone = siteSettings?.phone ?? "(555) 123-4567";
-  const email = siteSettings?.email ?? "info@drenovagroup.com";
+  const email = siteSettings?.email ?? "semir@drenova.ca";
   const officeHours = siteSettings?.officeHours ?? "Monday – Friday: 9:00 AM – 6:00 PM\nSaturday: 10:00 AM – 4:00 PM\nSunday: By Appointment";
 
   return (
