@@ -23,7 +23,7 @@ const consentPortableTextComponents: PortableTextComponents = {
       return (
         <a
           href={href}
-          className="text-accent underline underline-offset-2 transition-colors hover:text-accent-hover"
+          className="underline underline-offset-2 transition-colors hover:text-accent"
           {...(openInNewTab ? { target: "_blank", rel: "noopener noreferrer" } : {})}
         >
           {children}
@@ -48,7 +48,7 @@ export function FormConsentField({ text, error }: FormConsentFieldProps) {
 
   return (
     <div className="space-y-2">
-      <div className="flex items-start gap-3 rounded-lg border border-border bg-surface/60 p-4">
+      <div className="flex items-start gap-3 rounded-lg border border-border bg-surface-alt/70 p-4">
         <input
           id="privacyMarketingConsent"
           name="privacyMarketingConsent"
@@ -62,7 +62,7 @@ export function FormConsentField({ text, error }: FormConsentFieldProps) {
         />
         <div
           id="privacyMarketingConsent-label"
-          className="text-sm leading-6 text-muted [&_a]:font-medium"
+          className="text-sm leading-6 text-foreground [&_a]:font-medium"
         >
           <PortableText value={consentText} components={consentPortableTextComponents} />
         </div>
