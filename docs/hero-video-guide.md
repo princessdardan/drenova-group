@@ -48,6 +48,7 @@ The image layer is **always present**. It displays while the video downloads and
 Every page with a hero section uses the same `heroSettings` object type, so **all of these pages support video**:
 
 - Home (`/`)
+- Generic Pages (`/<slug>`)
 - About (`/about`)
 - Buy (`/buy`)
 - Sell (`/sell`)

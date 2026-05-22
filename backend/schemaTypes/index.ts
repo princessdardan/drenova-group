@@ -17,6 +17,7 @@ import { valueProposition } from "./objects/value-proposition";
 // Documents
 import { legalPage } from "./documents/legal-page";
 import { leadSubmission } from "./documents/lead-submission";
+import { genericPage } from "./documents/generic-page";
 
 // Singletons
 import { siteSettings } from "./singletons/site-settings";
@@ -51,6 +52,7 @@ export const schemaTypes = [
   // Documents
   legalPage,
   leadSubmission,
+  genericPage,
 
   // Singletons
   siteSettings,

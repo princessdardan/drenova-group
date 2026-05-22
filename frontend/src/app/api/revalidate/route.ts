@@ -15,6 +15,7 @@ const TAG_MAP: Record<string, string[]> = {
   teamPage: ["teamPage"],
   listingsPage: ["listingsPage"],
   legalPage: ["legalPage"],
+  genericPage: ["genericPage"],
   buyersGuidePage: ["buyersGuidePage"],
   sellersGuidePage: ["sellersGuidePage"],
   homeEvaluationPage: ["homeEvaluationPage"],

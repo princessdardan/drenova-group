@@ -55,7 +55,7 @@ export function PageContactSection({
         )}
         <div className="text-left text-footer-text">
           {formType === "lead" ? (
-            <LeadForm source={leadSource} showPhone={showPhone} />
+            <LeadForm source={leadSource} showPhone={showPhone} sourcePath={sourcePath} />
           ) : (
             <ContactForm
               prefilledSubject={prefilledSubject}

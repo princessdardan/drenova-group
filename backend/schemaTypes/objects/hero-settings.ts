@@ -5,6 +5,7 @@ import {
   stringField,
   textField,
 } from "../helpers/fields";
+import { safeHrefValidation } from "../helpers/home-page-fields";
 
 export const heroSettings = defineType({
   name: "heroSettings",
@@ -61,6 +62,7 @@ export const heroSettings = defineType({
       name: "buttonHref",
       title: "Primary Button Link",
       description: "URL or path the primary button links to (e.g. /contact)",
+      validation: safeHrefValidation,
     }),
     stringField({
       name: "secondaryButtonText",
@@ -71,6 +73,7 @@ export const heroSettings = defineType({
       name: "secondaryButtonHref",
       title: "Secondary Button Link",
       description: "URL or path the secondary button links to (e.g. /listings)",
+      validation: safeHrefValidation,
     }),
   ],
 });

@@ -12,6 +12,7 @@ import type { PortableTextBlock } from "@portabletext/types";
 export type LeadSource =
   | "buyers-guide"
   | "sellers-guide"
+  | "generic-page"
   | "homepage"
   | "buy"
   | "sell"
@@ -23,10 +24,11 @@ export type LeadSource =
 interface LeadFormProps {
   source: LeadSource;
   showPhone?: boolean;
+  sourcePath?: string;
   consentText?: PortableTextBlock[];
 }
 
-export function LeadForm({ source, showPhone = false, consentText }: LeadFormProps) {
+export function LeadForm({ source, showPhone = false, sourcePath, consentText }: LeadFormProps) {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -87,6 +89,7 @@ export function LeadForm({ source, showPhone = false, consentText }: LeadFormPro
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-4">
       <input type="hidden" name="source" value={source} />
+      {sourcePath ? <input type="hidden" name="sourcePath" value={sourcePath} /> : null}
       {serverError && (
         <FormStatus error message={serverError} />
       )}

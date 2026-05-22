@@ -32,6 +32,7 @@ Sanity Studio is the content management system (CMS) for the Drenova Group websi
    - [Contact Page](#47-contact-page)
    - [Team Page](#48-team-page)
    - [Listings Page](#49-listings-page)
+   - [Generic Pages](#410-generic-pages)
 5. [Managing Collections](#5-managing-collections)
    - [General Instructions](#51-general-instructions)
    - [Team Members](#52-team-members)
@@ -75,13 +76,13 @@ The sidebar is organized into three groups:
 | Group | What It Contains |
 |-------|-----------------|
 | **Site Settings** (gear icon) | Global configuration — company name, phone, email, address, social links, navigation menu |
-| **Pages** (document icon) | 9 page editors — one for each page on the website. These are one-of-a-kind; you edit them in place, you do not create new ones |
+| **Pages** (document icon) | Fixed page editors plus **Generic Pages** for creating new single-page marketing pages |
 | **Collections** (below the divider) | Content with multiple entries — Team Members, Testimonials, FAQs, Coverage Areas, Company Stats, Company Values, Value Propositions, Legal Pages |
 | **Lead Submissions** (envelope icon) | Read-only list of form submissions from the website |
 
 <!-- screenshot: Studio sidebar with groups labeled -->
 
-**Pages vs. Collections:** Pages are unique — there is exactly one Home Page, one About Page, etc. You edit the existing document. Collections let you create as many entries as you need (multiple team members, multiple FAQs, etc.).
+**Pages vs. Collections:** Most named pages are unique — there is exactly one Home Page, one About Page, etc. You edit the existing document. **Generic Pages** are different: they are createable page entries for new single-slug marketing pages. Collections let you create as many entries as you need (multiple team members, multiple FAQs, etc.).
 
 ### 1.3 Editing and Publishing Content
 
@@ -121,7 +122,7 @@ Several field groups are reused across multiple pages. This section explains eac
 
 The hero section is the large banner area at the top of a page — it includes a background image (or video), a headline, and optionally a call-to-action button.
 
-**Pages that have a hero section:** Home, About, Buy, Sell, Buyers Guide, Sellers Guide, Contact, Team.
+**Pages that have a hero section:** Home, Generic Pages, About, Buy, Sell, Buyers Guide, Sellers Guide, Contact, Team.
 
 <!-- screenshot: Hero settings panel in Studio -->
 
@@ -514,6 +515,36 @@ This page has a simple editor because the property listings themselves come from
 
 > **Note:** You cannot add, edit, or remove property listings from Sanity Studio. Listings are synced automatically from the AMPRE/MLS feed.
 
+### 4.10 Generic Pages
+
+**Sidebar location:** Pages > Generic Pages
+
+Generic Pages let editors create new one-page marketing pages without a developer creating a new route. Each published Generic Page appears at `/<slug>` and uses the same visual template as the Homepage: hero, about section, two CTA cards, and contact form.
+
+**To create a Generic Page:**
+1. Go to **Pages > Generic Pages**.
+2. Click the **compose/pencil icon** or **+** button.
+3. Add a **Title** and click **Generate** on the **Slug** field.
+4. Fill in the Hero, About Section, Work With Us heading, CTA cards, Contact Form Section, and optional SEO Settings.
+5. Click **Publish**. The page will be available at `/<slug>`.
+
+**Slug rules:**
+- Use lowercase letters, numbers, and hyphens only.
+- Do not use existing site routes such as `about`, `buy`, `sell`, `contact`, `team`, `listings`, `privacy`, or `terms`. The Studio will block reserved slugs.
+- Do not change a slug after the page is live unless a developer sets up a redirect.
+
+**Link rules:**
+- Internal links should start with `/` such as `/contact`.
+- Same-page section links should use `#contact`.
+- External links must start with `https://`.
+- Email and phone links may use `mailto:` and `tel:`.
+- Unsafe links are rejected by Studio validation and ignored by the frontend.
+
+**SEO Settings:**
+- Use **SEO Title** and **SEO Description** when the page needs search/social copy different from the visible page title.
+- Use **Open Graph Image** for social sharing.
+- Check **Hide from Search Engines** for temporary or private campaign pages that should not appear in search results.
+
 ---
 
 ## 5. Managing Collections
@@ -749,6 +780,7 @@ Use this table to quickly find where to edit the content that appears on each we
 | Website Page | Page Editor (Sidebar > Pages) | Collections Used |
 |---|---|---|
 | **Homepage** (`/`) | Home Page | Value Propositions |
+| **Generic pages** (`/<slug>`) | Generic Pages | Value Propositions |
 | **About** (`/about`) | About Page | Company Stats, Company Values, Coverage Areas |
 | **Buy** (`/buy`) | Buy Page | FAQs (Buyer category), Coverage Areas |
 | **Sell** (`/sell`) | Sell Page | FAQs (Seller category), Testimonials |
@@ -790,7 +822,7 @@ There are two methods depending on the content type:
 Currently, changes appear on the live site upon publishing. A dedicated preview feature may be added in the future.
 
 **Q: I want to add a new page to the website.**
-New pages require developer involvement — the page structure is defined in code. Contact your developer to request a new page.
+For a one-page marketing page, go to **Pages > Generic Pages** and create a new entry. Generic Pages use the Homepage-style layout and publish at `/<slug>`. Contact your developer only if you need a custom layout, nested URL, redirect, or functionality beyond the Generic Page template.
 
 **Q: How do I add a video to a hero section?**
 See the [Hero Section instructions](#21-hero-section). In short: upload a background image, switch Background Type to "Video", paste a direct MP4 URL, and publish.

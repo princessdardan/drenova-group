@@ -127,6 +127,9 @@ export const structure: StructureResolver = (S) =>
                     .documentId("listingsPage")
                     .title("Listings Page"),
                 ),
+              S.documentTypeListItem("genericPage")
+                .title("Generic Pages")
+                .icon(DocumentTextIcon),
             ]),
         ),
 

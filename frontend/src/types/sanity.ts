@@ -137,32 +137,14 @@ export interface LegalPage {
   body: PortableTextBlock[];
 }
 
-// --- Singleton page types ---
-
-export interface SocialLinks {
-  facebook?: string;
-  instagram?: string;
-  linkedin?: string;
-  twitter?: string;
+export interface SeoSettings {
+  title?: string;
+  description?: string;
+  image?: SanityImage;
+  noIndex?: boolean;
 }
 
-export interface SiteSettings {
-  _id: string;
-  _type: "siteSettings";
-  companyName: string;
-  tagline?: string;
-  phone?: string;
-  email?: string;
-  address?: string;
-  officeHours?: string;
-  navigationLinks?: NavigationLink[];
-  socialLinks?: SocialLinks;
-  privacyMarketingConsentText?: PortableTextBlock[];
-}
-
-export interface HomePage {
-  _id: string;
-  _type: "homePage";
+export interface HomePageContent {
   hero: HeroSettings;
   aboutSection?: {
     title: string;
@@ -191,6 +173,47 @@ export interface HomePage {
     heading?: string;
     subtitle?: string;
   };
+}
+
+export interface GenericPage extends HomePageContent {
+  _id: string;
+  _type: "genericPage";
+  title: string;
+  slug: string;
+  seo?: SeoSettings;
+}
+
+export interface GenericPageSitemapEntry {
+  slug: string;
+  _updatedAt: string;
+}
+
+// --- Singleton page types ---
+
+export interface SocialLinks {
+  facebook?: string;
+  instagram?: string;
+  linkedin?: string;
+  twitter?: string;
+}
+
+export interface SiteSettings {
+  _id: string;
+  _type: "siteSettings";
+  companyName: string;
+  tagline?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  officeHours?: string;
+  navigationLinks?: NavigationLink[];
+  socialLinks?: SocialLinks;
+  privacyMarketingConsentText?: PortableTextBlock[];
+}
+
+export interface HomePage extends HomePageContent {
+  _id: string;
+  _type: "homePage";
 }
 
 export interface AboutPage {
@@ -282,7 +305,8 @@ export interface LeadSubmission {
   province?: string;
   postalCode?: string;
   notes?: string;
-  source: "buyers-guide" | "sellers-guide" | "homepage" | "buy" | "sell" | "about" | "team" | "home-evaluation" | "listing-detail";
+  source: "buyers-guide" | "sellers-guide" | "generic-page" | "homepage" | "buy" | "sell" | "about" | "team" | "home-evaluation" | "listing-detail";
+  sourcePath?: string;
   privacyMarketingConsent?: boolean;
   privacyMarketingConsentAt?: string;
   privacyMarketingConsentText?: string;

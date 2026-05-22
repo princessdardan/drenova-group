@@ -4,6 +4,7 @@ import { EnvelopeIcon } from "@sanity/icons";
 const sourceTitles: Record<string, string> = {
   "buyers-guide": "Buyers Guide",
   "sellers-guide": "Sellers Guide",
+  "generic-page": "Generic Page",
   homepage: "Homepage",
   buy: "Buy Page",
   sell: "Sell Page",
@@ -89,6 +90,7 @@ export const leadSubmission = defineType({
         list: [
           { title: "Buyers Guide", value: "buyers-guide" },
           { title: "Sellers Guide", value: "sellers-guide" },
+          { title: "Generic Page", value: "generic-page" },
           { title: "Homepage", value: "homepage" },
           { title: "Buy Page", value: "buy" },
           { title: "Sell Page", value: "sell" },
@@ -100,6 +102,13 @@ export const leadSubmission = defineType({
         layout: "radio",
       },
       validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: "sourcePath",
+      title: "Source Path",
+      type: "string",
+      readOnly: true,
+      description: "Path where the lead form was submitted, when available.",
     }),
     defineField({
       name: "privacyMarketingConsent",

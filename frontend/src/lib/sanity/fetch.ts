@@ -13,6 +13,9 @@ import {
   buyersGuidePageQuery,
   sellersGuidePageQuery,
   homeEvaluationPageQuery,
+  genericPageBySlugQuery,
+  genericPageSlugsQuery,
+  genericPagesSitemapQuery,
 } from "./queries";
 import type { TeamMember } from "@/types/team";
 import type {
@@ -28,6 +31,8 @@ import type {
   BuyersGuidePage,
   SellersGuidePage,
   HomeEvaluationPage,
+  GenericPage,
+  GenericPageSitemapEntry,
 } from "@/types/sanity";
 
 const DEFAULT_REVALIDATE = 3600;
@@ -124,6 +129,20 @@ export const getLegalPageBySlug = paramFetcher<LegalPage | null>(
   "legalPage",
   "slug"
 );
+
+export const getGenericPageBySlug = paramFetcher<GenericPage | null>(
+  genericPageBySlugQuery,
+  "genericPage",
+  "slug"
+);
+
+export async function getGenericPageSlugs(): Promise<string[]> {
+  return sanityFetch<string[]>(genericPageSlugsQuery, ["genericPage"]);
+}
+
+export async function getGenericPagesForSitemap(): Promise<GenericPageSitemapEntry[]> {
+  return sanityFetch<GenericPageSitemapEntry[]>(genericPagesSitemapQuery, ["genericPage"]);
+}
 
 // ─── Guide page fetchers ────────────────────────────────────────────
 

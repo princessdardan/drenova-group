@@ -29,6 +29,49 @@ export const processStepsProjection = groq`processSteps[] {
   description
 }`;
 
+export const seoProjection = groq`seo {
+  title,
+  description,
+  image,
+  noIndex
+}`;
+
+export const homePageContentProjection = groq`
+  hero,
+  aboutSection {
+    title,
+    description,
+    buttonText,
+    buttonHref,
+    image
+  },
+  valuePropositions[] {
+    _key,
+    _type,
+    title,
+    description
+  },
+  workWithUsHeading,
+  ctaCard1 {
+    image,
+    title,
+    subtitle,
+    buttonText,
+    buttonHref
+  },
+  ctaCard2 {
+    image,
+    title,
+    subtitle,
+    buttonText,
+    buttonHref
+  },
+  contactForm {
+    heading,
+    subtitle
+  }
+`;
+
 export const guidePageProjection = groq`{
   ${documentProjection},
   hero,

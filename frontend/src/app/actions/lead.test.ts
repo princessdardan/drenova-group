@@ -19,6 +19,7 @@ const leadSources = [
   "home-evaluation",
   "buyers-guide",
   "sellers-guide",
+  "generic-page",
   "listing-detail",
 ] as const satisfies readonly LeadSource[];
 
@@ -252,8 +253,9 @@ interface CreatedLeadDocument {
   unit?: string;
   city?: string;
   province?: string;
-  postalCode?: string;
-  notes?: string;
+    postalCode?: string;
+    sourcePath?: string;
+    notes?: string;
   listingSlug?: string;
   listingMlsNumber?: string;
   listingTitle?: string;
@@ -328,6 +330,9 @@ function formDataForSource(source: LeadSource): FormData {
   formData.set("email", "avery@example.com");
   formData.set("privacyMarketingConsent", "true");
   formData.set("privacyMarketingConsentText", consentText);
+  if (source === "generic-page") {
+    formData.set("sourcePath", "/market-update");
+  }
 
   if (source === "home-evaluation" || source === "listing-detail") {
     formData.set("name", "Avery Morgan");

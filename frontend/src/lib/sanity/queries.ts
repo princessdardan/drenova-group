@@ -6,6 +6,8 @@ import {
   guidePageProjection,
   processStepsProjection,
   teamMemberProjection,
+  homePageContentProjection,
+  seoProjection,
 } from "./query-fragments";
 
 // ─── Singleton queries ───────────────────────────────────────────────
@@ -31,39 +33,7 @@ export const siteSettingsQuery = groq`*[_type == "siteSettings"][0] {
 
 export const homePageQuery = groq`*[_type == "homePage"][0] {
   ${documentProjection},
-  hero,
-  aboutSection {
-    title,
-    description,
-    buttonText,
-    buttonHref,
-    image
-  },
-  valuePropositions[] {
-    _key,
-    _type,
-    title,
-    description
-  },
-  workWithUsHeading,
-  ctaCard1 {
-    image,
-    title,
-    subtitle,
-    buttonText,
-    buttonHref
-  },
-  ctaCard2 {
-    image,
-    title,
-    subtitle,
-    buttonText,
-    buttonHref
-  },
-  contactForm {
-    heading,
-    subtitle
-  }
+  ${homePageContentProjection}
 }`;
 
 export const aboutPageQuery = groq`*[_type == "aboutPage"][0] {
@@ -178,6 +148,21 @@ export const legalPageBySlugQuery = groq`*[_type == "legalPage" && slug.current 
   "slug": slug.current,
   lastUpdated,
   body
+}`;
+
+export const genericPageBySlugQuery = groq`*[_type == "genericPage" && slug.current == $slug][0] {
+  ${documentProjection},
+  title,
+  "slug": slug.current,
+  ${homePageContentProjection},
+  ${seoProjection}
+}`;
+
+export const genericPageSlugsQuery = groq`*[_type == "genericPage" && defined(slug.current)][].slug.current`;
+
+export const genericPagesSitemapQuery = groq`*[_type == "genericPage" && defined(slug.current) && seo.noIndex != true] {
+  "slug": slug.current,
+  _updatedAt
 }`;
 
 // ─── Guide page queries ─────────────────────────────────────────────

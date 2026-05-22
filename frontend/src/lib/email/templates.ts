@@ -21,6 +21,7 @@ export const EMAIL_TEMPLATE_KEYS = [
   "home-evaluation",
   "buyers-guide",
   "sellers-guide",
+  "generic-page",
   "listing-detail",
 ] as const satisfies readonly EmailTemplateKey[];
 
@@ -33,6 +34,7 @@ export const LEAD_EMAIL_TEMPLATE_KEYS = [
   "home-evaluation",
   "buyers-guide",
   "sellers-guide",
+  "generic-page",
   "listing-detail",
 ] as const satisfies readonly LeadEmailTemplateKey[];
 
@@ -95,6 +97,12 @@ const leadCopy = {
     subject: "Your Seller's Guide from Drenova Group",
     body: () =>
       "Thank you for requesting our Seller's Guide. A member of our team will follow up with selling guidance tailored to your next move.",
+  },
+  "generic-page": {
+    label: "Generic Page",
+    subject: "Thank You for Contacting Drenova Group",
+    body: () =>
+      "Thank you for reaching out to Drenova Group. A member of our team will be in touch with you shortly to assist with your real estate needs.",
   },
   "listing-detail": {
     label: "Listing Detail",
@@ -216,6 +224,7 @@ function buildLeadAdminText(
     ...(!isListing ? optionalLine("City", context.city) : []),
     ...(!isListing ? optionalLine("Province/State", context.province) : []),
     ...(!isListing ? optionalLine("Postal Code", context.postalCode) : []),
+    ...(!isListing ? optionalLine("Source Path", context.sourcePath) : []),
     ...(isListing ? optionalLine("MLS Number", listing?.listingMlsNumber) : []),
     ...(isListing ? optionalLine("Listing URL", listing?.listingUrl) : []),
     ...(isListing ? optionalLine("City", listing?.listingCity) : []),

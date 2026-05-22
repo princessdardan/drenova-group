@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
-import { getTeamMembers } from "@/lib/sanity/fetch";
+import { getTeamMembers, getGenericPagesForSitemap } from "@/lib/sanity/fetch";
 import { getAmpreListings } from "@/lib/ampre/fetch";
 import { canonicalUrl } from "@/lib/seo";
+import { isReservedRootSlug } from "@/lib/routes";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages: MetadataRoute.Sitemap = [
@@ -19,9 +20,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: canonicalUrl("/terms"), changeFrequency: "yearly", priority: 0.3 },
   ];
 
-  const [{ listings }, teamMembers] = await Promise.all([
+  const [{ listings }, teamMembers, genericPages] = await Promise.all([
     getAmpreListings({ pageSize: 1000 }),
     getTeamMembers(),
+    getGenericPagesForSitemap(),
   ]);
 
   const listingPages: MetadataRoute.Sitemap = listings.map((listing) => ({
@@ -37,5 +39,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.5,
   }));
 
-  return [...staticPages, ...listingPages, ...teamPages];
+  const genericSitemapPages: MetadataRoute.Sitemap = genericPages
+    .filter((page) => !isReservedRootSlug(page.slug))
+    .map((page) => ({
+      url: canonicalUrl(`/${page.slug}`),
+      lastModified: page._updatedAt,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    }));
+
+  return [...staticPages, ...listingPages, ...teamPages, ...genericSitemapPages];
 }

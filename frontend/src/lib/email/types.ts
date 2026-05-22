@@ -9,6 +9,7 @@ export type EmailTemplateKey =
   | "home-evaluation"
   | "buyers-guide"
   | "sellers-guide"
+  | "generic-page"
   | "listing-detail";
 
 export type LeadEmailTemplateKey = Exclude<
@@ -51,6 +52,7 @@ export interface LeadEmailContext {
   province?: string;
   postalCode?: string;
   notes?: string;
+  sourcePath?: string;
   listing?: SafeListingEmailContext;
   privacyMarketingConsentText: string;
 }

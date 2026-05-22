@@ -52,6 +52,7 @@ interface NonListingLeadFields {
   province?: string;
   postalCode?: string;
   notes?: string;
+  sourcePath?: string;
 }
 
 const genericFailure = "Failed to submit your request. Please try again later.";
@@ -199,6 +200,7 @@ function isLeadSource(source: string | undefined): source is LeadSource {
     source === "about" ||
     source === "team" ||
     source === "home-evaluation" ||
+    source === "generic-page" ||
     source === "listing-detail"
   );
 }
@@ -223,6 +225,7 @@ function getNonListingLeadFields(formData: FormData): NonListingLeadFields {
     city: stringValue(formData, "city"),
     province: stringValue(formData, "province"),
     postalCode: stringValue(formData, "postalCode"),
+    sourcePath: stringValue(formData, "sourcePath"),
     notes: stringValue(formData, "notes"),
   };
 }

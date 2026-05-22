@@ -55,10 +55,11 @@ test("exports the complete page-specific template matrix", () => {
     "home-evaluation",
     "buyers-guide",
     "sellers-guide",
+    "generic-page",
     "listing-detail",
   ]);
-  assert.equal(EMAIL_TEMPLATE_KEYS.length, 11);
-  assert.equal(LEAD_EMAIL_TEMPLATE_KEYS.length, 9);
+  assert.equal(EMAIL_TEMPLATE_KEYS.length, 12);
+  assert.equal(LEAD_EMAIL_TEMPLATE_KEYS.length, 10);
   assert.deepEqual(CONTACT_EMAIL_TEMPLATE_KEYS, ["contact", "team-profile"]);
 });
 
@@ -70,9 +71,10 @@ test("renders user confirmations and admin notifications for all lead templates"
     about: "connecting with Drenova Group",
     team: "reaching out to our team",
     "home-evaluation": "requesting a home evaluation",
-    "buyers-guide": "requesting our Buyer's Guide",
-    "sellers-guide": "requesting our Seller's Guide",
-    "listing-detail": "You expressed interest in Penthouse 1201",
+      "buyers-guide": "requesting our Buyer's Guide",
+      "sellers-guide": "requesting our Seller's Guide",
+      "generic-page": "Thank you for reaching out to Drenova Group",
+      "listing-detail": "You expressed interest in Penthouse 1201",
   } satisfies Record<(typeof LEAD_EMAIL_TEMPLATE_KEYS)[number], string>;
 
   for (const source of LEAD_EMAIL_TEMPLATE_KEYS) {

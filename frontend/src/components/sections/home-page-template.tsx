@@ -1,0 +1,205 @@
+import Image from "next/image";
+import { Hero } from "@/components/sections/hero";
+import { ButtonLink } from "@/components/ui/button";
+import { Reveal } from "@/components/ui/reveal";
+import { StaggerChildren } from "@/components/ui/stagger-children";
+import { resolveSanityImageUrl } from "@/lib/sanity/image";
+import { SectionShell } from "@/components/sections/section-shell";
+import { MediaCard } from "@/components/ui/media-card";
+import { PageContactSection } from "@/components/sections/page-contact-section";
+import type { LeadSource } from "@/components/sections/lead-form";
+import { safeHref } from "@/lib/safe-href";
+import type { HomePage, GenericPage } from "@/types/sanity";
+
+interface HomePageTemplateProps {
+  page?: HomePage | GenericPage | null;
+  leadSource?: LeadSource;
+  sourcePath?: string;
+}
+
+export function HomePageTemplate({
+  page,
+  leadSource = "homepage",
+  sourcePath,
+}: HomePageTemplateProps) {
+  return (
+    <>
+      {/* ─── Hero ─── */}
+      <Hero
+        image={
+          page?.hero?.image ??
+          "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1600&q=80"
+        }
+        imageAlt="Modern luxury home"
+        backgroundType={page?.hero?.backgroundType ?? "image"}
+        videoUrl={page?.hero?.videoUrl}
+        overline={page?.hero?.overline ?? "Drenova Group Real Estate"}
+        title={
+          page?.hero?.title ?? "Here to Guide You On Your Home Journey"
+        }
+        subtitle={
+          page?.hero?.subtitle ??
+          "Proud to be your trusted real estate expert, guiding you every step of the way."
+        }
+        actions={[
+          {
+            href: safeHref(page?.hero?.buttonHref, "#contact"),
+            label: page?.hero?.buttonText ?? "Get Started",
+            className: "border-white text-white hover:bg-white hover:text-black w-full sm:w-auto",
+          },
+          ...(page?.hero?.secondaryButtonText ? [{
+            href: safeHref(page?.hero?.secondaryButtonHref, "/listings"),
+            label: page.hero.secondaryButtonText,
+            className: "border-white text-white hover:bg-white hover:text-black w-full sm:w-auto",
+          }] : []),
+        ]}
+      />
+
+      {/* ─── About Us CTA ─── */}
+      <SectionShell bg="background" container="none" className="relative overflow-hidden">
+        {/* Background watermark */}
+        <p
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-display text-[10rem] lg:text-[18rem] font-bold uppercase text-foreground/[0.03] select-none pointer-events-none leading-none whitespace-nowrap"
+          aria-hidden="true"
+        >
+          ABOUT
+        </p>
+
+        <div className="max-w-7xl mx-auto relative z-10">
+          <p className="text-xs uppercase tracking-widest font-medium text-accent mb-8 text-center lg:text-left">
+            About Us
+          </p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            <Reveal>
+              <h2 className="font-display text-3xl lg:text-5xl font-bold tracking-tight mb-6">
+                {page?.aboutSection?.title ??
+                  "Proud to Be Your Real Estate Expert."}
+              </h2>
+              <p className="text-muted leading-7 mb-8">
+                {page?.aboutSection?.description ??
+                  "With years of experience and a deep understanding of the local market, we provide personalized service and expert guidance to help you achieve your real estate goals."}
+              </p>
+              <ButtonLink
+                href={safeHref(page?.aboutSection?.buttonHref, "/about")}
+              >
+                {page?.aboutSection?.buttonText ?? "Learn More"}
+              </ButtonLink>
+            </Reveal>
+
+            <Reveal direction="right" delay={0.1}>
+            <div className="relative aspect-[3/4] max-w-md mx-auto lg:mx-0 lg:ml-auto overflow-hidden rounded-lg">
+              <Image
+                src={resolveSanityImageUrl(page?.aboutSection?.image, {
+                  width: 800,
+                  height: 1067,
+                  fallback:
+                    "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=800&q=80",
+                  fit: "crop",
+                })}
+                alt={
+                  page?.aboutSection?.image?.alt ??
+                  "Real estate agent portrait"
+                }
+                fill
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 40vw"
+              />
+            </div>
+            </Reveal>
+          </div>
+        </div>
+      </SectionShell>
+
+      {/* ─── Work With Us ─── */}
+      <SectionShell bg="surface" container="none" className="relative overflow-hidden">
+        {/* Background watermark */}
+        <p
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-display text-[10rem] lg:text-[18rem] font-bold uppercase text-foreground/[0.03] select-none pointer-events-none leading-none whitespace-nowrap"
+          aria-hidden="true"
+        >
+          START
+        </p>
+
+        <div className="max-w-7xl mx-auto relative z-10">
+          <h2 className="font-display text-3xl lg:text-5xl font-bold tracking-tight text-center mb-12">
+            {page?.workWithUsHeading ?? "Work With Us"}
+          </h2>
+
+          <StaggerChildren className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 max-w-6xl mx-auto">
+            {/* Card 1: Selling */}
+            <MediaCard
+              variant="overlay"
+              href={safeHref(page?.ctaCard1?.buttonHref, "#contact")}
+              mediaClassName="aspect-[16/10] overflow-hidden"
+              image={
+                <Image
+                  src={resolveSanityImageUrl(page?.ctaCard1?.image, {
+                    width: 900,
+                    height: 675,
+                    fallback:
+                      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=900&q=80",
+                    fit: "crop",
+                  })}
+                  alt={
+                    page?.ctaCard1?.image?.alt ?? "Luxury home exterior"
+                  }
+                  fill
+                  className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                />
+              }
+              title={page?.ctaCard1?.title ?? "The best selling experience"}
+              subtitle={page?.ctaCard1?.subtitle}
+              footer={
+                <span className="flex lg:inline-flex items-center justify-center uppercase tracking-wider font-semibold border-2 border-accent text-accent lg:border-white lg:text-white h-12 px-8 text-sm transition-all duration-200 group-hover:bg-accent group-hover:text-white lg:group-hover:bg-white lg:group-hover:text-black w-full lg:w-auto">
+                  {page?.ctaCard1?.buttonText ?? "Get Started"}
+                </span>
+              }
+            />
+
+            {/* Card 2: Buying */}
+            <MediaCard
+              variant="overlay"
+              href={safeHref(page?.ctaCard2?.buttonHref, "#contact")}
+              mediaClassName="aspect-[16/10] overflow-hidden"
+              image={
+                <Image
+                  src={resolveSanityImageUrl(page?.ctaCard2?.image, {
+                    width: 900,
+                    height: 675,
+                    fallback:
+                      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=900&q=80",
+                    fit: "crop",
+                  })}
+                  alt={
+                    page?.ctaCard2?.image?.alt ?? "Luxury home interior"
+                  }
+                  fill
+                  className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                />
+              }
+              title={page?.ctaCard2?.title ?? "An unparalleled buying experience"}
+              subtitle={page?.ctaCard2?.subtitle}
+              footer={
+                <span className="flex lg:inline-flex items-center justify-center uppercase tracking-wider font-semibold border-2 border-accent text-accent lg:border-white lg:text-white h-12 px-8 text-sm transition-all duration-200 group-hover:bg-accent group-hover:text-white lg:group-hover:bg-white lg:group-hover:text-black w-full lg:w-auto">
+                  {page?.ctaCard2?.buttonText ?? "Get Started"}
+                </span>
+              }
+            />
+          </StaggerChildren>
+        </div>
+      </SectionShell>
+
+      {/* ─── Contact Form ─── */}
+      <PageContactSection
+        heading={page?.contactForm?.heading ?? "Start Your Home Journey Today"}
+        subtitle={page?.contactForm?.subtitle}
+        formType="lead"
+        leadSource={leadSource}
+        sourcePath={sourcePath}
+        showPhone={true}
+      />
+    </>
+  );
+}
