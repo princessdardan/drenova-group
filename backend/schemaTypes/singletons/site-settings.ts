@@ -1,5 +1,6 @@
 import { defineType, defineField, defineArrayMember } from "sanity";
 import { CogIcon } from "@sanity/icons";
+import { safeHrefValidation } from "../helpers/home-page-fields";
 
 export const siteSettings = defineType({
   name: "siteSettings",
@@ -59,7 +60,7 @@ export const siteSettings = defineType({
               name: "href",
               title: "URL Path",
               type: "string",
-              validation: (rule) => rule.required(),
+              validation: (rule) => safeHrefValidation(rule.required()),
             }),
             defineField({
               name: "showInHeader",

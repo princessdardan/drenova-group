@@ -1,5 +1,6 @@
 import { defineType, defineField, defineArrayMember } from "sanity";
 import { EnvelopeIcon } from "@sanity/icons";
+import { safeHrefValidation } from "../helpers/home-page-fields";
 
 export const contactPage = defineType({
   name: "contactPage",
@@ -42,7 +43,7 @@ export const contactPage = defineType({
               name: "href",
               title: "Link URL",
               type: "string",
-              validation: (rule) => rule.required(),
+              validation: (rule) => safeHrefValidation(rule.required()),
             }),
           ],
           preview: {

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { safeHref } from "@/lib/safe-href";
 
 export type NavLinkItem = {
   label: string;
@@ -36,7 +37,7 @@ export function NavLinkList({ links, variant, onNavigate }: NavLinkListProps) {
       <>
         {links.map((link) => (
           <li key={link.href}>
-            <Link href={link.href} className={className} onClick={onNavigate}>
+            <Link href={safeHref(link.href, "/")} className={className} onClick={onNavigate}>
               {link.label}
             </Link>
           </li>
@@ -48,7 +49,7 @@ export function NavLinkList({ links, variant, onNavigate }: NavLinkListProps) {
   return (
     <>
       {links.map((link) => (
-        <Link key={link.href} href={link.href} className={className} onClick={onNavigate}>
+        <Link key={link.href} href={safeHref(link.href, "/")} className={className} onClick={onNavigate}>
           {link.label}
         </Link>
       ))}

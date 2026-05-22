@@ -5,6 +5,7 @@ import { CtaSection } from "@/components/sections/cta-section";
 import { StaggerChildren } from "@/components/ui/stagger-children";
 import { getTeamPage } from "@/lib/sanity/fetch";
 import { makeMetadata } from "@/lib/seo";
+import { safeHref } from "@/lib/safe-href";
 import { SectionShell } from "@/components/sections/section-shell";
 import { PageContactSection } from "@/components/sections/page-contact-section";
 
@@ -32,6 +33,18 @@ export default async function TeamPage() {
         title={hero?.title ?? "Our Team"}
         subtitle={hero?.subtitle ?? "Experienced professionals dedicated to helping you achieve your real estate goals."}
         size="short"
+        actions={[
+          {
+            href: safeHref(hero?.buttonHref, "#contact"),
+            label: hero?.buttonText ?? "Contact Us",
+            className: "border-white text-white hover:bg-white hover:text-black",
+          },
+          ...(hero?.secondaryButtonText ? [{
+            href: safeHref(hero?.secondaryButtonHref, "/listings"),
+            label: hero.secondaryButtonText,
+            className: "border-white text-white hover:bg-white hover:text-black",
+          }] : []),
+        ]}
       />
 
       {/* ─── Team Grid ─── */}
@@ -49,9 +62,14 @@ export default async function TeamPage() {
         subtitle={cta?.subtitle ?? "Have a question or ready to start? We'd love to hear from you."}
         actions={[
           {
-            href: cta?.primaryButtonHref ?? "#contact",
+            href: safeHref(cta?.primaryButtonHref, "#contact"),
             label: cta?.primaryButtonText ?? "Contact Us",
-          }
+          },
+          ...(cta?.secondaryButtonText ? [{
+            href: safeHref(cta?.secondaryButtonHref, "/listings"),
+            label: cta.secondaryButtonText,
+            variant: "minimal" as const,
+          }] : []),
         ]}
       />
 

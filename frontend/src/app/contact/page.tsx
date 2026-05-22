@@ -6,6 +6,7 @@ import { StaggerChildren } from "@/components/ui/stagger-children";
 import { getContactPage, getSiteSettings } from "@/lib/sanity/fetch";
 import { SectionShell } from "@/components/sections/section-shell";
 import { makeMetadata } from "@/lib/seo";
+import { safeHref } from "@/lib/safe-href";
 import { MediaCard } from "@/components/ui/media-card";
 
 export const metadata: Metadata = makeMetadata({
@@ -38,6 +39,18 @@ export default async function ContactPage() {
         title={hero?.title ?? "Get in Touch"}
         subtitle={hero?.subtitle ?? "Have a question or ready to get started? We'd love to hear from you."}
         size="short"
+        actions={[
+          {
+            href: safeHref(hero?.buttonHref, "#contact"),
+            label: hero?.buttonText ?? "Contact Us",
+            className: "border-white text-white hover:bg-white hover:text-black",
+          },
+          ...(hero?.secondaryButtonText ? [{
+            href: safeHref(hero?.secondaryButtonHref, "/listings"),
+            label: hero.secondaryButtonText,
+            className: "border-white text-white hover:bg-white hover:text-black",
+          }] : []),
+        ]}
       />
 
       {/* ─── Form + Office Info ─── */}
@@ -100,7 +113,7 @@ export default async function ContactPage() {
           {(quickLinks && quickLinks.length > 0 ? quickLinks : defaultQuickLinks).map((link) => (
             <MediaCard
               key={link.href}
-              href={link.href}
+              href={safeHref(link.href, "/contact")}
               className="group rounded-lg border border-border hover:shadow-lg transition-shadow"
               contentClassName="p-8 lg:p-8"
               badge={link.overline && (

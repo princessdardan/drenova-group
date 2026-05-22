@@ -4,6 +4,7 @@ import { LeadForm } from "@/components/sections/lead-form";
 import { getHomeEvaluationPage } from "@/lib/sanity/fetch";
 import { resolveSanityImageUrl } from "@/lib/sanity/image";
 import { makeMetadata } from "@/lib/seo";
+import { safeHref } from "@/lib/safe-href";
 import { SectionShell } from "@/components/sections/section-shell";
 
 export const metadata: Metadata = makeMetadata({
@@ -30,6 +31,18 @@ export default async function HomeEvaluationPage() {
           page?.hero?.subtitle ??
           "Get a comprehensive, data-driven valuation of your property from our local market experts."
         }
+        actions={[
+          {
+            href: safeHref(page?.hero?.buttonHref, "#contact"),
+            label: page?.hero?.buttonText ?? "Get Evaluation",
+            className: "border-white text-white hover:bg-white hover:text-black",
+          },
+          ...(page?.hero?.secondaryButtonText ? [{
+            href: safeHref(page?.hero?.secondaryButtonHref, "/listings"),
+            label: page.hero.secondaryButtonText,
+            className: "border-white text-white hover:bg-white hover:text-black",
+          }] : []),
+        ]}
       />
 
       {/* ─── Form Section ─── */}

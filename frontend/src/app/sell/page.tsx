@@ -10,6 +10,7 @@ import { Reveal } from "@/components/ui/reveal";
 import { getSellPage } from "@/lib/sanity/fetch";
 import { resolveSanityImageUrl } from "@/lib/sanity/image";
 import { makeMetadata } from "@/lib/seo";
+import { safeHref } from "@/lib/safe-href";
 import { BenefitsSection } from "@/components/sections/benefits-section";
 import { ProcessTimeline } from "@/components/sections/process-timeline";
 import { PageContactSection } from "@/components/sections/page-contact-section";
@@ -54,10 +55,15 @@ export default async function SellPage() {
         subtitle={sellPage?.hero?.subtitle ?? "Expert pricing, professional marketing, and skilled negotiation — we handle every detail."}
         actions={[
           {
-            href: sellPage?.hero?.buttonHref ?? "#contact",
+            href: safeHref(sellPage?.hero?.buttonHref, "#contact"),
             label: sellPage?.hero?.buttonText ?? "Get a Valuation",
             className: "border-white text-white hover:bg-white hover:text-black",
-          }
+          },
+          ...(sellPage?.hero?.secondaryButtonText ? [{
+            href: safeHref(sellPage?.hero?.secondaryButtonHref, "/listings"),
+            label: sellPage.hero.secondaryButtonText,
+            className: "border-white text-white hover:bg-white hover:text-black",
+          }] : []),
         ]}
       />
 
@@ -166,12 +172,12 @@ export default async function SellPage() {
         bg="background"
         actions={[
           {
-            href: cta?.primaryButtonHref ?? "#contact",
+            href: safeHref(cta?.primaryButtonHref, "#contact"),
             label: cta?.primaryButtonText ?? "Get Your Home's Value",
             variant: "accent",
           },
           {
-            href: cta?.secondaryButtonHref ?? "#contact",
+            href: safeHref(cta?.secondaryButtonHref, "#contact"),
             label: cta?.secondaryButtonText ?? "Connect with an Agent",
             variant: "minimal",
           }

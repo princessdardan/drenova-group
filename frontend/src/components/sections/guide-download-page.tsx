@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Hero } from "@/components/sections/hero";
 import { SectionShell } from "@/components/sections/section-shell";
 import { LeadForm } from "@/components/sections/lead-form";
+import { safeHref } from "@/lib/safe-href";
 import type { BuyersGuidePage, SellersGuidePage } from "@/types/sanity";
 
 interface GuideDownloadPageProps {
@@ -30,6 +31,18 @@ export function GuideDownloadPage({ page, source, defaults }: GuideDownloadPageP
         overline={page?.hero?.overline ?? defaults.overline}
         title={page?.hero?.title ?? defaults.title}
         subtitle={page?.hero?.subtitle ?? defaults.subtitle}
+        actions={[
+          {
+            href: safeHref(page?.hero?.buttonHref, "#contact"),
+            label: page?.hero?.buttonText ?? "Download Guide",
+            className: "border-white text-white hover:bg-white hover:text-black",
+          },
+          ...(page?.hero?.secondaryButtonText ? [{
+            href: safeHref(page?.hero?.secondaryButtonHref, "/listings"),
+            label: page.hero.secondaryButtonText,
+            className: "border-white text-white hover:bg-white hover:text-black",
+          }] : []),
+        ]}
       />
 
       {/* ─── Guide Section with Form ─── */}

@@ -1,4 +1,5 @@
 import { defineType, defineField } from "sanity";
+import { safeHrefValidation } from "../helpers/home-page-fields";
 
 export const ctaSettings = defineType({
   name: "ctaSettings",
@@ -26,6 +27,7 @@ export const ctaSettings = defineType({
       name: "primaryButtonHref",
       title: "Primary Button Link",
       type: "string",
+      validation: safeHrefValidation,
     }),
     defineField({
       name: "secondaryButtonText",
@@ -37,6 +39,7 @@ export const ctaSettings = defineType({
       name: "secondaryButtonHref",
       title: "Secondary Button Link",
       type: "string",
+      validation: safeHrefValidation,
     }),
   ],
 });

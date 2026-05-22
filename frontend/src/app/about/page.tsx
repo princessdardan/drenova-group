@@ -9,6 +9,7 @@ import { StaggerChildren } from "@/components/ui/stagger-children";
 import { getAboutPage } from "@/lib/sanity/fetch";
 import { resolveSanityImageUrl } from "@/lib/sanity/image";
 import { makeMetadata } from "@/lib/seo";
+import { safeHref } from "@/lib/safe-href";
 import { SectionShell } from "@/components/sections/section-shell";
 import { CoverageAreaGrid } from "@/components/sections/coverage-area-grid";
 import { PageContactSection } from "@/components/sections/page-contact-section";
@@ -40,6 +41,18 @@ export default async function AboutPage() {
         overline={hero?.overline ?? "Our Story"}
         title={hero?.title ?? "About Drenova Group"}
         subtitle={hero?.subtitle ?? "A modern brokerage built on integrity, innovation, and an unwavering commitment to our clients."}
+        actions={[
+          {
+            href: safeHref(hero?.buttonHref, "#contact"),
+            label: hero?.buttonText ?? "Get in Touch",
+            className: "border-white text-white hover:bg-white hover:text-black",
+          },
+          ...(hero?.secondaryButtonText ? [{
+            href: safeHref(hero?.secondaryButtonHref, "/listings"),
+            label: hero.secondaryButtonText,
+            className: "border-white text-white hover:bg-white hover:text-black",
+          }] : []),
+        ]}
       />
 
       {/* ─── Company Story ─── */}
@@ -141,11 +154,11 @@ export default async function AboutPage() {
         subtitle={cta?.subtitle ?? "The people behind Drenova Group are what make us different."}
         actions={[
           {
-            href: cta?.primaryButtonHref ?? "/team",
+            href: safeHref(cta?.primaryButtonHref, "/team"),
             label: cta?.primaryButtonText ?? "View Team",
           },
           {
-            href: cta?.secondaryButtonHref ?? "#contact",
+            href: safeHref(cta?.secondaryButtonHref, "#contact"),
             label: cta?.secondaryButtonText ?? "Get in Touch",
             variant: "minimal",
           }

@@ -6,6 +6,7 @@ import { Reveal } from "@/components/ui/reveal";
 import { getBuyPage } from "@/lib/sanity/fetch";
 import { resolveSanityImageUrl } from "@/lib/sanity/image";
 import { makeMetadata } from "@/lib/seo";
+import { safeHref } from "@/lib/safe-href";
 import { SectionShell } from "@/components/sections/section-shell";
 import { SectionHeader } from "@/components/ui/section-header";
 import { BenefitsSection } from "@/components/sections/benefits-section";
@@ -46,10 +47,15 @@ export default async function BuyPage() {
         subtitle={buyPage?.hero?.subtitle ?? "Let our experienced agents guide you through every step — from search to closing."}
         actions={[
           {
-            href: buyPage?.hero?.buttonHref ?? "/listings",
+            href: safeHref(buyPage?.hero?.buttonHref, "/listings"),
             label: buyPage?.hero?.buttonText ?? "Browse Listings",
             className: "border-white text-white hover:bg-white hover:text-black",
-          }
+          },
+          ...(buyPage?.hero?.secondaryButtonText ? [{
+            href: safeHref(buyPage?.hero?.secondaryButtonHref, "#contact"),
+            label: buyPage.hero.secondaryButtonText,
+            className: "border-white text-white hover:bg-white hover:text-black",
+          }] : []),
         ]}
       />
 
@@ -111,11 +117,11 @@ export default async function BuyPage() {
         subtitle={cta?.subtitle ?? "Browse our listings or connect with an agent to begin your home buying journey."}
         actions={[
           {
-            href: cta?.primaryButtonHref ?? "/listings",
+            href: safeHref(cta?.primaryButtonHref, "/listings"),
             label: cta?.primaryButtonText ?? "Browse Listings",
           },
           {
-            href: cta?.secondaryButtonHref ?? "#contact",
+            href: safeHref(cta?.secondaryButtonHref, "#contact"),
             label: cta?.secondaryButtonText ?? "Talk to an Agent",
             variant: "minimal",
           }

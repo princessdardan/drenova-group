@@ -3,6 +3,7 @@ import { CtaSection } from "@/components/sections/cta-section";
 import { getSellersGuidePage } from "@/lib/sanity/fetch";
 import { resolveSanityImageUrl } from "@/lib/sanity/image";
 import { makeMetadata } from "@/lib/seo";
+import { safeHref } from "@/lib/safe-href";
 import { GuideDownloadPage } from "@/components/sections/guide-download-page";
 
 export const metadata: Metadata = makeMetadata({
@@ -62,11 +63,11 @@ export default async function SellersGuidePage() {
           }
           actions={[
             {
-              href: cta.primaryButtonHref ?? "/sell",
+              href: safeHref(cta.primaryButtonHref, "/sell"),
               label: cta.primaryButtonText ?? "Get Your Home's Value",
             },
             {
-              href: cta.secondaryButtonHref ?? "#contact",
+              href: safeHref(cta.secondaryButtonHref, "#contact"),
               label: cta.secondaryButtonText ?? "Talk to an Agent",
               variant: "minimal",
             }
