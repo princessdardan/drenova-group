@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { draftMode } from "next/headers";
+import { VisualEditing } from "next-sanity/visual-editing";
 import { Playfair_Display, Plus_Jakarta_Sans, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { Header } from "@/components/sections/header";
@@ -94,6 +95,7 @@ export default async function RootLayout({
             officeHours={siteSettings?.officeHours}
           />
         </FormConsentProvider>
+        {isDraftMode && <VisualEditing />}
         <Analytics />
       </body>
     </html>

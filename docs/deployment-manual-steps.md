@@ -12,6 +12,7 @@ Go to **Project Settings → Environment Variables** and add:
 |---|---|
 | `NEXT_PUBLIC_SANITY_PROJECT_ID` | `apggi8zn` |
 | `NEXT_PUBLIC_SANITY_DATASET` | `production` |
+| `NEXT_PUBLIC_SANITY_STUDIO_URL` | `https://drenova-group.sanity.studio` |
 | `SANITY_API_READ_TOKEN` | Sanity dashboard → API → Tokens (viewer role) |
 | `SANITY_API_WRITE_TOKEN` | Sanity dashboard → API → Tokens (editor role) |
 | `SANITY_REVALIDATE_SECRET` | Generate: `openssl rand -base64 32` |
@@ -25,6 +26,8 @@ Go to **Project Settings → Environment Variables** and add:
 | `RESEND_FROM_EMAIL` | Verified sender address on the Resend domain (e.g. `Drenova Group <send.info@info.drenova.ca>`) |
 | `CONTACT_EMAIL` | Inbox for form submissions (e.g. `info@drenovagroup.com`) |
 | `NEXT_PUBLIC_SITE_URL` | Production URL (e.g. `https://drenovagroup.com`) |
+
+For the standalone Sanity Studio build, set `SANITY_STUDIO_PREVIEW_ORIGIN` to the frontend origin that editors should preview (for production, usually the same value as `NEXT_PUBLIC_SITE_URL`). Local Studio development falls back to `http://localhost:3000`.
 
 ---
 

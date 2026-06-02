@@ -99,6 +99,7 @@ Every piece of content in Sanity Studio follows the same workflow:
 
 - When you make changes without publishing, they exist as a **draft**. You will see a blue "Edited" badge next to the document title.
 - A draft is only visible to you in the Studio — it does not appear on the live website.
+- Use the **Presentation** tool in the Studio to preview supported draft pages before publishing. The preview opens the website in draft mode with visual editing overlays so you can confirm page copy, images, and layout context.
 - To make your changes live, you must click **Publish**.
 - If you change your mind, you can click the three-dot menu (⋯) at the top-right and select **"Discard changes"** to revert to the last published version.
 
@@ -819,7 +820,7 @@ There are two methods depending on the content type:
 - **Collection entries** (FAQs, Stats, Values, Coverage Areas): Change the **Sort Order** number field on each entry. Lower numbers appear first.
 
 **Q: Can I preview changes before publishing?**
-Currently, changes appear on the live site upon publishing. A dedicated preview feature may be added in the future.
+Yes. Open the **Presentation** tool from the Studio to preview supported draft pages before publishing. The preview uses draft mode, so only authenticated editors see unpublished content. When you are done, use the preview controls or the website's draft banner to exit draft mode.
 
 **Q: I want to add a new page to the website.**
 For a one-page marketing page, go to **Pages > Generic Pages** and create a new entry. Generic Pages use the Homepage-style layout and publish at `/<slug>`. Contact your developer only if you need a custom layout, nested URL, redirect, or functionality beyond the Generic Page template.

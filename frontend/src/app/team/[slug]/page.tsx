@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { stegaClean } from "next-sanity";
 import { PageContactSection } from "@/components/sections/page-contact-section";
 import { isSanityImage } from "@/types/sanity";
 import { resolveSanityImageUrl } from "@/lib/sanity/image";
@@ -21,6 +22,8 @@ export async function generateMetadata({
   const { slug } = await params;
   const member = await getTeamMemberBySlug(slug);
   if (!member) return {};
+  const name = stegaClean(member.name);
+  const role = stegaClean(member.role);
   const imageFallback = typeof member.image === "string" ? member.image : "";
   const ogImage = resolveSanityImageUrl(member.image, {
     width: 1200,
@@ -30,15 +33,15 @@ export async function generateMetadata({
   });
 
   return {
-    title: member.name,
-    description: `${member.name} — ${member.role} at Drenova Group.`,
+    title: name,
+    description: `${name} — ${role} at Drenova Group.`,
     alternates: {
       canonical: canonicalUrl(`/team/${member.slug}`),
     },
     openGraph: ogImage
       ? {
           url: canonicalUrl(`/team/${member.slug}`),
-          images: [{ url: ogImage, alt: member.name }],
+          images: [{ url: ogImage, alt: name }],
         }
       : { url: canonicalUrl(`/team/${member.slug}`) },
   };

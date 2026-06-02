@@ -3,7 +3,9 @@ name: Deploy Sanity Studio
 on:
   push:
     branches: [clean-main]
-    paths: [backend/**]
+    paths:
+      - backend/**
+      - .github/workflows/deploy-studio.yml
 
 jobs:
   deploy:
@@ -19,3 +21,4 @@ jobs:
         working-directory: backend
         env:
           SANITY_AUTH_TOKEN: ${{ secrets.SANITY_AUTH_TOKEN }}
+          SANITY_STUDIO_PREVIEW_ORIGIN: https://drenova.ca

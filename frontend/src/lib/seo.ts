@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
+import { stegaClean } from "next-sanity";
 
 export const SITE_URL = (
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://drenova.ca"
 ).replace(/\/$/, "");
 
 export function canonicalUrl(path = "/"): string {
-  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  const cleanPath = stegaClean(path);
+  const normalizedPath = cleanPath.startsWith("/") ? cleanPath : `/${cleanPath}`;
   return `${SITE_URL}${normalizedPath === "/" ? "" : normalizedPath}`;
 }
 
@@ -18,17 +20,19 @@ export function makeMetadata({
   description: string;
   path?: string;
 }): Metadata {
+  const cleanTitle = stegaClean(title);
+  const cleanDescription = stegaClean(description);
   const url = canonicalUrl(path);
 
   return {
-    title,
-    description,
+    title: cleanTitle,
+    description: cleanDescription,
     alternates: {
       canonical: url,
     },
     openGraph: {
-      title,
-      description,
+      title: cleanTitle,
+      description: cleanDescription,
       url,
     },
   };

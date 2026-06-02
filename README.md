@@ -34,9 +34,11 @@ Create `frontend/.env.local` with the following:
 ```env
 NEXT_PUBLIC_SANITY_PROJECT_ID=your_project_id
 NEXT_PUBLIC_SANITY_DATASET=production
+NEXT_PUBLIC_SANITY_STUDIO_URL=https://drenova-group.sanity.studio
 SANITY_API_READ_TOKEN=your_read_token
 SANITY_API_WRITE_TOKEN=your_write_token
 SANITY_REVALIDATE_SECRET=your_revalidate_secret
+SANITY_PREVIEW_SECRET=your_preview_secret
 
 # Email delivery (Resend)
 RESEND_API_KEY=your_resend_api_key
